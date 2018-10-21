@@ -23,13 +23,6 @@ module A_Error where
   
   instance ShowEADT HErrorF where
     showEADT' (HErrorF s) = s
-  
-  
-
-  -- Eval: returns itself
-  
-  instance Eval (HErrorF e) where
-    eval (HErrorF e) = Right e
 
     
 
@@ -37,5 +30,12 @@ module A_Error where
   
   instance TypeCheck HErrorF ys where
     typeCheck' _ = T "Error"
+  
+  
+
+  -- Eval: returns itself
+  
+  instance Eval (HErrorF e) where
+    eval (HErrorF e) = Right e
 
   

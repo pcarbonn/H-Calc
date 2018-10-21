@@ -19,15 +19,24 @@ module C_Mul where
   pattern Mul :: MulF :<: xs => EADT xs -> EADT xs -> EADT xs
   pattern Mul a b = VF (MulF a b)
 
+  -- show
+
   instance ShowEADT MulF where
     showEADT' (MulF u v) = "(" <> u <> " * " <> v <> ")" -- no recursive call
 
-  instance EvalAll xs => Eval (MulF (EADT xs)) where
-    eval (MulF u v) = 
-        case (evalEADT u, evalEADT v) of -- implicit recursion
-          (Left a, Left b) -> Left (a*b)
-          (e, Left b) -> e
-          (_, e) -> e
+  
+  -- Type checker
+  -- we can multiply anything by a Int, except error
+  --------------------------------------------------------
+
+  instance (MulF :<: ys, ShowEADT (VariantF ys), Functor (VariantF ys)) => TypeCheck MulF ys where
+    typeCheck' (MulF (u,t1) (v,t2)) =
+      case (t1,t2) of
+        (TError _, _) -> t1
+        (_, TError _) -> t2
+        (T "Int", _)  -> t1 
+        _             -> TError $ "can't add `" <> showEADT u <> "` whose type is " <> show t1 <>
+                                  " with `" <> showEADT v <> "` whose type is " <> show t2
 
 
   -- apply distribution : a*(b+c) -> (a*b+a*c)
@@ -68,4 +77,13 @@ module C_Mul where
                 , Functor (VariantF f)) 
                 => EADT f -> EADT f
   demultiply = bottomUpFixed demultiply' . distr
-   
+
+  -- Eval
+  
+  instance EvalAll xs => Eval (MulF (EADT xs)) where
+    eval (MulF u v) = 
+        case (evalEADT u, evalEADT v) of -- implicit recursion
+          (Left a, Left b) -> Left (a*b)
+          (e, Left b) -> e
+          (_, e) -> e
+  

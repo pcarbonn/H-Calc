@@ -35,20 +35,6 @@ module B_Add where
   
   instance ShowEADT AddF where
     showEADT' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
-  
-  
-
-  -- Eval: returns an int
-  
-  instance Eval (ValF e) where
-    eval (ValF i) = Left i
-  
-  instance EvalAll xs => Eval (AddF (EADT xs)) where
-    eval (AddF u v) = 
-      case (evalEADT u, evalEADT v) of -- implicit recursion
-        (Left a, Left b) -> Left (a+b)
-        (e, Left b) -> e
-        (_, e) -> e
     
   
         
@@ -64,4 +50,18 @@ module B_Add where
       | TError _ <- t2 = t2
       | otherwise = TError $ "can't add `" <> showEADT u <> "` whose type is " <> show t1 <>
                             " with `" <> showEADT v <> "` whose type is " <> show t2
+  
+  
+
+  -- Eval: returns an int
+  
+  instance Eval (ValF e) where
+    eval (ValF i) = Left i
+  
+  instance EvalAll xs => Eval (AddF (EADT xs)) where
+    eval (AddF u v) = 
+      case (evalEADT u, evalEADT v) of -- implicit recursion
+        (Left a, Left b) -> Left (a+b)
+        (e, Left b) -> e
+        (_, e) -> e
   

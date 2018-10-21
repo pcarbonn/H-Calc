@@ -5,8 +5,8 @@ module Utils where
 
   -- this module defines the operations we want to perform on the AST
   --    showEADT
-  --    simplify
   --    typeCheck
+  --    simplify
   --    evalEADT
   -------------------------------------------------------
 
@@ -26,33 +26,6 @@ module Utils where
   showEADT :: (ShowEADT (Base t), Recursive t) => t -> Text -- type inferred by GHC
   showEADT = cata showEADT'
 
-
-  -- fix of transformation
-  -------------------------------------------------------
-  -- bottom up traversal that performs an additional bottom up traversal in
-  -- the transformed sub-tree when a transformation occurs. 
-  bottomUpFixed :: Functor f => (Fix f -> Maybe (Fix f)) -> Fix f -> Fix f
-  bottomUpFixed f = unfix >>> fmap (bottomUpFixed f) >>> Fix >>> f'
-    where
-        f' u = case f u of
-          Nothing -> u
-          Just v  -> bottomUpFixed f v
-
-{-   -- simplify = remove feature from the set
-  -------------------------------------------------------
-  class Simplify (f :: * -> *) ys where
-    simplify :: f (EADT ys) -> EADT ys
-
-  -- boilerplate
-
-  instance Simplify (VariantF '[]) ys where
-    simplify = error "no implementation of Simplify for this type"
-
-  instance (Simplify x ys, Simplify (VariantF xs) ys)  => Simplify (VariantF (x ': xs)) ys where
-    simplify v = case popVariantFHead v of
-        Right u -> simplify u
-        Left  w -> simplify w -}
-
   -- Type check
   --------------------------------------------------------
 
@@ -71,6 +44,19 @@ module Utils where
     typeCheck' v = case popVariantFHead v of
         Right u -> typeCheck' u
         Left  w -> typeCheck' w   
+
+
+  -- fix of transformation
+  -------------------------------------------------------
+  -- bottom up traversal that performs an additional bottom up traversal in
+  -- the transformed sub-tree when a transformation occurs. 
+  bottomUpFixed :: Functor f => (Fix f -> Maybe (Fix f)) -> Fix f -> Fix f
+  bottomUpFixed f = unfix >>> fmap (bottomUpFixed f) >>> Fix >>> f'
+    where
+        f' u = case f u of
+          Nothing -> u
+          Just v  -> bottomUpFixed f v
+
               
   -- generic eval
   -------------------------------------------------------
@@ -89,3 +75,19 @@ module Utils where
 
   evalEADT :: EvalAll xs => EADT xs -> Either Int Text
   evalEADT = eval . unfix
+
+  
+  {-   -- simplify = remove feature from the set
+    -------------------------------------------------------
+    class Simplify (f :: * -> *) ys where
+      simplify :: f (EADT ys) -> EADT ys
+  
+    -- boilerplate
+  
+    instance Simplify (VariantF '[]) ys where
+      simplify = error "no implementation of Simplify for this type"
+  
+    instance (Simplify x ys, Simplify (VariantF xs) ys)  => Simplify (VariantF (x ': xs)) ys where
+      simplify v = case popVariantFHead v of
+          Right u -> simplify u
+          Left  w -> simplify w -}
