@@ -45,4 +45,16 @@ module A_Add where
     eval (AddF u v) = evalEADT u + evalEADT v -- implicit recursion
     
   
+  -- Type checker
+  
+  instance TypeCheck ValF ys where
+    typeCheck' _ = T "Int"
+
+  instance (AddF :<: ys, ShowEADT (VariantF ys), Functor (VariantF ys)) => TypeCheck AddF ys where
+    typeCheck' (AddF (u,t1) (v,t2))
+      | t1 == t2       = t1
+      | TError _ <- t1 = t1 -- propagate errors
+      | TError _ <- t2 = t2
+      | otherwise = TError $ "can't add `" <> showEADT u <> "` whose type is " <> show t1 <>
+                            " with `" <> showEADT v <> "` whose type is " <> show t2
   

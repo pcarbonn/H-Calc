@@ -42,8 +42,9 @@ module B_Mul where
   -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
 
-  demultiply' :: (Eval (VariantF f (EADT f)), ValF :<: f, AddF :<: f, MulF :<: f) => EADT f -> Maybe (EADT f)
-  demultiply' (Mul n a) = --Just (Add (Mul a b) (Mul a c))
+  demultiply' :: (ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
+                => EADT f -> Maybe (EADT f)
+  demultiply' (Mul n a) =
     if  | i <  0 -> error "can't multiply by a negative number"
         | i == 0 -> Just $ Val 0
         | i == 1 -> Just $ a
@@ -54,6 +55,8 @@ module B_Mul where
 
   demultiply' _         = Nothing
   
-  demultiply :: (Eval (VariantF f (EADT f)), Functor (VariantF f), ValF :<: f, AddF :<: f, MulF :<: f) => EADT f -> EADT f
+  demultiply :: (ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))
+                , Functor (VariantF f)) 
+                => EADT f -> EADT f
   demultiply = bottomUpFixed demultiply' . distr
    
