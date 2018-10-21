@@ -13,12 +13,12 @@ The first iteration of our DSL supports the addition of integers:
 
     2 + 3 = 5
 
-It's implemented by Main.hs, A_Add.hs and Utils.hs
+It's implemented by Main.hs, B_Add.hs, A_Error.hs and Utils.hs
 
-Our second iteration supports multiplication by repeated additions: it transforms n\*a into a+a+... (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  n must be positive.  This functionality is implemented in Mul.hs only, showing the modularity of the design. 
+Our second iteration supports multiplication by repeated additions: it transforms n\*a into a+a+... (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  n must be positive.  This functionality is implemented in C_Mul.hs only, showing the modularity of the design. 
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) = 14
 
-In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking.  It is implemented in Float.hs and Mul.hs.
+In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking.  It is implemented in D_Float.hs and C_Mul.hs.
 
     2 * 3.0 -> (3.0 + 3.0) = 6.0

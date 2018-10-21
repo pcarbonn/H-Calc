@@ -23,7 +23,7 @@ executable H-Calc
                     , megaparsec
                     , recursion-schemes
                     , relude
-  extensions:         ConstraintKinds
+  default-extensions: ConstraintKinds
                     , DataKinds
                     , DeriveFunctor
                     , FlexibleContexts
