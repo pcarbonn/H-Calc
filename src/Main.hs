@@ -10,7 +10,7 @@ import Haskus.Utils.EADT
 import Data.Functor.Foldable
 
 addVal = Add (Val 10) (Val 5) :: AddValADT
-mulAddVal = Mul (Val 2) (Add (Val 10) (Val 3)) :: MulAddValADT
+mulAddVal = Mul (Val 3) (Add (Val 10) (Val 3)) :: MulAddValADT
 
 -- Add Float
 --------------------------------------------------------
@@ -49,6 +49,7 @@ main = do
   putTextLn $ showEADT mulAddVal
   putTextLn $ show $ evalEADT mulAddVal
   putTextLn $ showEADT (distr mulAddVal)
+  putTextLn $ showEADT (demultiply $ distr mulAddVal)
   --putTextLn $ showEADT (cata simplify (mulAddVal) :: AddValADT)
   putTextLn $ showEADT (Add (Val 10) (FloatVal 5) :: EADT '[ValF,FloatValF,AddF])
   putTextLn $ show $ para typeCheck' (Add (Val 10) (FloatVal 5) :: EADT '[ValF,FloatValF,AddF])

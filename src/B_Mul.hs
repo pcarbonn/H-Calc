@@ -26,6 +26,7 @@ module B_Mul where
 
 
   -- apply distribution : a*(b+c) -> (a*b+a*c)
+  -- DSL must have AddF, MulF
   --------------------------------------------------------
 
   -- distribute multiplication over addition if it matches
@@ -36,14 +37,22 @@ module B_Mul where
   distr :: (Functor (VariantF f), AddF :<: f, MulF :<: f) => EADT f -> EADT f
   distr = bottomUpFixed distr'
   
-  
-  -- simplify multiplication a*b -> a+b
-  -- (it makes no sense but it's just an example)
+  -- demultiply : n*a -> a+a+... n times
+  -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
 
-  instance{-# OVERLAPPING #-} AddF :<: ys => Simplify MulF ys where
-    simplify (MulF u v) = Add u v
+  demultiply' :: (Eval (VariantF f (EADT f)), ValF :<: f, AddF :<: f, MulF :<: f) => EADT f -> Maybe (EADT f)
+  demultiply' (Mul n a) = --Just (Add (Mul a b) (Mul a c))
+    if  | i <  0 -> error "can't multiply by a negative number"
+        | i == 0 -> Just $ Val 0
+        | i == 1 -> Just $ a
+        | otherwise -> case demultiply' (Mul (Val $ i-1) a) of
+                        Just a' -> Just $ Add a a'
+                        Nothing -> error "can't reach this point"
+    where i = evalEADT n
 
-  instance {-# OVERLAPPABLE #-} f :<: ys => Simplify f ys where
-    simplify = VF  -- the other constructors are kept as-is
-
+  demultiply' _         = Nothing
+  
+  demultiply :: (Eval (VariantF f (EADT f)), Functor (VariantF f), ValF :<: f, AddF :<: f, MulF :<: f) => EADT f -> EADT f
+  demultiply = bottomUpFixed demultiply'
+   
