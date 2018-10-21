@@ -1,10 +1,11 @@
-module A_Add where
+module B_Add where
 
   -- this module adds the following language construct to the DSL
   --    (Val i)
   --    (Add i1 i2)
   -------------------------------------------------------
 
+  import A_Error
   import Utils
   
   import Haskus.Utils.EADT
@@ -15,6 +16,8 @@ module A_Add where
   
   type AddValADT = EADT '[ValF,AddF]
   
+
+
   -- define patterns, for creation and pattern matching
   
   pattern Val :: ValF :<: xs => Int -> EADT xs
@@ -24,6 +27,7 @@ module A_Add where
   pattern Add a b = VF (AddF a b)
 
   
+
   -- show
   
   instance ShowEADT ValF where
@@ -32,19 +36,22 @@ module A_Add where
   instance ShowEADT AddF where
     showEADT' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
   
-  showEADT :: (ShowEADT (Base t), Recursive t) => t -> Text -- type inferred by GHC
-  showEADT = cata showEADT'
   
-  
+
   -- Eval: returns an int
   
   instance Eval (ValF e) where
-    eval (ValF i) = i
+    eval (ValF i) = Left i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
-    eval (AddF u v) = evalEADT u + evalEADT v -- implicit recursion
+    eval (AddF u v) = 
+      case (evalEADT u, evalEADT v) of -- implicit recursion
+        (Left a, Left b) -> Left (a+b)
+        (e, Left b) -> e
+        (_, e) -> e
     
   
+        
   -- Type checker
   
   instance TypeCheck ValF ys where

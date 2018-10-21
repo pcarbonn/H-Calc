@@ -2,9 +2,9 @@
 
 module Main where
 
-import A_Add
-import B_Mul
-import C_Float
+import A_Error
+import B_Add
+import C_Mul
 import Utils
 
 import Haskus.Utils.EADT
@@ -12,7 +12,7 @@ import Data.Functor.Foldable
 
 addVal = Add (Val 10) (Val 5) :: AddValADT
 mulAddVal = Mul (Val 3) (Add (Val 10) (Val 3)) :: MulAddValADT
-mulAddValFloat = Mul (Val 10) (FloatVal 5) :: EADT '[ValF,MulF, FloatValF,AddF]
+mulAddVal2 = Mul (Val (-3)) (Add (Val 10) (Val 3)) :: MulAddValADT
 
 main :: IO ()
 main = do
@@ -23,14 +23,11 @@ main = do
   putText $ showEADT mulAddVal
   putText " = "
   putTextLn $ show $ evalEADT mulAddVal
-  
+
   putText $ showEADT mulAddVal
   putText " -> "
   putTextLn $ showEADT (demultiply mulAddVal)
 
-  --putTextLn $ showEADT (demultiply $ Mul (Val (-2)) (Val 5) ::  EADT '[ValF,AddF,MulF])
-  putText $ showEADT mulAddValFloat
-  putText " -> "
-  putTextLn $ showEADT mulAddValFloat
-  putTextLn $ show $ para typeCheck' (Add (Val 10) (FloatVal 5) :: EADT '[ValF,FloatValF,AddF])
-
+  putText $ showEADT mulAddVal
+  putText " = "
+  putTextLn $ showEADT $ demultiply (mulAddVal2)
