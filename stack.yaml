@@ -42,6 +42,9 @@ packages:
 #
 extra-deps:
   - base-noprelude-4.11.1.0
+  - haskus-utils-variant-1.0@sha256:955442f13d272c766c8c54e1735ca767071d3ef4e8230a4d78122c615753afb7,864
+  - haskus-utils-data-1.0@sha256:8ae02c6ae3318c1e7227ad0be0567b47929c36b94c35183fba8606bdf1f14903,984
+  - haskus-utils-types-1.0@sha256:ad9eca6274c9c94e0a0416a737dcec3a19c5423501414bf620e1439b4a3ea946,708
   
 # Override default flag values for local packages and extra-deps
 # flags: {}
