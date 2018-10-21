@@ -3,7 +3,6 @@ module A_Add where
   -- this module adds the following language construct to the DSL
   --    (Val i)
   --    (Add i1 i2)
-  -- when showing an expression, the order of operands is reversed
   -------------------------------------------------------
 
   import Utils
@@ -31,7 +30,7 @@ module A_Add where
     showEADT' (ValF i) = show i
   
   instance ShowEADT AddF where
-    showEADT' (AddF u v) = "(" <> v <> " + " <> u <> ")" -- no recursive call
+    showEADT' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
   
   showEADT :: (ShowEADT (Base t), Recursive t) => t -> Text -- type inferred by GHC
   showEADT = cata showEADT'

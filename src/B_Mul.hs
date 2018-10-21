@@ -37,6 +37,7 @@ module B_Mul where
   distr :: (Functor (VariantF f), AddF :<: f, MulF :<: f) => EADT f -> EADT f
   distr = bottomUpFixed distr'
   
+
   -- demultiply : n*a -> a+a+... n times
   -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
@@ -54,5 +55,5 @@ module B_Mul where
   demultiply' _         = Nothing
   
   demultiply :: (Eval (VariantF f (EADT f)), Functor (VariantF f), ValF :<: f, AddF :<: f, MulF :<: f) => EADT f -> EADT f
-  demultiply = bottomUpFixed demultiply'
+  demultiply = bottomUpFixed demultiply' . distr
    

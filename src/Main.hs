@@ -48,8 +48,9 @@ main = do
   putTextLn $ showEADT addVal
   putTextLn $ showEADT mulAddVal
   putTextLn $ show $ evalEADT mulAddVal
-  putTextLn $ showEADT (distr mulAddVal)
-  putTextLn $ showEADT (demultiply $ distr mulAddVal)
+  putTextLn $ showEADT (mulAddVal)
+  putTextLn $ showEADT (demultiply mulAddVal)
+  --putTextLn $ showEADT (demultiply $ Mul (Val (-2)) (Val 5) ::  EADT '[ValF,AddF,MulF])
   --putTextLn $ showEADT (cata simplify (mulAddVal) :: AddValADT)
   putTextLn $ showEADT (Add (Val 10) (FloatVal 5) :: EADT '[ValF,FloatValF,AddF])
   putTextLn $ show $ para typeCheck' (Add (Val 10) (FloatVal 5) :: EADT '[ValF,FloatValF,AddF])
