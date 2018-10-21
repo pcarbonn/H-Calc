@@ -4,27 +4,27 @@ module Utils where
   import Haskus.Utils.EADT
 
   -- this module defines the operations we want to perform on the AST
-  --    showEADT
+  --    showAST
   --    typeCheck
   --    simplify
-  --    evalEADT
+  --    evalAST
   -------------------------------------------------------
 
   -- show
   -------------------------------------------------------
-  class ShowEADT (f :: * -> *) where
-    showEADT' :: f Text -> Text
+  class ShowAST (f :: * -> *) where
+    showAST' :: f Text -> Text
 
-  instance ShowEADT (VariantF '[]) where
-    showEADT' = error "no implementation of Show for this type"
+  instance ShowAST (VariantF '[]) where
+    showAST' = error "no implementation of Show for this type"
 
-  instance (ShowEADT x, ShowEADT (VariantF xs))  => ShowEADT (VariantF (x ': xs)) where
-    showEADT' v = case popVariantFHead v of
-        Right u -> showEADT' u
-        Left  w -> showEADT' w
+  instance (ShowAST x, ShowAST (VariantF xs))  => ShowAST (VariantF (x ': xs)) where
+    showAST' v = case popVariantFHead v of
+        Right u -> showAST' u
+        Left  w -> showAST' w
     
-  showEADT :: (ShowEADT (Base t), Recursive t) => t -> Text -- type inferred by GHC
-  showEADT = cata showEADT'
+  showAST :: (ShowAST (Base t), Recursive t) => t -> Text -- type inferred by GHC
+  showAST = cata showAST'
 
   -- Type check
   --------------------------------------------------------
@@ -73,8 +73,8 @@ module Utils where
 
   type EvalAll xs = Eval (VariantF xs (EADT xs))
 
-  evalEADT :: EvalAll xs => EADT xs -> Either Int Text
-  evalEADT = eval . unfix
+  evalAST :: EvalAll xs => EADT xs -> Either Int Text
+  evalAST = eval . unfix
 
   
   {-   -- simplify = remove feature from the set

@@ -21,8 +21,8 @@ module A_Error where
 
   -- show
   
-  instance ShowEADT HErrorF where
-    showEADT' (HErrorF s) = s
+  instance ShowAST HErrorF where
+    showAST' (HErrorF s) = s
 
     
 

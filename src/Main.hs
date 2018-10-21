@@ -18,24 +18,24 @@ mulAddValFloat = Mul (Val 10) (FloatVal 5) :: EADT '[HErrorF, ValF,MulF, FloatVa
 
 main :: IO ()
 main = do
-  putText $ showEADT addVal
+  putText $ showAST addVal
   putText " = "
-  putTextLn $ show $ evalEADT addVal
+  putTextLn $ show $ evalAST addVal
 
-  putText $ showEADT mulAddVal
+  putText $ showAST mulAddVal
   putText " = "
-  putTextLn $ show $ evalEADT mulAddVal
+  putTextLn $ show $ evalAST mulAddVal
 
-  putText $ showEADT mulAddVal
+  putText $ showAST mulAddVal
   putText " -> "
-  putTextLn $ showEADT (demultiply mulAddVal)
+  putTextLn $ showAST (demultiply mulAddVal)
 
-  putText $ showEADT mulAddVal2
+  putText $ showAST mulAddVal2
   putText " = "
-  putTextLn $ showEADT $ demultiply (mulAddVal2)
+  putTextLn $ showAST $ demultiply (mulAddVal2)
 
-  putTextLn $ showEADT (demultiply $ Mul (Val (-2)) (Val 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
-  putText $ showEADT mulAddValFloat
+  putTextLn $ showAST (demultiply $ Mul (Val (-2)) (Val 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
+  putText $ showAST mulAddValFloat
   putText " -> "
-  putTextLn $ showEADT mulAddValFloat
+  putTextLn $ showAST mulAddValFloat
   putTextLn $ show $ para typeCheck' (Add (Val 10) (FloatVal 5) :: EADT '[HErrorF,ValF,FloatValF,AddF])

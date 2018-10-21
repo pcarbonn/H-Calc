@@ -30,11 +30,11 @@ module B_Add where
 
   -- show
   
-  instance ShowEADT ValF where
-    showEADT' (ValF i) = show i
+  instance ShowAST ValF where
+    showAST' (ValF i) = show i
   
-  instance ShowEADT AddF where
-    showEADT' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
+  instance ShowAST AddF where
+    showAST' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
     
   
         
@@ -43,24 +43,24 @@ module B_Add where
   instance TypeCheck ValF ys where
     typeCheck' _ = T "Int"
 
-  instance (AddF :<: ys, ShowEADT (VariantF ys), Functor (VariantF ys)) => TypeCheck AddF ys where
+  instance (AddF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck AddF ys where
     typeCheck' (AddF (u,t1) (v,t2))
       | t1 == t2       = t1
       | TError _ <- t1 = t1 -- propagate errors
       | TError _ <- t2 = t2
-      | otherwise = TError $ "can't add `" <> showEADT u <> "` whose type is " <> show t1 <>
-                            " with `" <> showEADT v <> "` whose type is " <> show t2
+      | otherwise = TError $ "can't add `" <> showAST u <> "` whose type is " <> show t1 <>
+                            " with `" <> showAST v <> "` whose type is " <> show t2
   
   
 
-  -- Eval: returns an int
+  -- Eval: returns a Int
   
   instance Eval (ValF e) where
     eval (ValF i) = Left i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
     eval (AddF u v) = 
-      case (evalEADT u, evalEADT v) of -- implicit recursion
+      case (evalAST u, evalAST v) of -- implicit recursion
         (Left a, Left b) -> Left (a+b)
         (e, Left b) -> e
         (_, e) -> e

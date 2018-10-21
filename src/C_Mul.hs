@@ -21,22 +21,22 @@ module C_Mul where
 
   -- show
 
-  instance ShowEADT MulF where
-    showEADT' (MulF u v) = "(" <> u <> " * " <> v <> ")" -- no recursive call
+  instance ShowAST MulF where
+    showAST' (MulF u v) = "(" <> u <> " * " <> v <> ")" -- no recursive call
 
   
   -- Type checker
   -- we can multiply anything by a Int, except error
   --------------------------------------------------------
 
-  instance (MulF :<: ys, ShowEADT (VariantF ys), Functor (VariantF ys)) => TypeCheck MulF ys where
+  instance (MulF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck MulF ys where
     typeCheck' (MulF (u,t1) (v,t2)) =
       case (t1,t2) of
         (TError _, _) -> t1
         (_, TError _) -> t2
         (T "Int", _)  -> t1 
-        _             -> TError $ "can't add `" <> showEADT u <> "` whose type is " <> show t1 <>
-                                  " with `" <> showEADT v <> "` whose type is " <> show t2
+        _             -> TError $ "can't add `" <> showAST u <> "` whose type is " <> show t1 <>
+                                  " with `" <> showAST v <> "` whose type is " <> show t2
 
 
   -- apply distribution : a*(b+c) -> (a*b+a*c)
@@ -59,7 +59,7 @@ module C_Mul where
   demultiply' :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
                 => EADT f -> Maybe (EADT f)
   demultiply' (Mul n a) =
-    case (evalEADT n, a) of
+    case (evalAST n, a) of
       (Right e, _) -> Just $ HError e
       (_, HError e) -> Just $ HError e
       (Left i, a) ->
@@ -69,7 +69,7 @@ module C_Mul where
             | otherwise -> case demultiply' (Mul (Val $ i-1) a) of
                             Just a' -> Just $ Add a a'
                             Nothing -> Just $ HError "can't reach this point"
-    where i = evalEADT n
+    where i = evalAST n
 
   demultiply' _         = Nothing
   
@@ -82,7 +82,7 @@ module C_Mul where
   
   instance EvalAll xs => Eval (MulF (EADT xs)) where
     eval (MulF u v) = 
-        case (evalEADT u, evalEADT v) of -- implicit recursion
+        case (evalAST u, evalAST v) of -- implicit recursion
           (Left a, Left b) -> Left (a*b)
           (e, Left b) -> e
           (_, e) -> e

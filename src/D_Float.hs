@@ -19,8 +19,8 @@ module D_Float where
   pattern FloatVal :: FloatValF :<: xs => Float -> EADT xs
   pattern FloatVal a = VF (FloatValF a)
 
-  instance ShowEADT FloatValF where
-      showEADT' (FloatValF i) = show i
+  instance ShowAST FloatValF where
+      showAST' (FloatValF i) = show i
 
 
   instance TypeCheck FloatValF ys where
