@@ -14,38 +14,38 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 
 executable H-Calc
-  hs-source-dirs:      src
-  main-is:             Main.hs
-  default-language:    Haskell2010
-  build-depends:       base-noprelude >= 4.7 && < 5
-                     , haskus-utils-variant
-                     , hspec ==2.*
-                     , megaparsec
-                     , recursion-schemes
-                     , relude
-  extensions:          ConstraintKinds
-                     , DataKinds
-                     , DeriveFunctor
-                     , FlexibleContexts
-                     , FlexibleInstances
-                     , KindSignatures
-                     , MultiParamTypeClasses
-                     , OverloadedStrings
-                     , PatternSynonyms
-                     , TypeOperators
-                     , UndecidableInstances
+  hs-source-dirs:     src
+  main-is:            Main.hs
+  default-language:   Haskell2010
+  build-depends:      base-noprelude >= 4.7 && < 5
+                    , haskus-utils-variant
+                    , hspec ==2.*
+                    , megaparsec
+                    , recursion-schemes
+                    , relude
+  extensions:         ConstraintKinds
+                    , DataKinds
+                    , DeriveFunctor
+                    , FlexibleContexts
+                    , FlexibleInstances
+                    , KindSignatures
+                    , LambdaCase
+                    , MultiParamTypeClasses
+                    , MultiWayIf
+                    , OverloadedStrings
+                    , PatternSynonyms
+                    , TypeOperators
+                    , UndecidableInstances
 
 test-suite spec
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  hs-source-dirs:
-      test
-  ghc-options: -Wall
-  build-depends:
-      base ==4.*
-    , hspec ==2.*
+  type:               exitcode-stdio-1.0
+  main-is:            Spec.hs
+  hs-source-dirs:     test
+  ghc-options:        -Wall
+  build-depends:      base ==4.*
+                    , hspec ==2.*
   other-modules:
-      Data.String.StripSpec
-      Paths_strip
-  default-language: Haskell2010
+                      Data.String.StripSpec
+                      Paths_strip
+  default-language:   Haskell2010
   build-tool-depends: hspec-discover:hspec-discover == 2.*        
