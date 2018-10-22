@@ -6,6 +6,7 @@ module B_Add where
   -------------------------------------------------------
 
   import Utils
+  import Result
   
   import Haskus.Utils.EADT
   import Data.Functor.Foldable
@@ -55,12 +56,12 @@ module B_Add where
   -- Eval: returns a Int
   
   instance Eval (ValF e) where
-    eval (ValF i) = Left i
+    eval (ValF i) = RInt i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
     eval (AddF u v) = 
       case (evalAST u, evalAST v) of -- implicit recursion
-        (Left a, Left b) -> Left (a+b)
-        (e, Left b) -> e
-        (_, e) -> e
-  
+        (RInt a, RInt b) -> RInt (a+b)
+        (RError e, _) -> RError e
+        (_, RError e) -> RError e
+        _             -> RError $ "Error in eval(AddF)" 

@@ -6,6 +6,7 @@ module C_Mul where
 
   import B_Add
   import Utils
+  import Result
 
   import Haskus.Utils.EADT
   import Data.Functor.Foldable
@@ -34,7 +35,7 @@ module C_Mul where
         (TError _, _) -> t1
         (_, TError _) -> t2
         (T "Int", _)  -> t1 
-        _             -> TError $ "can't add `" <> showAST u <> "` whose type is " <> show t1 <>
+        _             -> TError $ "can't multiply `" <> showAST u <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v <> "` whose type is " <> show t2
 
 
@@ -59,16 +60,15 @@ module C_Mul where
                 => EADT f -> Maybe (EADT f)
   demultiply' (Mul n a) =
     case (evalAST n, a) of
-      (Right e, _) -> Just $ HError e
+      (RError e, _) -> Just $ HError e
       (_, HError e) -> Just $ HError e
-      (Left i, a) ->
+      (RInt i, a) ->
         if  | i <  0 -> Just $ HError "Error: can't multiply by a negative number"
             | i == 0 -> Just $ Val 0
             | i == 1 -> Just $ a
             | otherwise -> case demultiply' (Mul (Val $ i-1) a) of
                             Just a' -> Just $ Add a a'
                             Nothing -> Just $ HError "can't reach this point"
-    where i = evalAST n
 
   demultiply' _         = Nothing
   
@@ -80,9 +80,5 @@ module C_Mul where
   -- Eval
   
   instance EvalAll xs => Eval (MulF (EADT xs)) where
-    eval (MulF u v) = 
-        case (evalAST u, evalAST v) of -- implicit recursion
-          (Left a, Left b) -> Left (a*b)
-          (e, Left b) -> e
-          (_, e) -> e
+    eval (MulF u v) = RError "target machine cannot multiply"
   

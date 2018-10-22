@@ -1,3 +1,5 @@
+WORK IN PROGRESS !  Use at your own risk.
+
 So, you want to write an interpreter for your own Domain Specific Language (DSL), in Haskell...  Then, clone H-Calc and start editing it.  H-Calc is a showcase of the best Haskell technologies to write such an interpreter :
 
 - [megaparsec](http://hackage.haskell.org/package/megaparsec): a library to parse source code in your DSL, and build the corresponding Abstract Syntax Tree (AST)

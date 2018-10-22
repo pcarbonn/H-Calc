@@ -1,5 +1,6 @@
 module Utils where
 
+  import Result
   import Control.Arrow
   import Haskus.Utils.EADT
 
@@ -7,7 +8,6 @@ module Utils where
   --    showAST
   --    typeCheck
   --    simplify
-  --    evalAST
   -------------------------------------------------------
   data HErrorF e = HErrorF Text deriving (Functor)
 
@@ -74,38 +74,8 @@ module Utils where
           Just v  -> bottomUpFixed f v
 
               
-  -- generic eval
+  -- eval
   -------------------------------------------------------
-  class Eval e where
-    eval :: e -> Either Int Text
-
-  instance Eval (VariantF '[] e) where
-    eval u = Right "no implementation of Eval for this type"
-
-  instance (Eval (x e), Eval (VariantF xs e))  => Eval (VariantF (x ': xs) e) where
-    eval v = case popVariantFHead v of
-        Right u -> eval u
-        Left  w -> eval w
-
-  type EvalAll xs = Eval (VariantF xs (EADT xs))
-
-  evalAST :: EvalAll xs => EADT xs -> Either Int Text
-  evalAST = eval . unfix
 
   instance Eval (HErrorF e) where
-    eval (HErrorF e) = Right e
-  
-  {-   -- simplify = remove feature from the set
-    -------------------------------------------------------
-    class Simplify (f :: * -> *) ys where
-      simplify :: f (EADT ys) -> EADT ys
-  
-    -- boilerplate
-  
-    instance Simplify (VariantF '[]) ys where
-      simplify = error "no implementation of Simplify for this type"
-  
-    instance (Simplify x ys, Simplify (VariantF xs) ys)  => Simplify (VariantF (x ': xs)) ys where
-      simplify v = case popVariantFHead v of
-          Right u -> simplify u
-          Left  w -> simplify w -}
+    eval (HErrorF e) = RError e
