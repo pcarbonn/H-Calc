@@ -1,13 +1,13 @@
-module D_Float where
+module Interpreter.D_Float where
 
   -- this module adds the following language construct to the DSL
   --    (FloatVal f)
   -------------------------------------------------------
 
-  import B_Add
-  import C_Mul
-  import Utils
-  import Result
+  import Interpreter.B_Add
+  import Interpreter.C_Mul
+  import Interpreter.Utils
+  import Interpreter.Result
 
   import Haskus.Utils.EADT
   import Data.Functor.Foldable

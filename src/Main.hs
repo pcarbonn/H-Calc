@@ -2,11 +2,11 @@
 
 module Main where
 
-import B_Add
-import C_Mul
-import D_Float
-import Utils
-import Result
+import Interpreter.B_Add
+import Interpreter.C_Mul
+import Interpreter.D_Float
+import Interpreter.Utils
+import Interpreter.Result
 
 import Haskus.Utils.EADT
 import Data.Functor.Foldable

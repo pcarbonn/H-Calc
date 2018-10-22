@@ -1,6 +1,6 @@
-module Utils where
+module Interpreter.Utils where
 
-  import Result
+  import Interpreter.Result
   import Control.Arrow
   import Haskus.Utils.EADT
 

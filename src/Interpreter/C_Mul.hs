@@ -1,12 +1,12 @@
-module C_Mul where
+module Interpreter.C_Mul where
 
   -- this module adds the following language construct to the DSL
   --    (Mul i1 i2)
   -------------------------------------------------------
 
-  import B_Add
-  import Utils
-  import Result
+  import Interpreter.B_Add
+  import Interpreter.Utils
+  import Interpreter.Result
 
   import Haskus.Utils.EADT
   import Data.Functor.Foldable

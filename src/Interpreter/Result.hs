@@ -1,4 +1,4 @@
-module Result where
+module Interpreter.Result where
   
   import Haskus.Utils.EADT
 

@@ -1,12 +1,12 @@
-module B_Add where
+module Interpreter.B_Add where
 
   -- this module adds the following language construct to the DSL
   --    (Val i)
   --    (Add i1 i2)
   -------------------------------------------------------
 
-  import Utils
-  import Result
+  import Interpreter.Utils
+  import Interpreter.Result
   
   import Haskus.Utils.EADT
   import Data.Functor.Foldable
