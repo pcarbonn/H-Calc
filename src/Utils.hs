@@ -9,7 +9,15 @@ module Utils where
   --    simplify
   --    evalAST
   -------------------------------------------------------
+  data HErrorF e = HErrorF Text deriving (Functor)
 
+
+  -- define pattern, for creation and pattern matching
+  
+  pattern HError :: HErrorF :<: xs => Text -> EADT xs
+  pattern HError a = VF (HErrorF a)
+
+  
   -- show
   -------------------------------------------------------
   class ShowAST (f :: * -> *) where
@@ -26,6 +34,10 @@ module Utils where
   showAST :: (ShowAST (Base t), Recursive t) => t -> Text -- type inferred by GHC
   showAST = cata showAST'
 
+  instance ShowAST HErrorF where
+    showAST' (HErrorF s) = s
+    
+
   -- Type check
   --------------------------------------------------------
 
@@ -38,12 +50,16 @@ module Utils where
     typeCheck' :: f (EADT ys, Typ) -> Typ
 
   instance TypeCheck (VariantF '[]) ys where
-    typeCheck' = error "no implementation of TypeCheck for this type"
+    typeCheck' _ = TError "no implementation of TypeCheck for this type"
 
   instance (TypeCheck x ys, TypeCheck (VariantF xs) ys)  => TypeCheck (VariantF (x ': xs)) ys where
     typeCheck' v = case popVariantFHead v of
         Right u -> typeCheck' u
         Left  w -> typeCheck' w   
+
+
+  instance TypeCheck HErrorF ys where
+    typeCheck' _ = T "Error"
 
 
   -- fix of transformation
@@ -76,6 +92,8 @@ module Utils where
   evalAST :: EvalAll xs => EADT xs -> Either Int Text
   evalAST = eval . unfix
 
+  instance Eval (HErrorF e) where
+    eval (HErrorF e) = Right e
   
   {-   -- simplify = remove feature from the set
     -------------------------------------------------------

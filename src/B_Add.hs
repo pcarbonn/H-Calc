@@ -5,7 +5,6 @@ module B_Add where
   --    (Add i1 i2)
   -------------------------------------------------------
 
-  import A_Error
   import Utils
   
   import Haskus.Utils.EADT

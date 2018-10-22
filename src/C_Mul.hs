@@ -4,7 +4,6 @@ module C_Mul where
   --    (Mul i1 i2)
   -------------------------------------------------------
 
-  import A_Error
   import B_Add
   import Utils
 

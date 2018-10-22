@@ -4,7 +4,6 @@ module D_Float where
   --    (Float f)
   -------------------------------------------------------
 
-  import A_Error
   import B_Add
   import C_Mul
   import Utils
