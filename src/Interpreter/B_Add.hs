@@ -5,14 +5,15 @@ module Interpreter.B_Add where
   --    (Add i1 i2)
   -------------------------------------------------------
 
+  import Interpreter.A_Annotation
   import Interpreter.Utils
   import Interpreter.Result
   
   import Haskus.Utils.EADT
   import Data.Functor.Foldable
   
-  data ValF e = ValF Int deriving (Functor)
-  data AddF e = AddF e e deriving (Functor)
+  data ValF e = ValF Annotation Int deriving (Functor)
+  data AddF e = AddF Annotation (e, e) deriving (Functor)
   
   type AddValADT = EADT '[ValF,AddF]
   
@@ -20,21 +21,21 @@ module Interpreter.B_Add where
 
   -- define patterns, for creation and pattern matching
   
-  pattern Val :: ValF :<: xs => Int -> EADT xs
-  pattern Val a = VF (ValF a)
+  pattern Val :: ValF :<: xs => Annotation -> Int -> EADT xs
+  pattern Val a i = VF (ValF a i)
   
-  pattern Add :: AddF :<: xs => EADT xs -> EADT xs -> EADT xs
-  pattern Add a b = VF (AddF a b)
+  pattern Add :: AddF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
+  pattern Add a is = VF (AddF a is)
 
   
 
   -- show
   
   instance ShowAST ValF where
-    showAST' (ValF i) = show i
+    showAST' (ValF _ i) = show i
   
   instance ShowAST AddF where
-    showAST' (AddF u v) = "(" <> u <> " + " <> v <> ")" -- no recursive call
+    showAST' (AddF _ (u,v)) = "(" <> u <> " + " <> v <> ")" -- no recursive call
     
   
         
@@ -44,7 +45,7 @@ module Interpreter.B_Add where
     typeCheck' _ = T "Int"
 
   instance (AddF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck AddF ys where
-    typeCheck' (AddF (u,t1) (v,t2))
+    typeCheck' (AddF _ ((u,t1), (v,t2)))
       | t1 == t2       = t1
       | TError _ <- t1 = t1 -- propagate errors
       | TError _ <- t2 = t2
@@ -56,10 +57,10 @@ module Interpreter.B_Add where
   -- Eval: returns a Int
   
   instance Eval (ValF e) where
-    eval (ValF i) = RInt i
+    eval (ValF _ i) = RInt i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
-    eval (AddF u v) = 
+    eval (AddF _ (u,v)) = 
       case (evalAST u, evalAST v) of -- implicit recursion
         (RInt a, RInt b) -> RInt (a+b)
         (RError e, _) -> RError e

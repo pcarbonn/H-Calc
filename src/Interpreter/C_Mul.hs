@@ -4,6 +4,7 @@ module Interpreter.C_Mul where
   --    (Mul i1 i2)
   -------------------------------------------------------
 
+  import Interpreter.A_Annotation
   import Interpreter.B_Add
   import Interpreter.Utils
   import Interpreter.Result
@@ -13,16 +14,16 @@ module Interpreter.C_Mul where
 
   --------------------------------------------------------
 
-  data MulF e = MulF e e deriving (Functor)
+  data MulF e = MulF Annotation (e, e) deriving (Functor)
   type MulAddValADT = EADT '[HErrorF, ValF,AddF,MulF]
 
-  pattern Mul :: MulF :<: xs => EADT xs -> EADT xs -> EADT xs
-  pattern Mul a b = VF (MulF a b)
+  pattern Mul :: MulF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
+  pattern Mul a is = VF (MulF a is)
 
   -- show
 
   instance ShowAST MulF where
-    showAST' (MulF u v) = "(" <> u <> " * " <> v <> ")" -- no recursive call
+    showAST' (MulF _ (u, v)) = "(" <> u <> " * " <> v <> ")" -- no recursive call
 
   
   -- Type checker
@@ -30,7 +31,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   instance (MulF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck MulF ys where
-    typeCheck' (MulF (u,t1) (v,t2)) =
+    typeCheck' (MulF _ ((u,t1), (v,t2))) =
       case (t1,t2) of
         (TError _, _) -> t1
         (_, TError _) -> t2
@@ -45,7 +46,7 @@ module Interpreter.C_Mul where
 
   -- distribute multiplication over addition if it matches
   distr' :: (HErrorF :<: f, AddF :<: f, MulF :<: f) => EADT f -> Maybe (EADT f)
-  distr' (Mul a (Add b c)) = Just (Add (Mul a b) (Mul a c))
+  distr' (Mul a (i1, (Add b (i2,i3)))) = Just (Add b ((Mul a (i1,i2)), (Mul a (i1,i3))))
   distr' _                 = Nothing
 
   distr :: (Functor (VariantF f), HErrorF :<: f, AddF :<: f, MulF :<: f) => EADT f -> EADT f
@@ -58,16 +59,16 @@ module Interpreter.C_Mul where
 
   demultiply' :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
                 => EADT f -> Maybe (EADT f)
-  demultiply' (Mul n a) =
-    case (evalAST n, a) of
+  demultiply' (Mul a (n,b)) =
+    case (evalAST n, b) of
       (RError e, _) -> Just $ HError e
       (_, HError e) -> Just $ HError e
-      (RInt i, a) ->
+      (RInt i, _) ->
         if  | i <  0 -> Just $ HError "Error: can't multiply by a negative number"
-            | i == 0 -> Just $ Val 0
-            | i == 1 -> Just $ a
-            | otherwise -> case demultiply' (Mul (Val $ i-1) a) of
-                            Just a' -> Just $ Add a a'
+            | i == 0 -> Just $ Val a 0
+            | i == 1 -> Just $ b
+            | otherwise -> case demultiply' (Mul a ((Val a $ i-1), b)) of
+                            Just b' -> Just $ Add a (b, b')
                             Nothing -> Just $ HError "can't reach this point"
 
   demultiply' _         = Nothing

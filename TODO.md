@@ -1,11 +1,9 @@
 # TODO
 
-Result.hs : targetAST + helper
-eval Float
-Template.md ? avoid it if possible
 Type annotation
+use bottomUp instead of bottomUpFixed
 parse
 test suite, with discovery
-use bottomUp instead of bottomUpFixed
 3 branches : master = core
-
+track location in source code, for better error message
+Template.md ? avoid it if possible

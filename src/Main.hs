@@ -2,6 +2,7 @@
 
 module Main where
 
+import Interpreter.A_Annotation
 import Interpreter.B_Add
 import Interpreter.C_Mul
 import Interpreter.D_Float
@@ -11,10 +12,11 @@ import Interpreter.Result
 import Haskus.Utils.EADT
 import Data.Functor.Foldable
 
-addVal = Add (Val 10) (Val 5) :: AddValADT
-mulAddVal = Mul (Val 3) (Add (Val 10) (Val 3)) :: MulAddValADT
-mulAddVal2 = Mul (Val (-3)) (Add (Val 10) (Val 3)) :: MulAddValADT
-mulAddValFloat = Mul (Val 10) (FloatVal 5) :: EADT '[HErrorF, ValF,MulF, FloatValF,AddF]
+e = emptyAnnot
+addVal = Add e (Val e 10, Val e 5) :: AddValADT
+mulAddVal = Mul e (Val e 3, Add e (Val e 10, Val e 3)) :: MulAddValADT
+mulAddVal2 = Mul e (Val e (-3), Add e (Val e 10, Val e 3)) :: MulAddValADT
+mulAddValFloat = Mul e (Val e 10, FloatVal e 5) :: EADT '[HErrorF, ValF,MulF, FloatValF,AddF]
 
 main :: IO ()
 main = do
@@ -34,11 +36,11 @@ main = do
   putText " = "
   putTextLn $ showAST $ demultiply (mulAddVal2)
 
-  putTextLn $ showAST (demultiply $ Mul (Val (-2)) (Val 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
+  putTextLn $ showAST (demultiply $ Mul e (Val e (-2), Val e 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
   
   putText $ showAST mulAddValFloat
   putText " -> "
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ show $ para typeCheck' (Add (Val 10) (FloatVal 5) :: EADT '[HErrorF,ValF,FloatValF,AddF])
+  putTextLn $ show $ para typeCheck' (Add e (Val e 10, FloatVal e 5) :: EADT '[HErrorF,ValF,FloatValF,AddF])

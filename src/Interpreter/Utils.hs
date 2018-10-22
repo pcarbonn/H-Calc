@@ -38,30 +38,6 @@ module Interpreter.Utils where
     showAST' (HErrorF s) = s
     
 
-  -- Type check
-  --------------------------------------------------------
-
-  data Typ
-    = T Text -- the type of the term
-    | TError Text   -- the type of an invalid expression with some explanation
-    deriving (Show,Eq)
-
-  class TypeCheck (f :: * -> *) ys where
-    typeCheck' :: f (EADT ys, Typ) -> Typ
-
-  instance TypeCheck (VariantF '[]) ys where
-    typeCheck' _ = TError "no implementation of TypeCheck for this type"
-
-  instance (TypeCheck x ys, TypeCheck (VariantF xs) ys)  => TypeCheck (VariantF (x ': xs)) ys where
-    typeCheck' v = case popVariantFHead v of
-        Right u -> typeCheck' u
-        Left  w -> typeCheck' w   
-
-
-  instance TypeCheck HErrorF ys where
-    typeCheck' _ = T "Error"
-
-
   -- fix of transformation
   -------------------------------------------------------
   -- bottom up traversal that performs an additional bottom up traversal in

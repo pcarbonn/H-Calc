@@ -4,6 +4,7 @@ module Interpreter.D_Float where
   --    (FloatVal f)
   -------------------------------------------------------
 
+  import Interpreter.A_Annotation
   import Interpreter.B_Add
   import Interpreter.C_Mul
   import Interpreter.Utils
@@ -14,17 +15,17 @@ module Interpreter.D_Float where
 
   --------------------------------------------------------
 
-  data FloatValF e = FloatValF Float deriving (Functor)
+  data FloatValF e = FloatValF Annotation Float deriving (Functor)
 
   --------------------------------------------------------
 
-  pattern FloatVal :: FloatValF :<: xs => Float -> EADT xs
-  pattern FloatVal a = VF (FloatValF a)
+  pattern FloatVal :: FloatValF :<: xs => Annotation -> Float -> EADT xs
+  pattern FloatVal a f = VF (FloatValF a f)
 
   --------------------------------------------------------
 
   instance ShowAST FloatValF where
-      showAST' (FloatValF i) = show i
+      showAST' (FloatValF _ i) = show i
     
   --------------------------------------------------------
 
@@ -34,4 +35,4 @@ module Interpreter.D_Float where
   --------------------------------------------------------
 
   instance Eval (FloatValF e) where
-    eval (FloatValF i) = RFloat i
+    eval (FloatValF _ i) = RFloat i
