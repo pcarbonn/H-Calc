@@ -36,10 +36,19 @@ module Interpreter.Utils where
 
   instance ShowAST HErrorF where
     showAST' (HErrorF s) = s
-    
 
-  -- fix of transformation
+              
+  -- eval
   -------------------------------------------------------
+
+  instance Eval (HErrorF e) where
+    eval (HErrorF e) = RError e
+        
+
+  -- transformations / recursion schemes
+  -------------------------------------------------------
+  bottomUp f = unfix >>> fmap (bottomUp f) >>> Fix >>> f
+
   -- bottom up traversal that performs an additional bottom up traversal in
   -- the transformed sub-tree when a transformation occurs. 
   bottomUpFixed :: Functor f => (Fix f -> Maybe (Fix f)) -> Fix f -> Fix f
@@ -49,9 +58,3 @@ module Interpreter.Utils where
           Nothing -> u
           Just v  -> bottomUpFixed f v
 
-              
-  -- eval
-  -------------------------------------------------------
-
-  instance Eval (HErrorF e) where
-    eval (HErrorF e) = RError e

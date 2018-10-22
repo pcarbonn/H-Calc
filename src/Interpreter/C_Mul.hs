@@ -58,25 +58,23 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   demultiply' :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
-                => EADT f -> Maybe (EADT f)
+                => EADT f -> EADT f
   demultiply' (Mul a (n,b)) =
     case (evalAST n, b) of
-      (RError e, _) -> Just $ HError e
-      (_, HError e) -> Just $ HError e
+      (RError e, _) -> HError e
+      (_, HError e) -> HError e
       (RInt i, _) ->
-        if  | i <  0 -> Just $ HError "Error: can't multiply by a negative number"
-            | i == 0 -> Just $ Val a 0
-            | i == 1 -> Just $ b
-            | otherwise -> case demultiply' (Mul a ((Val a $ i-1), b)) of
-                            Just b' -> Just $ Add a (b, b')
-                            Nothing -> Just $ HError "can't reach this point"
+        if  | i <  0 -> HError "Error: can't multiply by a negative number"
+            | i == 0 -> Val a 0
+            | i == 1 -> b
+            | otherwise -> Add a (b, demultiply' (Mul a ((Val a $ i-1), b)))
 
-  demultiply' _         = Nothing
+  demultiply' a         = a
   
   demultiply :: (ValF :<: f, HErrorF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))
                 , Functor (VariantF f)) 
                 => EADT f -> EADT f
-  demultiply = bottomUpFixed demultiply' . distr
+  demultiply = bottomUp demultiply' . distr
 
   -- Eval
   
