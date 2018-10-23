@@ -20,7 +20,7 @@ module Interpreter.D_Float where
   --------------------------------------------------------
 
   pattern FloatVal :: FloatValF :<: xs => Annotation -> Float -> EADT xs
-  pattern FloatVal a f = VF (FloatValF a f)
+  pattern FloatVal α f = VF (FloatValF α f)
 
   --------------------------------------------------------
 

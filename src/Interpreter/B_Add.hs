@@ -22,10 +22,10 @@ module Interpreter.B_Add where
   -- define patterns, for creation and pattern matching
   
   pattern Val :: ValF :<: xs => Annotation -> Int -> EADT xs
-  pattern Val a i = VF (ValF a i)
+  pattern Val α i = VF (ValF α i)
   
   pattern Add :: AddF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
-  pattern Add a is = VF (AddF a is)
+  pattern Add α is = VF (AddF α is)
 
   
 

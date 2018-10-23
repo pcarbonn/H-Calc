@@ -18,7 +18,7 @@ module Interpreter.C_Mul where
   type MulAddValADT = EADT '[HErrorF, ValF,AddF,MulF]
 
   pattern Mul :: MulF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
-  pattern Mul a is = VF (MulF a is)
+  pattern Mul α is = VF (MulF α is)
 
   -- show
 
@@ -46,7 +46,7 @@ module Interpreter.C_Mul where
 
   -- distribute multiplication over addition if it matches
   distr' :: (HErrorF :<: f, AddF :<: f, MulF :<: f) => EADT f -> Maybe (EADT f)
-  distr' (Mul a (i1, (Add b (i2,i3)))) = Just (Add b ((Mul a (i1,i2)), (Mul a (i1,i3))))
+  distr' (Mul α (i1, (Add β (i2,i3)))) = Just (Add β ((Mul α (i1,i2)), (Mul α (i1,i3))))
   distr' _                 = Nothing
 
   distr :: (Functor (VariantF f), HErrorF :<: f, AddF :<: f, MulF :<: f) => EADT f -> EADT f
@@ -59,15 +59,15 @@ module Interpreter.C_Mul where
 
   demultiply' :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
                 => EADT f -> EADT f
-  demultiply' (Mul a (n,b)) =
+  demultiply' (Mul α (n,b)) =
     case (evalAST n, b) of
       (RError e, _) -> HError e
       (_, HError e) -> HError e
       (RInt i, _) ->
         if  | i <  0 -> HError "Error: can't multiply by a negative number"
-            | i == 0 -> Val a 0
+            | i == 0 -> Val α 0
             | i == 1 -> b
-            | otherwise -> Add a (b, demultiply' (Mul a ((Val a $ i-1), b)))
+            | otherwise -> Add α (b, demultiply' (Mul α ((Val α $ i-1), b)))
 
   demultiply' a         = a
   
@@ -79,5 +79,5 @@ module Interpreter.C_Mul where
   -- Eval
   
   instance EvalAll xs => Eval (MulF (EADT xs)) where
-    eval (MulF u v) = RError "target machine cannot multiply"
+    eval (MulF _ _) = RError "target machine cannot multiply"
   
