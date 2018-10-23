@@ -57,24 +57,21 @@ module Interpreter.C_Mul where
   -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
 
-  demultiply' :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))) 
+  demultiply :: (HErrorF :<: f, ValF :<: f, AddF :<: f, MulF :<: f
+                , Eval (VariantF f (EADT f)), Functor (VariantF f)) 
                 => EADT f -> EADT f
-  demultiply' (Mul α (n,b)) =
-    case (evalAST n, b) of
-      (RError e, _) -> HError e
-      (_, HError e) -> HError e
-      (RInt i, _) ->
-        if  | i <  0 -> HError "Error: can't multiply by a negative number"
-            | i == 0 -> Val α 0
-            | i == 1 -> b
-            | otherwise -> Add α (b, demultiply' (Mul α ((Val α $ i-1), b)))
+  demultiply = bottomUp go . distr
+    where go (Mul α (n,b)) =
+            case (evalAST n, b) of
+            (RError e, _) -> HError e
+            (_, HError e) -> HError e
+            (RInt i, _) ->
+              if  | i <  0 -> HError "Error: can't multiply by a negative number"
+                  | i == 0 -> Val α 0
+                  | i == 1 -> b
+                  | otherwise -> Add α (b, go (Mul α ((Val α $ i-1), b)))
 
-  demultiply' a         = a
-  
-  demultiply :: (ValF :<: f, HErrorF :<: f, AddF :<: f, MulF :<: f, Eval (VariantF f (EADT f))
-                , Functor (VariantF f)) 
-                => EADT f -> EADT f
-  demultiply = bottomUp demultiply' . distr
+          go a         = a
 
   -- Eval
   

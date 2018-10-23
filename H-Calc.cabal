@@ -28,6 +28,7 @@ executable H-Calc
                     , DeriveFunctor
                     , FlexibleContexts
                     , FlexibleInstances
+                    , GADTs
                     , KindSignatures
                     , LambdaCase
                     , MultiParamTypeClasses
