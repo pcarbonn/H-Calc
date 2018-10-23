@@ -11,7 +11,7 @@ module Interpreter.D_Float where
   import Interpreter.Result
 
   import Haskus.Utils.EADT
-  import Data.Functor.Foldable
+  import Prelude
 
   --------------------------------------------------------
 

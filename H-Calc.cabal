@@ -35,6 +35,7 @@ executable H-Calc
                     , MultiWayIf
                     , OverloadedStrings
                     , PatternSynonyms
+                    , RebindableSyntax
                     , TypeOperators
                     , UndecidableInstances
 

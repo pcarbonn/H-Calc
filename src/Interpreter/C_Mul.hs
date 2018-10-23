@@ -10,7 +10,7 @@ module Interpreter.C_Mul where
   import Interpreter.Result
 
   import Haskus.Utils.EADT
-  import Data.Functor.Foldable
+  import Prelude
 
   --------------------------------------------------------
 

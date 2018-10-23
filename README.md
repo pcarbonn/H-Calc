@@ -26,7 +26,7 @@ dir> stack install ghcid
 ~~~~
 To automatically run the test suite:
 ~~~~
-dir> ghcid "--command=stack ghci H-Calc" "--test=:main"`
+dir> ghcid "--command=stack ghci H-Calc" "--test=:main"
 ~~~~
 
 

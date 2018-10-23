@@ -1,6 +1,7 @@
 module Interpreter.Result where
   
   import Haskus.Utils.EADT
+  import Prelude
 
   -- type definition of Result
   --------------------------------------------------------

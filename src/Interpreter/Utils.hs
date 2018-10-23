@@ -1,8 +1,9 @@
 module Interpreter.Utils where
 
   import Interpreter.Result
-  import Control.Arrow
+  
   import Haskus.Utils.EADT
+  import Prelude
 
   -- this module defines the operations we want to perform on the AST
   --    showAST
@@ -43,16 +44,17 @@ module Interpreter.Utils where
 
   instance Eval (HErrorF e) where
     eval (HErrorF e) = RError e
-        
+
 
   -- transformations / recursion schemes
   -------------------------------------------------------
-  bottomUp f = unfix >>> fmap (bottomUp f) >>> Fix >>> f
+  -- aka unfix >>> fmap (bottomUp f) >>> Fix >>> f
+  bottomUp f = f . Fix . (fmap (bottomUp f)) . unfix
 
   -- bottom up traversal that performs an additional bottom up traversal in
   -- the transformed sub-tree when a transformation occurs. 
   bottomUpFixed :: Functor f => (Fix f -> Maybe (Fix f)) -> Fix f -> Fix f
-  bottomUpFixed f = unfix >>> fmap (bottomUpFixed f) >>> Fix >>> f'
+  bottomUpFixed f = f' . Fix . (fmap (bottomUpFixed f)) . unfix
     where
         f' u = case f u of
           Nothing -> u

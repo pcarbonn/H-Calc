@@ -10,16 +10,35 @@ import Interpreter.Utils
 import Interpreter.Result
 
 import Haskus.Utils.EADT
-import Data.Functor.Foldable
+import Prelude hiding (fromInteger, fromRational)
+
+-- syntactic sugar
 
 ε = emptyAnnot
-addVal = Add ε (Val ε 10, Val ε 5) :: AddValADT
-mulAddVal = Mul ε (Val ε 3, Add ε (Val ε 10, Val ε 3)) :: MulAddValADT
-mulAddVal2 = Mul ε (Val ε (-3), Add ε (Val ε 10, Val ε 3)) :: MulAddValADT
-mulAddValFloat = Mul ε (Val ε 10, FloatVal ε 5) :: EADT '[HErrorF, ValF,MulF, FloatValF,AddF]
+
+fromInteger :: ValF :<: f => Integer -> EADT f
+fromInteger i = Val ε $ fromIntegral i
+fromRational :: FloatValF :<: f => Rational -> EADT f
+fromRational i = FloatVal ε $ realToFrac i
+
+(.+) :: AddF :<: f => EADT f -> EADT f -> EADT f
+(.+) a b = Add ε (a,b)
+(.*) a b = Mul ε (a,b)
+
+neg :: ValF :<: f => EADT f -> EADT f
+neg (Val α i)= Val α (-i)
+
+
+
+-- Main
 
 main :: IO ()
 main = do
+  let addVal = 10 .+ 5 :: AddValADT
+  let mulAddVal = 3 .* (10 .+ 3) :: MulAddValADT
+  let mulAddVal2 = (neg 3) .* (10 .+ 3) :: MulAddValADT
+  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF, ValF,MulF, FloatValF,AddF]
+  
   putText $ showAST addVal
   putText " = "
   putTextLn $ show $ evalAST addVal
@@ -36,11 +55,11 @@ main = do
   putText " = "
   putTextLn $ showAST $ demultiply (mulAddVal2)
 
-  putTextLn $ showAST (demultiply $ Mul ε (Val ε (-2), Val ε 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
+  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
   
   putText $ showAST mulAddValFloat
   putText " -> "
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ show $ para typeCheck' (Add ε (Val ε 10, FloatVal ε 5) :: EADT '[HErrorF,ValF,FloatValF,AddF])
+  putTextLn $ show $ para typeCheck' (10 .+ 5.0 :: EADT '[HErrorF,ValF,FloatValF,AddF])

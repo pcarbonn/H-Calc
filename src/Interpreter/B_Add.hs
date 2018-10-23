@@ -10,7 +10,7 @@ module Interpreter.B_Add where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
-  import Data.Functor.Foldable
+  import Prelude
   
   data ValF e = ValF Annotation Int deriving (Functor)
   data AddF e = AddF Annotation (e, e) deriving (Functor)
