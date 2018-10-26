@@ -1,37 +1,76 @@
 module Interpreter.A_Annotation where
 
+  -- this module adds the following language construct to the DSL
+  --    (EmptyNote)
+  --    (Typ t α)
+  -------------------------------------------------------
+
   import Interpreter.Utils
+  import Interpreter.Result
   
   import Prelude
   import Haskus.Utils.EADT
 
+  -- EmptyNote
 
-  data Typ
-    = T Text -- the type of the term
-    | TError Text   -- the type of an invalid expression with some explanation
-    deriving (Show,Eq)  
+  data EmptyNoteF e = EmptyNoteF deriving (Functor)
 
-  data Annotation = Annotation
-    { typ :: Typ
-    }
+  pattern EmptyNote :: EmptyNoteF :<: xs => EADT xs
+  pattern EmptyNote = VF EmptyNoteF
+
+  -- Type t α
+
+  data TTyp = TInt | TFloat deriving Show
+
+  data TypF a = TypF TTyp a deriving (Functor)
+
+  pattern Typ :: TypF :<: xs => TTyp -> EADT xs -> EADT xs
+  pattern Typ t a = VF (TypF t a)
   
 
-  emptyAnnot = Annotation {typ= T ""}
+  -- show
+  
+  instance ShowAST EmptyNoteF where
+    showAST' EmptyNoteF = "?"
+
+  instance ShowAST TypF where
+    showAST' (TypF t a) = show t
 
   -- helper for type check
   --------------------------------------------------------
 
-  class TypeCheck (f :: * -> *) ys where
-    typeCheck' :: f (EADT ys, Typ) -> Typ
+  class TypeAST (f :: * -> *) ys where
+    typeAST' :: f (EADT ys, EADT ys) -> EADT ys -- first is original, 2nd is modified
 
-  instance TypeCheck (VariantF '[]) ys where
-    typeCheck' _ = TError "no implementation of TypeCheck for this type"
+  instance TypeAST (VariantF '[]) ys where
+    typeAST' = error "no implementation of Type Check for this type"
 
-  instance (TypeCheck x ys, TypeCheck (VariantF xs) ys)  => TypeCheck (VariantF (x ': xs)) ys where
-    typeCheck' v = case popVariantFHead v of
-        Right u -> typeCheck' u
-        Left  w -> typeCheck' w   
+  instance (TypeAST x ys, TypeAST (VariantF xs) ys)  => TypeAST (VariantF (x ': xs)) ys where
+    typeAST' v = case popVariantFHead v of
+        Right u -> typeAST' u
+        Left  w -> typeAST' w
+     
+  typeAST :: 
+    ( TypeAST (VariantF xs) xs
+    , Functor (VariantF xs)
+    , TypF :<: xs
+    ) => EADT xs -> EADT xs
+  typeAST e = para typeAST' e 
 
+  instance (EmptyNoteF :<: ys) => TypeAST HErrorF ys where
+    typeAST' _ = EmptyNote
 
-  instance TypeCheck HErrorF ys where
-    typeCheck' _ = T "Error"
+  instance (EmptyNoteF :<: ys) => TypeAST EmptyNoteF ys where
+    typeAST' _ = EmptyNote
+
+  instance (TypF :<: ys, EmptyNoteF :<: ys) => TypeAST TypF ys where
+    typeAST' (TypF _ (_, s)) = s -- erase existing type  
+
+  -- eval
+  --------------------------------------------------------
+
+  instance Eval (EmptyNoteF e) where
+    eval EmptyNoteF = RError "Can't evaluate annotations"
+
+  instance Eval (TypF e) where
+    eval (TypF _ _) = RError "Can't evaluate annotations"

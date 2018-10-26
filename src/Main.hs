@@ -1,5 +1,7 @@
 -- from http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html
 
+{-# LANGUAGE RebindableSyntax #-}
+
 module Main where
 
 import Interpreter.A_Annotation
@@ -14,16 +16,15 @@ import Prelude hiding (fromInteger, fromRational)
 
 -- syntactic sugar
 
-ε = emptyAnnot
 
-fromInteger :: ValF :<: f => Integer -> EADT f
-fromInteger i = Val ε $ fromIntegral i
-fromRational :: FloatValF :<: f => Rational -> EADT f
-fromRational i = FloatVal ε $ realToFrac i
+fromInteger :: (EmptyNoteF :<: f, ValF :<: f) => Integer -> EADT f
+fromInteger i = Val EmptyNote $ fromIntegral i
+fromRational :: (EmptyNoteF :<: f, FloatValF :<: f) => Rational -> EADT f
+fromRational i = FloatVal EmptyNote $ realToFrac i
 
-(.+) :: AddF :<: f => EADT f -> EADT f -> EADT f
-(.+) a b = Add ε (a,b)
-(.*) a b = Mul ε (a,b)
+(.+) :: (EmptyNoteF :<: f, AddF :<: f) => EADT f -> EADT f -> EADT f
+(.+) a b = Add EmptyNote (a,b)
+(.*) a b = Mul EmptyNote (a,b)
 
 neg :: ValF :<: f => EADT f -> EADT f
 neg (Val α i)= Val α (-i)
@@ -37,7 +38,7 @@ main = do
   let addVal = 10 .+ 5 :: AddValADT
   let mulAddVal = 3 .* (10 .+ 3) :: MulAddValADT
   let mulAddVal2 = (neg 3) .* (10 .+ 3) :: MulAddValADT
-  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF, ValF,MulF, FloatValF,AddF]
+  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF, EmptyNoteF, ValF,MulF, FloatValF,AddF]
   
   putText $ showAST addVal
   putText " = "
@@ -55,11 +56,11 @@ main = do
   putText " = "
   putTextLn $ showAST $ demultiply (mulAddVal2)
 
-  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  EADT '[HErrorF,ValF,AddF,MulF])
+  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  EADT '[HErrorF,EmptyNoteF,ValF,AddF,MulF])
   
   putText $ showAST mulAddValFloat
   putText " -> "
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ show $ para typeCheck' (10 .+ 5.0 :: EADT '[HErrorF,ValF,FloatValF,AddF])
+  putTextLn $ showAST $ typeAST (10 .+ 5.0 :: EADT '[HErrorF,EmptyNoteF,TypF,ValF,FloatValF,AddF])

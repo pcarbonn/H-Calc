@@ -1,7 +1,6 @@
 -- you need to adapt H-Calc.cabal to run this program: 
 --  hs-source-dirs:     sandbox
 --  main-is:            Sandbox.hs
--- + remove RebindableSyntax
 
 
 module Sandbox where
@@ -84,7 +83,13 @@ module Sandbox where
     typeAST' v = case popVariantFHead v of
         Right u -> typeAST' u
         Left  w -> typeAST' w
-
+     
+  typeAST :: 
+    ( TypeAST (VariantF xs) xs
+    , Functor (VariantF xs)
+    , TypF :<: xs
+    ) => EADT xs -> EADT xs
+  typeAST e = para typeAST' e 
 
   instance (EmptyNoteF :<: ys) => TypeAST EmptyNoteF ys where
     typeAST' _ = EmptyNote
@@ -94,13 +99,7 @@ module Sandbox where
 
   instance (EmptyNoteF :<: ys, ValF :<: ys, TypF :<: ys) => TypeAST ValF ys where
     typeAST' (ValF (a,_) i) = Val (Typ TInt a) i
-     
-  typeAST :: 
-    ( TypeAST (VariantF xs) xs
-    , Functor (VariantF xs)
-    , TypF :<: xs
-    ) => EADT xs -> EADT xs
-  typeAST e = para typeAST' e 
+
 
 
   type AST1 = EADT '[ValF, EmptyNoteF]

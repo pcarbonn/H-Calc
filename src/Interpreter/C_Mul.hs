@@ -14,10 +14,10 @@ module Interpreter.C_Mul where
 
   --------------------------------------------------------
 
-  data MulF e = MulF Annotation (e, e) deriving (Functor)
-  type MulAddValADT = EADT '[HErrorF, ValF,AddF,MulF]
+  data MulF e = MulF e (e, e) deriving (Functor)
+  type MulAddValADT = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
 
-  pattern Mul :: MulF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
+  pattern Mul :: MulF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
   pattern Mul α is = VF (MulF α is)
 
   -- show
@@ -30,14 +30,12 @@ module Interpreter.C_Mul where
   -- we can multiply anything by a Int, except error
   --------------------------------------------------------
 
-  instance (MulF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck MulF ys where
-    typeCheck' (MulF _ ((u,t1), (v,t2))) =
+  instance (HErrorF :<: ys, EmptyNoteF :<: ys, MulF :<: ys, TypF :<: ys) => TypeAST MulF ys where
+    typeAST' (MulF (_,α') ((u,t1), (v,t2))) =
       case (t1,t2) of
-        (TError _, _) -> t1
-        (_, TError _) -> t2
-        (T "Int", _)  -> t1 
-        _             -> TError $ "can't multiply `" <> showAST u <> "` whose type is " <> show t1 <>
-                                  " with `" <> showAST v <> "` whose type is " <> show t2
+        (HError _, _) -> t1
+        (_, HError _) -> t2
+        _ -> Mul (Typ TInt α') (t1,t2) --TODO check type
 
 
   -- apply distribution : a*(b+c) -> (a*b+a*c)

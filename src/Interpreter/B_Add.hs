@@ -12,19 +12,19 @@ module Interpreter.B_Add where
   import Haskus.Utils.EADT
   import Prelude
   
-  data ValF e = ValF Annotation Int deriving (Functor)
-  data AddF e = AddF Annotation (e, e) deriving (Functor)
+  data ValF e = ValF e Int deriving (Functor)
+  data AddF e = AddF e (e, e) deriving (Functor)
   
-  type AddValADT = EADT '[ValF,AddF]
+  type AddValADT = EADT '[EmptyNoteF,ValF,AddF]
   
 
 
   -- define patterns, for creation and pattern matching
   
-  pattern Val :: ValF :<: xs => Annotation -> Int -> EADT xs
+  pattern Val :: ValF :<: xs => EADT xs -> Int -> EADT xs
   pattern Val α i = VF (ValF α i)
   
-  pattern Add :: AddF :<: xs => Annotation -> (EADT xs, EADT xs) -> EADT xs
+  pattern Add :: AddF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
   pattern Add α is = VF (AddF α is)
 
   
@@ -40,19 +40,18 @@ module Interpreter.B_Add where
   
         
   -- Type checker
-  
-  instance TypeCheck ValF ys where
-    typeCheck' _ = T "Int"
 
-  instance (AddF :<: ys, ShowAST (VariantF ys), Functor (VariantF ys)) => TypeCheck AddF ys where
-    typeCheck' (AddF _ ((u,t1), (v,t2)))
-      | t1 == t2       = t1
-      | TError _ <- t1 = t1 -- propagate errors
-      | TError _ <- t2 = t2
-      | otherwise = TError $ "can't add `" <> showAST u <> "` whose type is " <> show t1 <>
-                            " with `" <> showAST v <> "` whose type is " <> show t2
+  instance (EmptyNoteF :<: ys, ValF :<: ys, TypF :<: ys) => TypeAST ValF ys where
+    typeAST' (ValF (a,_) i) = Val (Typ TInt a) i
   
-  
+
+  instance (HErrorF :<: ys, EmptyNoteF :<: ys, AddF :<: ys, TypF :<: ys) => TypeAST AddF ys where
+    typeAST' (AddF (_,α') ((u,t1), (v,t2))) =
+      case (t1,t2) of
+        (HError _, _) -> t1
+        (_, HError _) -> t2
+        _ -> Add (Typ TInt α') (t1,t2) --TODO check type
+    
 
   -- Eval: returns a Int
   
@@ -63,6 +62,7 @@ module Interpreter.B_Add where
     eval (AddF _ (u,v)) = 
       case (evalAST u, evalAST v) of -- implicit recursion
         (RInt a, RInt b) -> RInt (a+b)
+        (RFloat a, RFloat b) -> RFloat (a+b)
         (RError e, _) -> RError e
         (_, RError e) -> RError e
         _             -> RError $ "Error in eval(AddF)" 

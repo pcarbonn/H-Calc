@@ -15,11 +15,11 @@ module Interpreter.D_Float where
 
   --------------------------------------------------------
 
-  data FloatValF e = FloatValF Annotation Float deriving (Functor)
+  data FloatValF e = FloatValF e Float deriving (Functor)
 
   --------------------------------------------------------
 
-  pattern FloatVal :: FloatValF :<: xs => Annotation -> Float -> EADT xs
+  pattern FloatVal :: FloatValF :<: xs => EADT xs -> Float -> EADT xs
   pattern FloatVal α f = VF (FloatValF α f)
 
   --------------------------------------------------------
@@ -29,8 +29,8 @@ module Interpreter.D_Float where
     
   --------------------------------------------------------
 
-  instance TypeCheck FloatValF ys where
-    typeCheck' _ = T "Float"
+  instance (EmptyNoteF :<: ys, FloatValF :<: ys, TypF :<: ys) => TypeAST FloatValF ys where
+    typeAST' (FloatValF (a,_) i) = FloatVal (Typ TFloat a) i
     
   --------------------------------------------------------
 
