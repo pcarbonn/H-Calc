@@ -31,7 +31,7 @@ module Interpreter.C_Mul where
   instance GetType MulF where
     getType' (MulF α _) = α
 
-  instance  (HErrorF :<: ys, EmptyNoteF :<: ys, TypF :<: ys
+  instance  (HErrorF :<: ys, EmptyNoteF :<: ys, TTypeF :<: ys
             , MulF :<: ys
             , GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
             => SetType MulF ys where
@@ -51,12 +51,12 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   -- distribute multiplication over addition if it matches
-  distr' :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs) => EADT xs -> Maybe (EADT xs)
-  distr' (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
-  distr' _                 = Nothing
+  distribute' :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs) => EADT xs -> Maybe (EADT xs)
+  distribute' (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
+  distribute' _                 = Nothing
 
-  distr :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs, Functor (VariantF xs)) => EADT xs -> EADT xs
-  distr = bottomUpFixed distr'
+  distribute :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs, Functor (VariantF xs)) => EADT xs -> EADT xs
+  distribute = bottomUpFixed distribute'
   
 
   -- demultiply : n*a -> a+a+... n times
@@ -66,7 +66,7 @@ module Interpreter.C_Mul where
   demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
                 , Eval (VariantF xs (EADT xs)), Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
-  demultiply = bottomUp go . distr
+  demultiply = bottomUp go . distribute
     where go (Mul α (i,v)) =
             case (evalAST i, v) of
               (RError e, _) -> HError e

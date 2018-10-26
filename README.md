@@ -32,7 +32,7 @@ dir> ghcid "--command=stack ghci H-Calc" "--test=:main"
 
 # H-Calc
 
-To illustrate the use of these technologies, H-Calc is a (limited) calculator that accepts formula containing additions and multiplications, and evaluates them using additions only. 
+To illustrate the use of these technologies, H-Calc is a (limited) calculator that accepts formula constructed from additions and multiplications, and evaluates them using additions only. 
 
 The first iteration of our DSL interpreter supports the addition of integers:
 
@@ -40,14 +40,26 @@ The first iteration of our DSL interpreter supports the addition of integers:
 
 It is a good starting point for your project: you can find it on the master branch on git.  
 
-Our second iteration supports multiplication by repeated additions: it transforms n\*a into a+a+... (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  n must be positive.  This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. It is accessible in the Mul branch on git.
+Our second iteration supports multiplication by repeated additions: it transforms n\*a into a+a+... (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  n must be positive.  This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. It is visible in the Mul branch on git.
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) = 14
 
-In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking.  It is implemented in D_Float.hs and C_Mul.hs.
+In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking. It is visible in the Float branch on git.
 
     2 * 3.0 -> (3.0 + 3.0) = 6.0
 
+Below is the list of AST transformations in the Float branch:
+
+- showAST : a bottom up evaluation of the tree into a Text value
+- getType : a bottom up evaluation of the tree into a TType
+- setType : a bottom up transformation of the tree to add type information in the annotation of each node.  The tree type must allow TType nodes.
+- appendEADT @'[TTypeF] : to allow TType nodes in the tree
+- distribute: fix point of a bottom up transformation using the distribution rule
+- demultiply: bottom up transformation to replace multiplications by additions
+- eval : a bottom up evaluation of the tree into a Result type
+
+
 # Footnote
+
 
 <a name="myfootnote1">1</a>: GHC comes with a set of libraries ("[base](http://hackage.haskell.org/package/base)"), some of which are imported by default in your program ("[Prelude](http://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html)").  For historical reason, some choices that Prelude made are not optimal anymore.  Relude is an alternative Prelude that uses Text instead of String and avoids partial functions, among other benefits.

@@ -21,28 +21,29 @@ module Interpreter.A_Annotation where
 
   -- Type t α
 
-  data TTyp = TInt | TFloat deriving Show
+  data TType = TInt | TFloat deriving Show
 
-  data TypF e = TypF TTyp e deriving (Functor)
+  data TTypeF e = TTypeF TType e deriving (Functor)
 
-  pattern Typ :: TypF :<: xs => TTyp -> EADT xs -> EADT xs
-  pattern Typ t a = VF (TypF t a)
+  pattern Typ :: TTypeF :<: xs => TType -> EADT xs -> EADT xs
+  pattern Typ t a = VF (TTypeF t a)
   
 
   -- show
+  --------------------------------------------------------
   
   instance ShowAST EmptyNoteF where
     showAST' EmptyNoteF = "?"
 
-  instance ShowAST TypF where
-    showAST' (TypF t α) = " :: " <> show t <> α
+  instance ShowAST TTypeF where
+    showAST' (TTypeF t α) = " :: " <> show t <> α
 
 
 
   -- Get Type
   --------------------------------------------------------
   class GetType (f :: * -> *) where
-    getType' :: f TTyp -> TTyp    
+    getType' :: f TType -> TType    
 
   instance GetType (VariantF '[]) where
     getType' = error "no implementation of Type Check for this type"
@@ -52,7 +53,7 @@ module Interpreter.A_Annotation where
         Right u -> getType' u
         Left  w -> getType' w
 
-  getType :: (GetType (Base t), Recursive t) => t -> TTyp
+  getType :: (GetType (Base t), Recursive t) => t -> TType
   getType = cata getType'
   
   instance GetType HErrorF where
@@ -61,8 +62,8 @@ module Interpreter.A_Annotation where
   instance GetType EmptyNoteF where
     getType' _ = error "no type in annotation"
 
-  instance GetType TypF where
-    getType' (TypF t _)  = t
+  instance GetType TTypeF where
+    getType' (TTypeF t _)  = t
 
 
 
@@ -82,7 +83,7 @@ module Interpreter.A_Annotation where
   setType :: 
     ( SetType (VariantF xs) xs
     , Functor (VariantF xs)
-    , TypF :<: xs
+    , TTypeF :<: xs
     ) => EADT xs -> EADT xs
   setType = cata setType'
 
@@ -93,8 +94,8 @@ module Interpreter.A_Annotation where
   instance (EmptyNoteF :<: ys) => SetType EmptyNoteF ys where
     setType' _ = EmptyNote
 
-  instance (TypF :<: ys, EmptyNoteF :<: ys) => SetType TypF ys where
-    setType' (TypF _ α) = α -- erase existing type
+  instance (TTypeF :<: ys, EmptyNoteF :<: ys) => SetType TTypeF ys where
+    setType' (TTypeF _ α) = α -- erase existing type
 
 
         
@@ -105,5 +106,5 @@ module Interpreter.A_Annotation where
   instance Eval (EmptyNoteF e) where
     eval EmptyNoteF = RError "Can't evaluate annotations"
 
-  instance Eval (TypF e) where
-    eval (TypF _ _) = RError "Can't evaluate annotations"
+  instance Eval (TTypeF e) where
+    eval (TTypeF _ _) = RError "Can't evaluate annotations"

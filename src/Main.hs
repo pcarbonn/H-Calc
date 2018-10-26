@@ -66,4 +66,4 @@ main = do
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ showAST $ setType (10 .+ 5.0 :: EADT '[HErrorF,EmptyNoteF,TypF,ValF,FloatValF,AddF])
+  putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] (10 .+ 5.0 :: EADT '[HErrorF,EmptyNoteF,ValF,FloatValF,AddF])
