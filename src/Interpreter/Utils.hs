@@ -9,7 +9,7 @@ module Interpreter.Utils where
   --    showAST
   --    typeCheck
   --    simplify
-  -- it also defines the (Herror Text) AST node
+  -- it also defines the (HError Text) AST node
   -------------------------------------------------------
   data HErrorF e = HErrorF Text deriving (Functor)
 

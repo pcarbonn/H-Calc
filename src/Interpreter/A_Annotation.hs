@@ -1,3 +1,4 @@
+
 module Interpreter.A_Annotation where
 
   -- this module adds the following language construct to the DSL
@@ -36,36 +37,65 @@ module Interpreter.A_Annotation where
   instance ShowAST TypF where
     showAST' (TypF t a) = show t
 
-  -- helper for type check
+  -- Get Type
   --------------------------------------------------------
+  class GetType (f :: * -> *) where
+    getType' :: f TTyp -> TTyp    
 
-  class TypeAST (f :: * -> *) ys where
-    typeAST' :: f (EADT ys, EADT ys) -> EADT ys -- first is original, 2nd is modified
+  instance GetType (VariantF '[]) where
+    getType' = error "no implementation of Type Check for this type"
 
-  instance TypeAST (VariantF '[]) ys where
-    typeAST' = error "no implementation of Type Check for this type"
+  instance (GetType x, GetType (VariantF xs))  => GetType (VariantF (x ': xs)) where
+    getType' v = case popVariantFHead v of
+        Right u -> getType' u
+        Left  w -> getType' w
 
-  instance (TypeAST x ys, TypeAST (VariantF xs) ys)  => TypeAST (VariantF (x ': xs)) ys where
-    typeAST' v = case popVariantFHead v of
-        Right u -> typeAST' u
-        Left  w -> typeAST' w
+  getType :: (GetType (Base t), Recursive t) => t -> TTyp
+  getType e = cata getType' e
+  
+  instance GetType HErrorF where
+    getType' _ = error "no type in annotation"
+
+  instance GetType EmptyNoteF where
+    getType' _ = error "no type in annotation"
+
+  instance GetType TypF where
+    getType' (TypF t _)  = t
+
+
+  -- Set Type
+  --------------------------------------------------------
+  class SetType (f :: * -> *) ys where
+    setType' :: f (EADT ys, EADT ys) -> EADT ys -- first is original, 2nd is modified
+
+  instance SetType (VariantF '[]) ys where
+    setType' = error "no implementation of Type Check for this type"
+
+  instance (SetType x ys, SetType (VariantF xs) ys)  => SetType (VariantF (x ': xs)) ys where
+    setType' v = case popVariantFHead v of
+        Right u -> setType' u
+        Left  w -> setType' w
      
-  typeAST :: 
-    ( TypeAST (VariantF xs) xs
+  setType :: 
+    ( SetType (VariantF xs) xs
     , Functor (VariantF xs)
     , TypF :<: xs
     ) => EADT xs -> EADT xs
-  typeAST e = para typeAST' e 
+  setType e = para setType' e
 
-  instance (EmptyNoteF :<: ys) => TypeAST HErrorF ys where
-    typeAST' _ = EmptyNote
 
-  instance (EmptyNoteF :<: ys) => TypeAST EmptyNoteF ys where
-    typeAST' _ = EmptyNote
+  instance (EmptyNoteF :<: ys) => SetType HErrorF ys where
+    setType' _ = EmptyNote
 
-  instance (TypF :<: ys, EmptyNoteF :<: ys) => TypeAST TypF ys where
-    typeAST' (TypF _ (_, s)) = s -- erase existing type  
+  instance (EmptyNoteF :<: ys) => SetType EmptyNoteF ys where
+    setType' _ = EmptyNote
 
+  instance (TypF :<: ys, EmptyNoteF :<: ys) => SetType TypF ys where
+    setType' (TypF _ (_, s)) = s -- erase existing type
+
+
+        
+        
   -- eval
   --------------------------------------------------------
 

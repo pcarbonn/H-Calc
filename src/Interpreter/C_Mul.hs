@@ -27,17 +27,25 @@ module Interpreter.C_Mul where
 
   
   -- Type checker
-  -- we can multiply anything by a Int, except error
   --------------------------------------------------------
 
-  instance (HErrorF :<: ys, EmptyNoteF :<: ys, MulF :<: ys, TypF :<: ys) => TypeAST MulF ys where
-    typeAST' (MulF (_,α') ((u,t1), (v,t2))) =
-      case (t1,t2) of
-        (HError _, _) -> t1
-        (_, HError _) -> t2
-        _ -> Mul (Typ TInt α') (t1,t2) --TODO check type
+  instance (HErrorF :<: ys, EmptyNoteF :<: ys, MulF :<: ys, TypF :<: ys, 
+            GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
+            => SetType MulF ys where
+    setType' (MulF (_,α') ((u,u'), (v,v'))) =
+      case (u',v') of
+        (HError _, _) -> u'
+        (_, HError _) -> v'
+        _ -> case (getType u', getType v') of
+                (TInt, TInt) -> Mul (Typ TInt α') (u',v')
+                (TInt, TFloat) -> Mul (Typ TFloat α') (u',v')
+                (t1,t2) -> HError $ "can't multiply `" <> showAST u' <> "` whose type is " <> show t1 <>
+                                    " with `" <> showAST v' <> "` whose type is " <> show t2
 
+  instance GetType MulF where
+    getType' (MulF a _) = a
 
+    
   -- apply distribution : a*(b+c) -> (a*b+a*c)
   -- DSL must have HErrorF, AddF, MulF
   --------------------------------------------------------

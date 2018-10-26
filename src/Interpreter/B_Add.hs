@@ -41,17 +41,30 @@ module Interpreter.B_Add where
         
   -- Type checker
 
-  instance (EmptyNoteF :<: ys, ValF :<: ys, TypF :<: ys) => TypeAST ValF ys where
-    typeAST' (ValF (a,_) i) = Val (Typ TInt a) i
-  
+  instance GetType ValF where
+    getType' (ValF a _) = a  
 
-  instance (HErrorF :<: ys, EmptyNoteF :<: ys, AddF :<: ys, TypF :<: ys) => TypeAST AddF ys where
-    typeAST' (AddF (_,α') ((u,t1), (v,t2))) =
-      case (t1,t2) of
-        (HError _, _) -> t1
-        (_, HError _) -> t2
-        _ -> Add (Typ TInt α') (t1,t2) --TODO check type
+  instance GetType AddF where
+    getType' (AddF a _) = a
+
+
+  instance (EmptyNoteF :<: ys, ValF :<: ys, TypF :<: ys, GetType (VariantF ys), Functor (VariantF ys)) => SetType ValF ys where
+    setType' (ValF (a,_) i) = Val (Typ TInt a) i
+
+  instance (HErrorF :<: ys, EmptyNoteF :<: ys, AddF :<: ys, TypF :<: ys, 
+            GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
+            => SetType AddF ys where
+    setType' (AddF (_,α') ((u,u'), (v,v'))) =
+      case (u',v') of
+        (HError _, _) -> u'
+        (_, HError _) -> v'
+        _ -> case (getType u', getType v') of
+                (TInt, TInt) -> Add (Typ TInt α') (u',v')
+                (TFloat, TFloat) -> Add (Typ TFloat α') (u',v')
+                (t1,t2) -> HError $ "can't add `" <> showAST u' <> "` whose type is " <> show t1 <>
+                                    " with `" <> showAST v' <> "` whose type is " <> show t2
     
+
 
   -- Eval: returns a Int
   
