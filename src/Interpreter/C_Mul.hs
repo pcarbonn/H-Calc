@@ -32,7 +32,7 @@ module Interpreter.C_Mul where
   instance (HErrorF :<: ys, EmptyNoteF :<: ys, MulF :<: ys, TypF :<: ys, 
             GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
             => SetType MulF ys where
-    setType' (MulF (_,α') ((u,u'), (v,v'))) =
+    setType' (MulF α' (u', v')) =
       case (u',v') of
         (HError _, _) -> u'
         (_, HError _) -> v'
