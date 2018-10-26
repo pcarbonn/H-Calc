@@ -23,7 +23,7 @@ module Interpreter.A_Annotation where
 
   data TTyp = TInt | TFloat deriving Show
 
-  data TypF a = TypF TTyp a deriving (Functor)
+  data TypF e = TypF TTyp e deriving (Functor)
 
   pattern Typ :: TypF :<: xs => TTyp -> EADT xs -> EADT xs
   pattern Typ t a = VF (TypF t a)
@@ -35,7 +35,9 @@ module Interpreter.A_Annotation where
     showAST' EmptyNoteF = "?"
 
   instance ShowAST TypF where
-    showAST' (TypF t a) = show t
+    showAST' (TypF t α) = " :: " <> show t <> α
+
+
 
   -- Get Type
   --------------------------------------------------------
@@ -51,7 +53,7 @@ module Interpreter.A_Annotation where
         Left  w -> getType' w
 
   getType :: (GetType (Base t), Recursive t) => t -> TTyp
-  getType e = cata getType' e
+  getType = cata getType'
   
   instance GetType HErrorF where
     getType' _ = error "no type in annotation"
@@ -61,6 +63,7 @@ module Interpreter.A_Annotation where
 
   instance GetType TypF where
     getType' (TypF t _)  = t
+
 
 
   -- Set Type
@@ -81,7 +84,7 @@ module Interpreter.A_Annotation where
     , Functor (VariantF xs)
     , TypF :<: xs
     ) => EADT xs -> EADT xs
-  setType e = cata setType' e
+  setType = cata setType'
 
 
   instance (EmptyNoteF :<: ys) => SetType HErrorF ys where
@@ -91,7 +94,7 @@ module Interpreter.A_Annotation where
     setType' _ = EmptyNote
 
   instance (TypF :<: ys, EmptyNoteF :<: ys) => SetType TypF ys where
-    setType' (TypF _ s) = s -- erase existing type
+    setType' (TypF _ α) = α -- erase existing type
 
 
         

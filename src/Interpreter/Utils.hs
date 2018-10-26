@@ -5,21 +5,12 @@ module Interpreter.Utils where
   import Haskus.Utils.EADT
   import Prelude
 
-  -- this module defines the operations we want to perform on the AST
+  -- this module creates helpers for the operations we want to perform on the AST
   --    showAST
-  --    typeCheck
   --    simplify
-  -- it also defines the (HError Text) AST node
+  -- It also defines the (HError Text) AST node
   -------------------------------------------------------
-  data HErrorF e = HErrorF Text deriving (Functor)
 
-
-  -- define pattern, for creation and pattern matching
-  
-  pattern HError :: HErrorF :<: xs => Text -> EADT xs
-  pattern HError a = VF (HErrorF a)
-
-  
   -- show
   -------------------------------------------------------
   class ShowAST (f :: * -> *) where
@@ -36,15 +27,6 @@ module Interpreter.Utils where
   showAST :: (ShowAST (Base t), Recursive t) => t -> Text -- type inferred by GHC
   showAST = cata showAST'
 
-  instance ShowAST HErrorF where
-    showAST' (HErrorF s) = s
-
-              
-  -- eval
-  -------------------------------------------------------
-
-  instance Eval (HErrorF e) where
-    eval (HErrorF e) = RError e
 
 
   -- transformations / recursion schemes
@@ -61,3 +43,19 @@ module Interpreter.Utils where
           Nothing -> u
           Just v  -> bottomUpFixed f v
 
+
+
+  -- HError s
+  -------------------------------------------------------
+  data HErrorF e = HErrorF Text deriving (Functor)
+  
+  pattern HError :: HErrorF :<: xs => Text -> EADT xs
+  pattern HError s = VF (HErrorF s)
+
+  instance ShowAST HErrorF where
+    showAST' (HErrorF s) = s
+
+  instance Eval (HErrorF e) where
+    eval (HErrorF s) = RError s
+  
+        

@@ -17,19 +17,22 @@ import Prelude hiding (fromInteger, fromRational)
 -- syntactic sugar
 
 
-fromInteger :: (EmptyNoteF :<: f, ValF :<: f) => Integer -> EADT f
+fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
 fromInteger i = Val EmptyNote $ fromIntegral i
-fromRational :: (EmptyNoteF :<: f, FloatValF :<: f) => Rational -> EADT f
+fromRational :: (EmptyNoteF :<: xs, FloatValF :<: xs) => Rational -> EADT xs
 fromRational i = FloatVal EmptyNote $ realToFrac i
 
-(.+) :: (EmptyNoteF :<: f, AddF :<: f) => EADT f -> EADT f -> EADT f
+(.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
 (.+) a b = Add EmptyNote (a,b)
 (.*) a b = Mul EmptyNote (a,b)
 
-neg :: ValF :<: f => EADT f -> EADT f
+neg :: ValF :<: xs => EADT xs -> EADT xs
 neg (Val α i)= Val α (-i)
 
 
+  
+type AddValADT = EADT '[EmptyNoteF,ValF,AddF]
+type MulAddValADT = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
 
 -- Main
 
@@ -38,7 +41,7 @@ main = do
   let addVal = 10 .+ 5 :: AddValADT
   let mulAddVal = 3 .* (10 .+ 3) :: MulAddValADT
   let mulAddVal2 = (neg 3) .* (10 .+ 3) :: MulAddValADT
-  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF, EmptyNoteF, ValF,MulF, FloatValF,AddF]
+  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF,EmptyNoteF, ValF,FloatValF,AddF,MulF]
   
   putText $ showAST addVal
   putText " = "

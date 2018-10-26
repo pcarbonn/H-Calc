@@ -1,7 +1,7 @@
 module Interpreter.D_Float where
 
   -- this module adds the following language construct to the DSL
-  --    (FloatVal f)
+  --    (FloatVal α f)
   -------------------------------------------------------
 
   import Interpreter.A_Annotation
@@ -25,17 +25,17 @@ module Interpreter.D_Float where
   --------------------------------------------------------
 
   instance ShowAST FloatValF where
-      showAST' (FloatValF _ i) = show i
+      showAST' (FloatValF _ f) = show f
     
   --------------------------------------------------------
 
   instance GetType FloatValF where
-    getType' (FloatValF a _) = a  
+    getType' (FloatValF α _) = α  
 
   instance (EmptyNoteF :<: ys, FloatValF :<: ys, TypF :<: ys) => SetType FloatValF ys where
-    setType' (FloatValF a i) = FloatVal (Typ TFloat a) i
+    setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
     
   --------------------------------------------------------
 
   instance Eval (FloatValF e) where
-    eval (FloatValF _ i) = RFloat i
+    eval (FloatValF _ f) = RFloat f

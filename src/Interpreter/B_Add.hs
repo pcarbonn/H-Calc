@@ -1,8 +1,8 @@
 module Interpreter.B_Add where
 
   -- this module adds the following language construct to the DSL
-  --    (Val i)
-  --    (Add i1 i2)
+  --    (Val α i)
+  --    (Add α (i1,i2))
   -------------------------------------------------------
 
   import Interpreter.A_Annotation
@@ -15,9 +15,6 @@ module Interpreter.B_Add where
   data ValF e = ValF e Int deriving (Functor)
   data AddF e = AddF e (e, e) deriving (Functor)
   
-  type AddValADT = EADT '[EmptyNoteF,ValF,AddF]
-  
-
 
   -- define patterns, for creation and pattern matching
   
@@ -35,34 +32,35 @@ module Interpreter.B_Add where
     showAST' (ValF _ i) = show i
   
   instance ShowAST AddF where
-    showAST' (AddF _ (u,v)) = "(" <> u <> " + " <> v <> ")" -- no recursive call
+    showAST' (AddF _ (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" -- no recursive call
     
   
         
   -- Type checker
 
   instance GetType ValF where
-    getType' (ValF a _) = a  
+    getType' (ValF α _) = α  
 
   instance GetType AddF where
-    getType' (AddF a _) = a
+    getType' (AddF α _) = α
 
 
   instance (EmptyNoteF :<: ys, ValF :<: ys, TypF :<: ys, GetType (VariantF ys), Functor (VariantF ys)) => SetType ValF ys where
-    setType' (ValF a i) = Val (Typ TInt a) i
+    setType' (ValF α i) = Val (Typ TInt α) i
 
-  instance (HErrorF :<: ys, EmptyNoteF :<: ys, AddF :<: ys, TypF :<: ys, 
-            GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
+  instance (HErrorF :<: ys, EmptyNoteF :<: ys, TypF :<: ys
+           , AddF :<: ys
+           , GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
             => SetType AddF ys where
-    setType' (AddF α' (u', v')) =
-      case (u',v') of
-        (HError _, _) -> u'
-        (_, HError _) -> v'
-        _ -> case (getType u', getType v') of
-                (TInt, TInt) -> Add (Typ TInt α') (u',v')
-                (TFloat, TFloat) -> Add (Typ TFloat α') (u',v')
-                (t1,t2) -> HError $ "can't add `" <> showAST u' <> "` whose type is " <> show t1 <>
-                                    " with `" <> showAST v' <> "` whose type is " <> show t2
+    setType' (AddF α (v1, v2)) =
+      case (v1,v2) of
+        (HError _, _) -> v1
+        (_, HError _) -> v2
+        _ -> case (getType v1, getType v2) of
+                (TInt, TInt) -> Add (Typ TInt α) (v1,v2)
+                (TFloat, TFloat) -> Add (Typ TFloat α) (v1,v2)
+                (t1,t2) -> HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
+                                    " with `" <> showAST v2 <> "` whose type is " <> show t2
     
 
 
@@ -72,10 +70,10 @@ module Interpreter.B_Add where
     eval (ValF _ i) = RInt i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
-    eval (AddF _ (u,v)) = 
-      case (evalAST u, evalAST v) of -- implicit recursion
-        (RInt a, RInt b) -> RInt (a+b)
-        (RFloat a, RFloat b) -> RFloat (a+b)
+    eval (AddF _ (v1,v2)) = 
+      case (evalAST v1, evalAST v2) of -- implicit recursion
+        (RInt v1', RInt v2') -> RInt (v1'+v2')
+        (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
         (RError e, _) -> RError e
         (_, RError e) -> RError e
         _             -> RError $ "Error in eval(AddF)" 
