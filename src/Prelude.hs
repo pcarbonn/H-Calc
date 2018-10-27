@@ -4,6 +4,7 @@
 
 module Prelude
        ( module Relude
+       , MParser
        , trace
        , traceM
        , traceId
@@ -20,10 +21,13 @@ import Relude  hiding
         , traceShow
         , traceShowId
         , traceShowM
+        , many, some
      )
 
 import qualified Debug.Trace as Debug
 
+import Text.Megaparsec
+type MParser = Parsec Void Text
 ----------------------------------------------------------------------------
 -- trace
 ----------------------------------------------------------------------------

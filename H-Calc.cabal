@@ -21,6 +21,7 @@ executable H-Calc
                     , haskus-utils-variant
                     , hspec ==2.*
                     , megaparsec
+                    , parser-combinators
                     , recursion-schemes
                     , relude
   default-extensions: ConstraintKinds

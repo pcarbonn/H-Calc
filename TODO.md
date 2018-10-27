@@ -4,7 +4,7 @@ parse
 track location in source code, for better error message
 test suite, with discovery
 
-getAnnotation
+getAnnotation --> TypeCheck
 define ε = EmptyNote
 define withType = appendEADT @'[TTypeF] 
 readme: TTG

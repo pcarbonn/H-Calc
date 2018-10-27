@@ -10,7 +10,8 @@ module Interpreter.B_Add where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
-  import Prelude
+  import Text.Megaparsec
+  import Text.Megaparsec.Char as M
   
   data ValF e = ValF e Int deriving (Functor)
   data AddF e = AddF e (e, e) deriving (Functor)
@@ -25,6 +26,24 @@ module Interpreter.B_Add where
   pattern Add α is = VF (AddF α is)
 
   
+
+  -- parser
+
+  valParser :: (EmptyNoteF :<: xs, ValF :<: xs) => MParser (EADT xs)
+  valParser = Val EmptyNote . toInt <$> some M.digitChar
+    where toInt :: [Char] -> Int
+          toInt cs = foldl' (\a i -> a * 10 + digitToInt i) 0  cs
+
+          digitToInt :: Char -> Int
+          digitToInt c = ord c - ord '0'
+
+  addParser :: (EmptyNoteF :<: xs, AddF :<: xs) => MParser (EADT xs) -> MParser (EADT xs)
+  addParser termP = Add EmptyNote <$> do
+    i1 <- termP
+    _ <- string "+"
+    i2 <- termP
+    return (i1,i2)
+
 
   -- show
   
