@@ -5,12 +5,12 @@ module Interpreter.Utils where
   import Haskus.Utils.EADT
   import Prelude
 
-  -- this module creates helpers for the operations we want to perform on the AST
-  --    showAST
-  --    simplify
-  -- It also defines the following AST node:
+  -- This modules defines the following AST node:
   --    (HError Text)
   --    (EmptyNote)
+  -- Additionally, it creates helpers for the operations we want to perform on the AST
+  --    showAST
+  --    simplify
   -------------------------------------------------------
 
   -- show

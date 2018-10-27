@@ -1,5 +1,7 @@
 module Interpreter.Interpreter where
 
+  -- this module is the main entry point of the interpreter
+  
   import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.C_Mul
