@@ -68,10 +68,10 @@ module Interpreter.A_Annotation where
 
   -- Set Type
   --------------------------------------------------------
-  class SetType (f :: * -> *) ys where
-    setType' :: f (EADT ys) -> EADT ys
+  class SetType (f :: * -> *) xs where
+    setType' :: f (EADT xs) -> EADT xs
 
-  instance SetType (VariantF '[]) ys where
+  instance SetType (VariantF '[]) xs where
     setType' = error "no implementation of Type Check for this type"
 
   instance (SetType x ys, SetType (VariantF xs) ys)  => SetType (VariantF (x ': xs)) ys where
@@ -87,13 +87,13 @@ module Interpreter.A_Annotation where
   setType = cata setType'
 
 
-  instance (EmptyNoteF :<: ys) => SetType HErrorF ys where
+  instance (EmptyNoteF :<: xs) => SetType HErrorF xs where
     setType' _ = EmptyNote
 
-  instance (EmptyNoteF :<: ys) => SetType EmptyNoteF ys where
+  instance (EmptyNoteF :<: xs) => SetType EmptyNoteF xs where
     setType' _ = EmptyNote
 
-  instance (TTypeF :<: ys, EmptyNoteF :<: ys) => SetType TTypeF ys where
+  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType TTypeF xs where
     setType' (TTypeF _ α) = α -- erase existing type
 
 

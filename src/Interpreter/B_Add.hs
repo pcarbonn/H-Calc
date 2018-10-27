@@ -69,13 +69,13 @@ module Interpreter.B_Add where
     getType' (AddF α _) = α
 
 
-  instance (EmptyNoteF :<: ys, ValF :<: ys, TTypeF :<: ys, GetType (VariantF ys), Functor (VariantF ys)) => SetType ValF ys where
+  instance (EmptyNoteF :<: xs, ValF :<: xs, TTypeF :<: xs, GetType (VariantF xs), Functor (VariantF xs)) => SetType ValF xs where
     setType' (ValF α i) = Val (Typ TInt α) i
 
-  instance (HErrorF :<: ys, EmptyNoteF :<: ys, TTypeF :<: ys
-           , AddF :<: ys
-           , GetType (VariantF ys), Functor (VariantF ys), ShowAST (VariantF ys)) 
-            => SetType AddF ys where
+  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TTypeF :<: xs
+           , AddF :<: xs
+           , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
+            => SetType AddF xs where
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of
         (HError _, _) -> v1
