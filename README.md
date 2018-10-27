@@ -1,5 +1,5 @@
 WORK IN PROGRESS !  Use at your own risk.
-TODO : create 3 branches (Main, Mul, Float)
+(See [TODO.md](https://github.com/pcarbonn/H-Calc/blob/master/TODO.md))
 
 So, you want to write an interpreter for your own Domain Specific Language (DSL), in Haskell...  Then, clone H-Calc and start editing it.  H-Calc is a showcase of some of the best Haskell technologies to write a DSL interpreter, showing you that you can :
 
