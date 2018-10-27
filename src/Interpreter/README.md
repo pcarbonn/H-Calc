@@ -8,6 +8,10 @@
 - C_Mul : defines `Mul α (i,v)` AST nodes
 - D_Float : defines `FloatVal α i` AST nodes
 
+# EADT
+
+- `EADT '[HErrorF,EmptyNoteF, ValF,AddF]` is the type of an AST tree that contains only nodes constructed with `HError`, `EmptyNote`, `Val`, and `Add`.
+
 # Naming conventions
 
 - α : an annotation
