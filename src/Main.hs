@@ -4,7 +4,7 @@
 
 module Main where
 
-import Interpreter.A_Annotation
+import Interpreter.A_TypeCheck
 import Interpreter.B_Add
 import Interpreter.C_Mul
 import Interpreter.D_Float
@@ -33,17 +33,18 @@ neg :: ValF :<: xs => EADT xs -> EADT xs
 neg (Val α i)= Val α (-i)
 
 
-type AddValADT = EADT '[EmptyNoteF,ValF,AddF]
-type MulAddValADT = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
-
 -- Main
+
+type V1_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF]
+type V2_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
+type V3_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF,FloatValF]
 
 main :: IO ()
 main = do
-  let addVal = 10 .+ 5 :: AddValADT
-  let mulAddVal = 3 .* (10 .+ 3) :: MulAddValADT
-  let mulAddVal2 = (neg 3) .* (10 .+ 3) :: MulAddValADT
-  let mulAddValFloat = 10.* 5.0 :: EADT '[HErrorF,EmptyNoteF, ValF,FloatValF,AddF,MulF]
+  let addVal = 10 .+ 5 :: V1_AST
+  let mulAddVal = 3 .* (10 .+ 3) :: V2_AST
+  let mulAddVal2 = (neg 3) .* (10 .+ 3) :: V2_AST
+  let mulAddValFloat = 10.* 5.0 :: V3_AST
   
   putText $ showAST addVal
   putText " = "
@@ -61,14 +62,14 @@ main = do
   putText " = "
   putTextLn $ showAST $ demultiply (mulAddVal2)
 
-  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  EADT '[HErrorF,EmptyNoteF,ValF,AddF,MulF])
+  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  V2_AST)
   
   putText $ showAST mulAddValFloat
   putText " -> "
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] ((3 .+ 5).*5.0 :: EADT '[HErrorF,EmptyNoteF,ValF,FloatValF,AddF,MulF])
+  putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] ((3 .+ 5).*5.0 :: V3_AST)
 
   putTextLn $ show $ showAST <$> parseMaybe parser "(3+1)*15.0"
   putTextLn $ show $ interpret "((2+1)*5.0)"

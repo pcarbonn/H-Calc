@@ -4,7 +4,7 @@ module Interpreter.D_Float where
   --    (FloatVal α f)
   -------------------------------------------------------
 
-  import Interpreter.A_Annotation
+  import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.C_Mul
   import Interpreter.Utils

@@ -6,6 +6,7 @@ So, you want to write an interpreter for your own Domain Specific Language (DSL)
 - parse source code in your DSL with ease, and build the corresponding Abstract Syntax Tree (AST), thanks to [megaparsec](http://hackage.haskell.org/package/megaparsec) ([tutorial](https://markkarpov.com/megaparsec/parsing-simple-imperative-language.html))
 - start with a simple interpreter for the core features of your DSL, then add extensions in a modular way (each new feature in its own Haskell module), thanks to [Extensible Algebraic Datatype](http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html) (EADT)  ([tutorial](http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html)) 
 - transform the AST efficiently, without boilerplate, thanks to [Recursion-scheme](http://hackage.haskell.org/package/recursion-schemes-5.0.3) ([tutorial](https://blog.sumtypeofway.com/an-introduction-to-recursion-schemes/))
+- embed your DSL in Haskell, thanks to [RebindableSyntax](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide)
 - easily use the best functions and libraries of Haskell, thanks to [Relude](http://hackage.haskell.org/package/relude)<sup>[1](#myfootnote1)</sup>
 - organize your test suite, thanks to [HSpec](http://hackage.haskell.org/package/hspec), with [hspec-discover](http://hackage.haskell.org/package/hspec-discover)
 - automatically run your test suite as soon as you save a program file, provided it has no error nor warning, thanks to [Ghcid](https://github.com/ndmitchell/ghcid)
@@ -33,7 +34,7 @@ dir> ghcid "--command=stack ghci H-Calc" "--test=:main"
 
 # H-Calc
 
-To illustrate the use of these technologies, H-Calc is a (limited) calculator that accepts formula constructed from additions and multiplications, and evaluates them using additions only. 
+To illustrate the use of these technologies, H-Calc is a (limited) calculator that accepts formula containing additions and multiplications, and that evaluates them using additions only. 
 
 The first iteration of our DSL interpreter supports the addition of integers:
 
@@ -41,13 +42,15 @@ The first iteration of our DSL interpreter supports the addition of integers:
 
 It is a good starting point for your project: you can find it on the master branch on git.  
 
-Our second iteration supports multiplication by repeated additions: it transforms n\*a into a+a+... (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  n must be positive.  This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. It is visible in the Mul branch on git.
+Our second iteration supports multiplication by repeated additions: it transforms `n*a` into `a+a+...` (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  `n` must be positive.   This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. It is visible in the Mul branch on git.
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) = 14
 
 In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking. It is visible in the Float branch on git.
 
     2 * 3.0 -> (3.0 + 3.0) = 6.0
+
+Yet another iteration could evaluate `n` as `1+1+...` (n times): feel free to give it a try !
 
 Below is the list of AST transformations in the Float branch:
 

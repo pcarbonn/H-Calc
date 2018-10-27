@@ -5,7 +5,7 @@ module Interpreter.B_Add where
   --    (Add α (i1,i2))
   -------------------------------------------------------
 
-  import Interpreter.A_Annotation
+  import Interpreter.A_TypeCheck
   import Interpreter.Utils
   import Interpreter.Result
   

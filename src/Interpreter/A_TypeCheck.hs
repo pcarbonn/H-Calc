@@ -1,8 +1,7 @@
 
-module Interpreter.A_Annotation where
+module Interpreter.A_TypeCheck where
 
-  -- this module adds the following language construct to the DSL
-  --    (EmptyNote)
+  -- this module adds the following annotation construct to the DSL
   --    (Typ t α)
   -------------------------------------------------------
 
@@ -10,13 +9,6 @@ module Interpreter.A_Annotation where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
-
-  -- EmptyNote
-
-  data EmptyNoteF e = EmptyNoteF deriving (Functor)
-
-  pattern EmptyNote :: EmptyNoteF :<: xs => EADT xs
-  pattern EmptyNote = VF EmptyNoteF
 
   -- Type t α
 
@@ -30,9 +22,6 @@ module Interpreter.A_Annotation where
 
   -- show
   --------------------------------------------------------
-  
-  instance ShowAST EmptyNoteF where
-    showAST' EmptyNoteF = ""
 
   instance ShowAST TTypeF where
     showAST' (TTypeF t α) = " :: " <> show t <> α
@@ -41,6 +30,19 @@ module Interpreter.A_Annotation where
 
   -- Get Type
   --------------------------------------------------------
+  
+  instance GetType HErrorF where
+    getType' _ = error "no type in annotation"
+
+  instance GetType EmptyNoteF where
+    getType' _ = error "no type in annotation"
+
+  instance GetType TTypeF where
+    getType' (TTypeF t _)  = t
+    
+  
+  -- helpers
+  
   class GetType (f :: * -> *) where
     getType' :: f TType -> TType    
 
@@ -54,20 +56,23 @@ module Interpreter.A_Annotation where
 
   getType :: (GetType (Base t), Recursive t) => t -> TType
   getType = cata getType'
-  
-  instance GetType HErrorF where
-    getType' _ = error "no type in annotation"
-
-  instance GetType EmptyNoteF where
-    getType' _ = error "no type in annotation"
-
-  instance GetType TTypeF where
-    getType' (TTypeF t _)  = t
 
 
 
   -- Set Type
   --------------------------------------------------------
+
+  instance (EmptyNoteF :<: xs) => SetType HErrorF xs where
+    setType' _ = EmptyNote
+
+  instance (EmptyNoteF :<: xs) => SetType EmptyNoteF xs where
+    setType' _ = EmptyNote
+
+  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType TTypeF xs where
+    setType' (TTypeF _ α) = α -- erase existing type
+
+  -- helpers
+
   class SetType (f :: * -> *) xs where
     setType' :: f (EADT xs) -> EADT xs
 
@@ -85,25 +90,10 @@ module Interpreter.A_Annotation where
     , TTypeF :<: xs
     ) => EADT xs -> EADT xs
   setType = cata setType'
-
-
-  instance (EmptyNoteF :<: xs) => SetType HErrorF xs where
-    setType' _ = EmptyNote
-
-  instance (EmptyNoteF :<: xs) => SetType EmptyNoteF xs where
-    setType' _ = EmptyNote
-
-  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType TTypeF xs where
-    setType' (TTypeF _ α) = α -- erase existing type
-
-
         
         
   -- eval
   --------------------------------------------------------
-
-  instance Eval (EmptyNoteF e) where
-    eval EmptyNoteF = RError "Can't evaluate annotations"
 
   instance Eval (TTypeF e) where
     eval (TTypeF _ _) = RError "Can't evaluate annotations"

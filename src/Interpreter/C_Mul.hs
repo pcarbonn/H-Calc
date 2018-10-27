@@ -4,7 +4,7 @@ module Interpreter.C_Mul where
   --    (Mul α (i1,i2))
   -------------------------------------------------------
 
-  import Interpreter.A_Annotation
+  import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.Utils
   import Interpreter.Result
@@ -92,7 +92,9 @@ module Interpreter.C_Mul where
 
           go a         = a
 
+
   -- Eval
+  --------------------------------------------------------
   
   instance EvalAll xs => Eval (MulF (EADT xs)) where
     eval (MulF _ _) = RError "target machine cannot multiply"

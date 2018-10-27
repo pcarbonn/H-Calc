@@ -8,7 +8,9 @@ module Interpreter.Utils where
   -- this module creates helpers for the operations we want to perform on the AST
   --    showAST
   --    simplify
-  -- It also defines the (HError Text) AST node
+  -- It also defines the following AST node:
+  --    (HError Text)
+  --    (EmptyNote)
   -------------------------------------------------------
 
   -- show
@@ -58,4 +60,18 @@ module Interpreter.Utils where
   instance Eval (HErrorF e) where
     eval (HErrorF s) = RError s
   
-        
+
+
+  -- EmptyNote
+  -------------------------------------------------------
+
+  data EmptyNoteF e = EmptyNoteF deriving (Functor)
+
+  pattern EmptyNote :: EmptyNoteF :<: xs => EADT xs
+  pattern EmptyNote = VF EmptyNoteF        
+  
+  instance ShowAST EmptyNoteF where
+    showAST' EmptyNoteF = ""
+
+  instance Eval (EmptyNoteF e) where
+    eval EmptyNoteF = RError "Can't evaluate annotations"
