@@ -32,7 +32,7 @@ module Interpreter.A_Annotation where
   --------------------------------------------------------
   
   instance ShowAST EmptyNoteF where
-    showAST' EmptyNoteF = "?"
+    showAST' EmptyNoteF = ""
 
   instance ShowAST TTypeF where
     showAST' (TTypeF t α) = " :: " <> show t <> α

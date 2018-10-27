@@ -40,7 +40,7 @@ module Interpreter.D_Float where
   --------------------------------------------------------
 
   instance ShowAST FloatValF where
-      showAST' (FloatValF _ f) = show f
+      showAST' (FloatValF α f) = show f <> α
     
   --------------------------------------------------------
 

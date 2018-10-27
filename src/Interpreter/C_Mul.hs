@@ -85,9 +85,9 @@ module Interpreter.C_Mul where
               (RError e, _) -> HError e
               (_, HError e) -> HError e
               (RInt i', _) ->
-                if  | i' <  0 -> HError "Error: can't multiply by a negative number"
+                if  | i' <  0 -> HError $ "Error: can't multiply by negative number " <> show i'
                     | i' == 0 -> Val α 0
-                    | i' == 1 -> i
+                    | i' == 1 -> v
                     | otherwise -> Add α (v, go (Mul α ((Val α $ i'-1), v)))
 
           go a         = a

@@ -52,10 +52,10 @@ module Interpreter.B_Add where
   --------------------------------------------------------
   
   instance ShowAST ValF where
-    showAST' (ValF _ i) = show i
+    showAST' (ValF α i) = show i <> α
   
   instance ShowAST AddF where
-    showAST' (AddF _ (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" -- no recursive call
+    showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α -- no recursive call
     
   
         
@@ -101,4 +101,4 @@ module Interpreter.B_Add where
         (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
         (RError e, _) -> RError e
         (_, RError e) -> RError e
-        _             -> RError $ "Error in eval(AddF)" 
+        (a,b)             -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
