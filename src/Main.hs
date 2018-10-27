@@ -31,19 +31,26 @@ fromRational i = FloatVal EmptyNote $ realToFrac i
 neg :: ValF :<: xs => EADT xs -> EADT xs
 neg (Val α i)= Val α (-i)
 
-termParser :: MParser (EADT '[EmptyNoteF, ValF, AddF])
+-- main parser
+
+termParser :: MParser (EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF])
 termParser
-  = valParser
+  = try floatValParser
+  <|> valParser
   <|> do
         _ <- string "("
         e <- parser
         _ <- string ")"
         return e
 
-parser :: MParser (EADT '[EmptyNoteF, ValF, AddF])
+factorParser
+  = try (mulParser termParser)
+  <|> termParser
+
+parser :: MParser (EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF])
 parser 
-  = try (addParser termParser)
-  <|> valParser
+  = try (addParser factorParser)
+  <|> factorParser
 
 type AddValADT = EADT '[EmptyNoteF,ValF,AddF]
 type MulAddValADT = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
@@ -82,4 +89,4 @@ main = do
 
   putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] (10 .+ 5.0 :: EADT '[HErrorF,EmptyNoteF,ValF,FloatValF,AddF])
 
-  putTextLn $ show $ showAST <$> parseMaybe parser "(3+1)+15"
+  putTextLn $ show $ showAST <$> parseMaybe parser "(3+1)*15.0"

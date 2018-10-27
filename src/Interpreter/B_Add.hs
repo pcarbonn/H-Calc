@@ -13,9 +13,11 @@ module Interpreter.B_Add where
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
   
+  -- define nodes
+  --------------------------------------------------------
+
   data ValF e = ValF e Int deriving (Functor)
   data AddF e = AddF e (e, e) deriving (Functor)
-  
 
   -- define patterns, for creation and pattern matching
   
@@ -28,6 +30,7 @@ module Interpreter.B_Add where
   
 
   -- parser
+  --------------------------------------------------------
 
   valParser :: (EmptyNoteF :<: xs, ValF :<: xs) => MParser (EADT xs)
   valParser = Val EmptyNote . toInt <$> some M.digitChar
@@ -46,6 +49,7 @@ module Interpreter.B_Add where
 
 
   -- show
+  --------------------------------------------------------
   
   instance ShowAST ValF where
     showAST' (ValF _ i) = show i
@@ -56,6 +60,7 @@ module Interpreter.B_Add where
   
         
   -- Type checker
+  --------------------------------------------------------
 
   instance GetType ValF where
     getType' (ValF α _) = α  
@@ -84,6 +89,7 @@ module Interpreter.B_Add where
 
 
   -- Eval: returns a Int
+  --------------------------------------------------------
   
   instance Eval (ValF e) where
     eval (ValF _ i) = RInt i

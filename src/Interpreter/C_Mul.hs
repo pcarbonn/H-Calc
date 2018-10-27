@@ -10,6 +10,8 @@ module Interpreter.C_Mul where
   import Interpreter.Result
 
   import Haskus.Utils.EADT
+  import Text.Megaparsec
+  import Text.Megaparsec.Char as M
 
   --------------------------------------------------------
 
@@ -18,7 +20,19 @@ module Interpreter.C_Mul where
   pattern Mul :: MulF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
   pattern Mul α is = VF (MulF α is)
 
+
+  -- parser
+  --------------------------------------------------------
+
+  mulParser :: (EmptyNoteF :<: xs, MulF :<: xs) => MParser (EADT xs) -> MParser (EADT xs)
+  mulParser factorP = Mul EmptyNote <$> do
+    i1 <- factorP
+    _ <- string "*"
+    i2 <- factorP
+    return (i1,i2)
+    
   -- show
+  --------------------------------------------------------
 
   instance ShowAST MulF where
     showAST' (MulF _ (i, v)) = "(" <> i <> " * " <> v <> ")" -- no recursive call
