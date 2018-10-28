@@ -23,6 +23,7 @@ The evaluation pipeline has these steps:
 * clone H-Calc from github to a directory on your machine
 * go to that directory
 ~~~~
+dir> stack build
 dir> stack install ghcid
 ~~~~
 To automatically run the test suite:

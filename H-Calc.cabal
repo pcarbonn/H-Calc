@@ -16,7 +16,6 @@ extra-source-files:  README.md
 executable H-Calc
   hs-source-dirs:     src
   main-is:            main.hs
-  default-language:   Haskell2010
   build-depends:      base-noprelude >= 4.7 && < 5
                     , haskus-utils-variant
                     , hspec ==2.*
@@ -24,6 +23,15 @@ executable H-Calc
                     , parser-combinators
                     , recursion-schemes
                     , relude
+  other-modules:      Interpreter.A_TypeCheck
+                    , Interpreter.B_Add
+                    , Interpreter.C_Mul
+                    , Interpreter.D_Float
+                    , Interpreter.Interpreter
+                    , Interpreter.Result
+                    , Interpreter.Utils
+                    , Prelude
+  default-language:   Haskell2010
   default-extensions: ConstraintKinds
                     , DataKinds
                     , DeriveFunctor
@@ -47,7 +55,6 @@ test-suite spec
   build-depends:      base ==4.*
                     , hspec ==2.*
   other-modules:
-                      Data.String.StripSpec
-                      Paths_strip
+                      
   default-language:   Haskell2010
   build-tool-depends: hspec-discover:hspec-discover == 2.*        
