@@ -10,6 +10,7 @@ module Interpreter.B_Add where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
+  import Haskus.Utils.EADT.TH
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
   
@@ -21,8 +22,7 @@ module Interpreter.B_Add where
 
   -- define patterns, for creation and pattern matching
   
-  pattern Val :: ValF :<: xs => EADT xs -> Int -> EADT xs
-  pattern Val α i = VF (ValF α i)
+  eadtPattern 'ValF "Val"
   
   pattern Add :: AddF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
   pattern Add α is = VF (AddF α is)

@@ -25,7 +25,7 @@ Below is the list of AST transformations:
 
 - `EADT '[HErrorF,EmptyNoteF, ValF,AddF]` is the type of an AST tree that contains only nodes constructed with `HError`, `EmptyNote`, `Val`, and `Add`.
 
-- `FloatValF :<: xs` is a constraint on type `EADT xs` : FloatVal is one of the node constructors of the AST tree of type `EADT xs`.
+- `FloatValF :<: xs` is a constraint on type `EADT xs` : `FloatVal` is one of the node constructors of the AST tree of type `EADT xs`.
 
 
 # Naming conventions

@@ -9,15 +9,14 @@ module Interpreter.A_TypeCheck where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
+  import Haskus.Utils.EADT.TH
 
   -- Type t α
 
   data TType = TInt | TFloat deriving Show
 
   data TTypeF e = TTypeF TType e deriving (Functor)
-
-  pattern Typ :: TTypeF :<: xs => TType -> EADT xs -> EADT xs
-  pattern Typ t a = VF (TTypeF t a)
+  eadtPattern 'TTypeF "Typ"
   
 
   -- show

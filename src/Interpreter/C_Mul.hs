@@ -10,13 +10,14 @@ module Interpreter.C_Mul where
   import Interpreter.Result
 
   import Haskus.Utils.EADT
+  import Haskus.Utils.EADT.TH
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
 
   --------------------------------------------------------
 
   data MulF e = MulF e (e, e) deriving (Functor)
-
+  
   pattern Mul :: MulF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
   pattern Mul α is = VF (MulF α is)
 

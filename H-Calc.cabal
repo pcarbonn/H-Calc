@@ -17,7 +17,7 @@ executable H-Calc
   hs-source-dirs:     src
   main-is:            main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
-                    , haskus-utils-variant
+                    , haskus-utils-variant >= 2.0
                     , hspec ==2.*
                     , megaparsec
                     , parser-combinators
@@ -44,6 +44,7 @@ executable H-Calc
                     , MultiWayIf
                     , OverloadedStrings
                     , PatternSynonyms
+                    , TemplateHaskell
                     , TypeApplications
                     , TypeOperators
                     , UndecidableInstances

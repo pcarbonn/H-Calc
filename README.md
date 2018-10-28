@@ -3,7 +3,7 @@ WORK IN PROGRESS !  (See [TODO.md](https://github.com/pcarbonn/H-Calc/blob/maste
 So, you want to write an interpreter for your own Domain Specific Language (DSL), in Haskell...  Then, clone H-Calc and start editing it.  H-Calc is a showcase of some of the best Haskell technologies to write a DSL interpreter, showing you that you can :
 
 - parse source code in your DSL with ease, and build the corresponding Abstract Syntax Tree (AST), thanks to [megaparsec](http://hackage.haskell.org/package/megaparsec) ([tutorial](https://markkarpov.com/megaparsec/parsing-simple-imperative-language.html))
-- start with a simple interpreter for the core features of your DSL, then add extensions in a modular way (each new feature in its own Haskell module), thanks to [Extensible Algebraic Datatype](http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html) (EADT)  ([tutorial](http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html)) 
+- start with a simple interpreter for the core features of your DSL, then add extensions in a modular way (each new feature in its own Haskell module), thanks to [Extensible Algebraic Datatype](http://hsyl20.fr/home/posts/2018-05-22-extensible-adt.html) (EADT)  ([tutorial](https://docs.haskus.org/eadt.html)) 
 - transform the AST efficiently, without boilerplate, thanks to [Recursion-scheme](http://hackage.haskell.org/package/recursion-schemes-5.0.3) ([tutorial](https://blog.sumtypeofway.com/an-introduction-to-recursion-schemes/))
 - embed your DSL in Haskell, thanks to [RebindableSyntax](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide)
 - easily use the best functions and libraries of Haskell, thanks to [Relude](http://hackage.haskell.org/package/relude)<sup>[1](#myfootnote1)</sup>
@@ -45,7 +45,7 @@ Our second iteration supports multiplication by repeated additions: it transform
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) -> 14
 
-In a 3rd iteration, we support addition of float, and multiplication of a float by an integer (`Mul n a`).  This requires some type checking. 
+In a 3rd iteration, we support addition of float, and multiplication of a float by an integer.  This requires some type checking. 
 
     2 * 3.0 -> (3.0 + 3.0) -> 6.0
 

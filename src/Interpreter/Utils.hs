@@ -3,6 +3,7 @@ module Interpreter.Utils where
   import Interpreter.Result
   
   import Haskus.Utils.EADT
+  import Haskus.Utils.EADT.TH
   import Prelude
 
   -- This modules defines the following AST node:
@@ -50,9 +51,7 @@ module Interpreter.Utils where
   -- HError s
   -------------------------------------------------------
   data HErrorF e = HErrorF Text deriving (Functor)
-  
-  pattern HError :: HErrorF :<: xs => Text -> EADT xs
-  pattern HError s = VF (HErrorF s)
+  eadtPattern 'HErrorF "HError"
 
   instance ShowAST HErrorF where
     showAST' (HErrorF s) = s
@@ -66,9 +65,7 @@ module Interpreter.Utils where
   -------------------------------------------------------
 
   data EmptyNoteF e = EmptyNoteF deriving (Functor)
-
-  pattern EmptyNote :: EmptyNoteF :<: xs => EADT xs
-  pattern EmptyNote = VF EmptyNoteF        
+  eadtPattern 'EmptyNoteF "EmptyNote"
   
   instance ShowAST EmptyNoteF where
     showAST' EmptyNoteF = ""

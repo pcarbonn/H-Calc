@@ -11,15 +11,14 @@ module Interpreter.D_Float where
   import Interpreter.Result
 
   import Haskus.Utils.EADT
+  import Haskus.Utils.EADT.TH
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
 
   --------------------------------------------------------
 
   data FloatValF e = FloatValF e Float deriving (Functor)
-
-  pattern FloatVal :: FloatValF :<: xs => EADT xs -> Float -> EADT xs
-  pattern FloatVal α f = VF (FloatValF α f)
+  eadtPattern 'FloatValF "FloatVal"
 
 
   --------------------------------------------------------
