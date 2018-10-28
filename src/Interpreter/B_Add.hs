@@ -23,9 +23,7 @@ module Interpreter.B_Add where
   -- define patterns, for creation and pattern matching
   
   eadtPattern 'ValF "Val"
-  
-  pattern Add :: AddF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
-  pattern Add α is = VF (AddF α is)
+  eadtPattern 'AddF "Add"
 
   
 

@@ -17,7 +17,7 @@ executable H-Calc
   hs-source-dirs:     src
   main-is:            main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
-                    , haskus-utils-variant >= 2.0
+                    , haskus-utils-variant >= 2.0.1
                     , hspec ==2.*
                     , megaparsec
                     , parser-combinators

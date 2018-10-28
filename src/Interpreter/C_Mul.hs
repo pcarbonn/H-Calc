@@ -17,9 +17,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   data MulF e = MulF e (e, e) deriving (Functor)
-  
-  pattern Mul :: MulF :<: xs => EADT xs -> (EADT xs, EADT xs) -> EADT xs
-  pattern Mul α is = VF (MulF α is)
+  eadtPattern 'MulF "Mul"
 
 
   -- parser
