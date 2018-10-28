@@ -52,21 +52,13 @@ main = do
 
   putText $ showAST mulAddVal
   putText " = "
-  putTextLn $ show $ evalAST mulAddVal
+  putTextLn $ show $ evalAST mulAddVal -- without demultiply !
 
   putText $ showAST mulAddVal
   putText " -> "
-  putTextLn $ showAST (demultiply mulAddVal)
+  putTextLn $ show $ evalAST (demultiply $ distribute $ mulAddVal) -- OK
 
-  putText $ showAST mulAddVal2
-  putText " = "
-  putTextLn $ showAST $ demultiply (mulAddVal2)
-
-  putTextLn $ showAST (demultiply $ (neg 2 .* 5) ::  V2_AST)
-  
-  putText $ showAST mulAddValFloat
-  putText " -> "
-  putTextLn $ showAST mulAddValFloat
+  putTextLn $ showAST $ demultiply $ distribute $ ((neg 2 .* 5) ::  V2_AST)
 
 
   putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] ((3 .+ 5).*5.0 :: V3_AST)

@@ -1,7 +1,7 @@
 module Interpreter.Interpreter where
 
   -- this module is the main entry point of the interpreter
-  
+
   import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.C_Mul
@@ -46,4 +46,4 @@ module Interpreter.Interpreter where
   interpret source
     = case runParser parser "" source of
         Left e -> RError "can't parse"
-        Right a -> evalAST $ demultiply $ setType $ appendEADT @'[HErrorF, TTypeF] a 
+        Right a -> evalAST $ demultiply $ distribute $ setType $ appendEADT @'[HErrorF, TTypeF] a 

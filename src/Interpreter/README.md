@@ -8,7 +8,20 @@
 - C_Mul : defines `Mul α (i,v)` AST nodes
 - D_Float : defines `FloatVal α i` AST nodes
 
-# EADT
+# Transformations
+
+Below is the list of AST transformations:
+
+- showAST : a bottom up evaluation of the tree into a Text value
+- getType : a bottom up evaluation of the tree into a TType
+- setType : a bottom up transformation of the tree to add type information in the annotation of each node.  The tree type must allow TType nodes.
+- appendEADT @'[TTypeF] : to allow TType nodes in the tree
+- distribute: fix point of a bottom up transformation using the distribution rule
+- demultiply: bottom up transformation to replace multiplications by additions
+- eval : a bottom up evaluation of the tree into a Result type
+
+
+# A note on EADT
 
 - `EADT '[HErrorF,EmptyNoteF, ValF,AddF]` is the type of an AST tree that contains only nodes constructed with `HError`, `EmptyNote`, `Val`, and `Add`.
 

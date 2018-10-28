@@ -63,14 +63,13 @@ module Interpreter.C_Mul where
   -- DSL must have HErrorF, AddF, MulF
   --------------------------------------------------------
 
-  -- distribute multiplication over addition if it matches
-  distribute' :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs) => EADT xs -> Maybe (EADT xs)
-  distribute' (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
-  distribute' _                 = Nothing
-
   distribute :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs, Functor (VariantF xs)) => EADT xs -> EADT xs
-  distribute = bottomUpFixed distribute'
-  
+  distribute = bottomUpFixed go
+    where 
+      go (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
+      go _                            = Nothing
+
+
 
   -- demultiply : n*a -> a+a+... n times
   -- DSL must have ValF, AddF, MulF + Eval
@@ -79,7 +78,7 @@ module Interpreter.C_Mul where
   demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
                 , Eval (VariantF xs (EADT xs)), Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
-  demultiply = bottomUp go . distribute
+  demultiply = bottomUp go
     where go (Mul α (i,v)) =
             case (evalAST i, v) of
               (RError e, _) -> HError e
