@@ -60,6 +60,14 @@ main = do
 
   putTextLn $ showAST $ demultiply $ distribute $ ((neg 2 .* 5) ::  V2_AST)
 
+  putText $ showAST mulAddVal2
+  putText " = "
+  putTextLn $ showAST $ demultiply $ distribute $ mulAddVal2
+  
+  putText $ showAST mulAddValFloat
+  putText " -> "
+  putTextLn $ showAST mulAddValFloat
+
 
   putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] ((3 .+ 5).*5.0 :: V3_AST)
 
