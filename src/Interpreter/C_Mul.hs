@@ -46,7 +46,7 @@ module Interpreter.C_Mul where
   instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TTypeF :<: xs
             , MulF :<: xs
             , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
-            => SetType MulF xs where
+            => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of
         (HError _, _) -> i

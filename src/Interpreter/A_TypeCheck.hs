@@ -48,12 +48,10 @@ module Interpreter.A_TypeCheck where
   instance GetType (VariantF '[]) where
     getType' = error "no implementation of Type Check for this type"
 
-  instance (GetType x, GetType (VariantF xs))  => GetType (VariantF (x ': xs)) where
-    getType' v = case popVariantFHead v of
-        Right u -> getType' u
-        Left  w -> getType' w
+  instance (AlgVariantF GetType TType xs) => GetType (VariantF xs) where
+    getType' = algVariantF @GetType getType'
 
-  getType :: (GetType (Base t), Recursive t) => t -> TType
+  getType :: ( Functor (VariantF xs), GetType (VariantF xs)) => EADT xs -> TType
   getType = cata getType'
 
 
@@ -61,30 +59,30 @@ module Interpreter.A_TypeCheck where
   -- Set Type
   --------------------------------------------------------
 
-  instance (EmptyNoteF :<: xs) => SetType HErrorF xs where
+  instance (EmptyNoteF :<: xs) => SetType xs HErrorF where
     setType' _ = EmptyNote
 
-  instance (EmptyNoteF :<: xs) => SetType EmptyNoteF xs where
+  instance (EmptyNoteF :<: xs) => SetType xs EmptyNoteF where
     setType' _ = EmptyNote
 
-  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType TTypeF xs where
+  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType xs TTypeF where
     setType' (TTypeF _ α) = α -- erase existing type
 
   -- helpers
 
-  class SetType (f :: * -> *) xs where
+  class SetType xs (f :: * -> *) where
     setType' :: f (EADT xs) -> EADT xs
 
-  instance SetType (VariantF '[]) xs where
+  instance SetType xs (VariantF '[]) where
     setType' = error "no implementation of Type Check for this type"
 
-  instance (SetType x ys, SetType (VariantF xs) ys)  => SetType (VariantF (x ': xs)) ys where
+  instance (SetType ys x, SetType ys (VariantF xs))  => SetType ys (VariantF (x ': xs)) where
     setType' v = case popVariantFHead v of
         Right u -> setType' u
         Left  w -> setType' w
      
   setType :: 
-    ( SetType (VariantF xs) xs
+    ( SetType xs (VariantF xs)
     , Functor (VariantF xs)
     , TTypeF :<: xs
     ) => EADT xs -> EADT xs

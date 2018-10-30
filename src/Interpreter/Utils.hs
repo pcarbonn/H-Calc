@@ -22,12 +22,10 @@ module Interpreter.Utils where
   instance ShowAST (VariantF '[]) where
     showAST' = error "no implementation of Show for this type"
 
-  instance (ShowAST x, ShowAST (VariantF xs))  => ShowAST (VariantF (x ': xs)) where
-    showAST' v = case popVariantFHead v of
-        Right u -> showAST' u
-        Left  w -> showAST' w
-    
-  showAST :: (ShowAST (Base t), Recursive t) => t -> Text -- type inferred by GHC
+  instance (AlgVariantF ShowAST Text xs) => ShowAST (VariantF xs) where
+    showAST' = algVariantF @ShowAST showAST'
+
+  showAST :: ( Functor (VariantF xs), ShowAST (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
   showAST = cata showAST'
 
 
