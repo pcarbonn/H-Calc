@@ -17,9 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/12/13.yaml
-
+resolver: lts-12.14
 # User packages to be built.
 # Various formats can be used as shown in the example below.
 #
@@ -42,6 +40,7 @@ packages:
 #
 extra-deps:
   - base-noprelude-4.11.1.0
+  - relude-0.3.0
   - haskus-utils-variant-2.0.1
   - haskus-utils-data-1.1@sha256:4e66c50e4f2065365176008b1b39086be77e100a39ef142da51ca4e2afea1e05,983
   - haskus-utils-types-1.1@sha256:29ea4466ef1f8c13c34d5fcff094a1a7ca7443f0f0ae5928174fbd2063dc890a,675

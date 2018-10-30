@@ -5,8 +5,6 @@ module Interpreter.D_Float where
   -------------------------------------------------------
 
   import Interpreter.A_TypeCheck
-  import Interpreter.B_Add
-  import Interpreter.C_Mul
   import Interpreter.Utils
   import Interpreter.Result
 
