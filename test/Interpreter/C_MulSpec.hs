@@ -1,7 +1,9 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 module Interpreter.C_MulSpec (spec) where
 
   import Test.Hspec
   import Control.Exception (evaluate)
+  import Relude
   
   spec :: Spec
   spec = do

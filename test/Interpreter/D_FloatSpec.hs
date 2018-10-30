@@ -1,7 +1,10 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 module Interpreter.D_FloatSpec (spec) where
+
 
   import Test.Hspec
   import Control.Exception (evaluate)
+  import Relude
   
   spec :: Spec
   spec = do

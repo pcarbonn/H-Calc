@@ -1,14 +1,14 @@
 # TODO
 
-- track location in source code, for better error message
 - test suite, with discovery
+- track location in source code, for better error message
 
+- use algVariantF
 - define ε = EmptyNote
 - define withType = appendEADT @'[TTypeF] 
 - readme: TTG
 
 - traceShowIdEADT
-- 3 branches : master = core
-- Template.md ? avoid it if possible
+- haddock
 
 - GADT ?
