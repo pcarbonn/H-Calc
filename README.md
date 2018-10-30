@@ -26,9 +26,13 @@ The evaluation pipeline has these steps:
 dir> stack build
 dir> stack install ghcid
 ~~~~
-To automatically run the test suite:
+To automatically run the main program whenever it changes:
 ~~~~
-dir> ghcid "--command=stack ghci H-Calc:spec" "--test=:main"
+dir> ghcid "--command=stack ghci H-Calc" "--test=:main" --warnings
+~~~~
+To automatically run the test suite whenever it changes:
+~~~~
+dir> ghcid "--command=stack ghci H-Calc:spec" "--test=:main" --warnings
 ~~~~
 
 
