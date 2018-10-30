@@ -1,13 +1,23 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Interpreter.InterpreterSpec (spec) where
 
-  import Test.Hspec
+  import Interpreter.A_TypeCheck
+  import Interpreter.B_Add
+  import Interpreter.C_Mul
+  import Interpreter.D_Float
+  import Interpreter.Interpreter
+  import Interpreter.Utils
+  import Interpreter.Result
+
   import Control.Exception (evaluate)
-  import Relude
+  import Haskus.Utils.EADT
+  import Test.Hspec
+  import Relude hiding (fromInteger, fromRational)
   
   spec :: Spec
   spec = do
-    describe "Prelude.head" $ do
-      it "returns the first element of a list" $ do
-        viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+    describe "Interpreter" $ do
+      it "interprets" $ do
+        show (interpret "((2+1)*5.0)") `shouldBe` "RFloat 15.0"
   

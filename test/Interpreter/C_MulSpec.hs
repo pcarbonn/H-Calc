@@ -1,13 +1,24 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Interpreter.C_MulSpec (spec) where
 
-  import Test.Hspec
+  import Interpreter.A_TypeCheck
+  import Interpreter.B_Add
+  import Interpreter.C_Mul
+  import Interpreter.Utils
+  import Interpreter.Result
+
   import Control.Exception (evaluate)
-  import Relude
+  import Haskus.Utils.EADT
+  import Test.Hspec
+  import Relude hiding (fromInteger, fromRational)
   
+  type AST = EADT '[HErrorF,EmptyNoteF,TypF, ValF,AddF,MulF]
+
   spec :: Spec
   spec = do
-    describe "Prelude.head" $ do
-      it "returns the first element of a list" $ do
-        viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+    describe "C_Mul" $ do
+      it "shows mul" $ do
+        showAST ((5 .* 3) :: AST ) 
+        `shouldBe` "(5 * 3)"
   

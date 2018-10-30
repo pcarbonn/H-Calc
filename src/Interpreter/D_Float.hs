@@ -18,7 +18,10 @@ module Interpreter.D_Float where
   data FloatValF e = FloatValF e Float deriving (Functor)
   eadtPattern 'FloatValF "FloatVal"
 
+  fromRational :: (EmptyNoteF :<: xs, FloatValF :<: xs) => Rational -> EADT xs
+  fromRational i = FloatVal EmptyNote $ realToFrac i
 
+  
   --------------------------------------------------------
 
   floatValParser :: (EmptyNoteF :<: xs, FloatValF :<: xs) => MParser (EADT xs)

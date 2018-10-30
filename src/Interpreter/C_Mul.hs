@@ -19,6 +19,8 @@ module Interpreter.C_Mul where
   data MulF e = MulF e (e, e) deriving (Functor)
   eadtPattern 'MulF "Mul"
 
+  (.*) :: (EmptyNoteF :<: xs, MulF :<: xs) => EADT xs -> EADT xs -> EADT xs
+  (.*) a b = Mul EmptyNote (a,b)
 
   -- parser
   --------------------------------------------------------
@@ -34,7 +36,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   instance ShowAST MulF where
-    showAST' (MulF _ (i, v)) = "(" <> i <> " * " <> v <> ")" -- no recursive call
+    showAST' (MulF α (i, v)) = "(" <> i <> " * " <> v <> ")" <> α -- no recursive call
 
   
   -- Type checker

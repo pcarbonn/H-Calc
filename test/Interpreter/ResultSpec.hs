@@ -1,12 +1,17 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Interpreter.ResultSpec (spec) where
 
-  import Test.Hspec
+  import Interpreter.A_TypeCheck
+  import Interpreter.Utils
+  import Interpreter.Result
+
   import Control.Exception (evaluate)
+  import Haskus.Utils.EADT
+  import Test.Hspec
   import Relude
   
   spec :: Spec
   spec = do
-    describe "Prelude.head" $ do
-      it "returns the first element of a list" $ do
-        viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+    describe "Result" $ do
+      it "shows result" $ do
+        show (RInt 5) `shouldBe` "RInt 5"

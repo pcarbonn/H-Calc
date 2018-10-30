@@ -17,21 +17,6 @@ import Prelude hiding (fromInteger, fromRational)
 import Text.Megaparsec
 import Text.Megaparsec.Char as M
 
--- syntactic sugar
-
-
-fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
-fromInteger i = Val EmptyNote $ fromIntegral i
-fromRational :: (EmptyNoteF :<: xs, FloatValF :<: xs) => Rational -> EADT xs
-fromRational i = FloatVal EmptyNote $ realToFrac i
-
-(.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
-(.+) a b = Add EmptyNote (a,b)
-(.*) a b = Mul EmptyNote (a,b)
-
-neg :: ValF :<: xs => EADT xs -> EADT xs
-neg (Val α i)= Val α (-i)
-
 
 -- Main
 

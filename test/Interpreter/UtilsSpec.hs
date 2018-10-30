@@ -1,12 +1,18 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Interpreter.UtilsSpec (spec) where
 
-import Test.Hspec
-import Control.Exception (evaluate)
-import Relude
+  import Interpreter.A_TypeCheck
+  import Interpreter.Utils
+  import Interpreter.Result
 
-spec :: Spec
-spec = do
-  describe "Prelude.head" $ do
-    it "returns the first element of a list" $ do
-      viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+  import Control.Exception (evaluate)
+  import Haskus.Utils.EADT
+  import Test.Hspec
+  import Relude hiding (fromInteger, fromRational)
+
+  spec :: Spec
+  spec = do
+    describe "Utils" $ do
+      it "shows EmptyNote" $ do
+        showAST (EmptyNote :: EADT '[HErrorF,EmptyNoteF] ) `shouldBe` ""

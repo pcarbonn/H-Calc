@@ -1,4 +1,5 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 
 module Interpreter.A_TypeCheckSpec (spec) where
 
@@ -9,7 +10,7 @@ module Interpreter.A_TypeCheckSpec (spec) where
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT
   import Test.Hspec
-  import Relude
+  import Relude hiding (fromInteger, fromRational)
   
   spec :: Spec
   spec = do

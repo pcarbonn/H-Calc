@@ -14,6 +14,7 @@ module Interpreter.B_Add where
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
   
+
   -- define nodes
   --------------------------------------------------------
 
@@ -25,7 +26,14 @@ module Interpreter.B_Add where
   eadtPattern 'ValF "Val"
   eadtPattern 'AddF "Add"
 
-  
+  fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
+  fromInteger i = Val EmptyNote $ fromIntegral i
+
+  (.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
+  (.+) a b = Add EmptyNote (a,b)
+
+  neg :: ValF :<: xs => EADT xs -> EADT xs
+  neg (Val α i)= Val α (-i)
 
   -- parser
   --------------------------------------------------------

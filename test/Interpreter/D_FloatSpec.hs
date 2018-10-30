@@ -1,14 +1,22 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Interpreter.D_FloatSpec (spec) where
 
+  import Interpreter.A_TypeCheck
+  import Interpreter.D_Float
+  import Interpreter.Utils
+  import Interpreter.Result
 
-  import Test.Hspec
   import Control.Exception (evaluate)
-  import Relude
+  import Haskus.Utils.EADT
+  import Test.Hspec
+  import Relude hiding (fromInteger, fromRational)
   
+  type AST = EADT '[HErrorF,EmptyNoteF, FloatValF]
+
   spec :: Spec
   spec = do
-    describe "Prelude.head" $ do
-      it "returns the first element of a list" $ do
-        viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+    describe "D_Float" $ do
+      it "shows float value" $ do
+        showAST (5.0 :: AST ) `shouldBe` "5.0"
   
