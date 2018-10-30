@@ -1,14 +1,9 @@
 # TODO
 
-- test suite, with discovery
 - track location in source code, for better error message
 
-- use algVariantF
 - define ε = EmptyNote
-- define withType = appendEADT @'[TTypeF] 
-- readme: TTG
+- define withType = appendEADT @'[TTypeF]
+- define :<<:
 
 - traceShowIdEADT
-- haddock
-
-- GADT ?

@@ -19,3 +19,5 @@ module Interpreter.A_TypeCheckSpec (spec) where
         showAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` " :: TInt"
       it "can't eval type" $ do
         evalAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` RError "Can't evaluate annotations"
+      it "gets annotation" $ do
+        getType (Typ TInt (Typ TInt EmptyNote) :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` (Just TInt)

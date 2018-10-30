@@ -13,7 +13,7 @@ module Interpreter.A_TypeCheck where
 
   -- Type t α
 
-  data TType = TInt | TFloat deriving Show
+  data TType = TInt | TFloat deriving (Show, Eq)
 
   data TypF e = TypF TType e deriving (Functor)
   eadtPattern 'TypF "Typ"
@@ -29,30 +29,16 @@ module Interpreter.A_TypeCheck where
 
   -- Get Type
   --------------------------------------------------------
-  
-  instance GetType HErrorF where
-    getType' _ = error "no type in annotation"
-
-  instance GetType EmptyNoteF where
-    getType' _ = error "no type in annotation"
-
-  instance GetType TypF where
-    getType' (TypF t _)  = t
+  instance TypF :<: xs => GetAnnotation xs TypF where
+    getAnnotation' (TypF t α) = Typ t α
     
-  
-  -- helpers
-  
-  class GetType (f :: * -> *) where
-    getType' :: f TType -> TType    
+  getType :: (TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs), (GetAnnotation xs (VariantF xs))) 
+              => EADT xs -> Maybe TType
+  getType = go . getAnnotation
+    where go (Typ t _) = Just t
+          go EmptyNote = Nothing -- no annotation anymore
+          go α = getType $ getAnnotation α
 
-  instance GetType (VariantF '[]) where
-    getType' = error "no implementation of Type Check for this type"
-
-  instance (AlgVariantF GetType TType xs) => GetType (VariantF xs) where
-    getType' = algVariantF @GetType getType'
-
-  getType :: ( Functor (VariantF xs), GetType (VariantF xs)) => EADT xs -> TType
-  getType = cata getType'
 
 
 

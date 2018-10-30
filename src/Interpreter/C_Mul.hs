@@ -41,23 +41,24 @@ module Interpreter.C_Mul where
   
   -- Type checker
   --------------------------------------------------------
-
-  instance GetType MulF where
-    getType' (MulF α _) = α
+  instance MulF :<: xs => GetAnnotation xs MulF where
+    getAnnotation' (MulF α _) = α
 
   instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
             , MulF :<: xs
-            , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
+            , GetAnnotation xs (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of
         (HError _, _) -> i
         (_, HError _) -> v
         _ -> case (getType i, getType v) of
-                (TInt, TInt) -> Mul (Typ TInt α) (i,v)
-                (TInt, TFloat) -> Mul (Typ TFloat α) (i,v)
-                (t1,t2) -> HError $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
-                                    " with `" <> showAST v <> "` whose type is " <> show t2
+                (Just TInt, Just TInt)   -> Mul (Typ TInt   α) (i,v)
+                (Just TInt, Just TFloat) -> Mul (Typ TFloat α) (i,v)
+                (Just t1  , Just t2)     -> 
+                         HError $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
+                                  " with `" <> showAST v <> "` whose type is " <> show t2
+                (_,_) -> HError "Missing type info in multiplication"
 
     
   -- apply distribution : a*(b+c) -> (a*b+a*c)

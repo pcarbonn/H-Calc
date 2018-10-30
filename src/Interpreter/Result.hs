@@ -14,6 +14,7 @@ module Interpreter.Result where
 
   -- helper for evalAST
   -------------------------------------------------------
+  
   class Eval e where
     evalAST' :: e -> Result
 

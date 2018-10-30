@@ -43,9 +43,9 @@ module Interpreter.D_Float where
       showAST' (FloatValF α f) = show f <> α
     
   --------------------------------------------------------
-
-  instance GetType FloatValF where
-    getType' (FloatValF α _) = α  
+  
+  instance FloatValF :<: xs => GetAnnotation xs FloatValF where
+    getAnnotation' (FloatValF α _) = α
 
   instance (EmptyNoteF :<: xs, FloatValF :<: xs, TypF :<: xs) => SetType xs FloatValF where
     setType' (FloatValF α f) = FloatVal (Typ TFloat α) f

@@ -68,29 +68,33 @@ module Interpreter.B_Add where
   -- Type checker
   --------------------------------------------------------
 
-  instance GetType ValF where
-    getType' (ValF α _) = α  
+  instance ValF :<: xs => GetAnnotation xs ValF where
+    getAnnotation' (ValF α _) = α
 
-  instance GetType AddF where
-    getType' (AddF α _) = α
+  instance AddF :<: xs => GetAnnotation xs AddF where
+    getAnnotation' (AddF α _) = α
 
 
-  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, GetType (VariantF xs), Functor (VariantF xs)) => SetType xs ValF where
+
+  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, GetAnnotation xs (VariantF xs), Functor (VariantF xs)) 
+          => SetType xs ValF where
     setType' (ValF α i) = Val (Typ TInt α) i
 
   instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
-           , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
+           , GetAnnotation xs (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs AddF where
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of
         (HError _, _) -> v1
         (_, HError _) -> v2
         _ -> case (getType v1, getType v2) of
-                (TInt, TInt) -> Add (Typ TInt α) (v1,v2)
-                (TFloat, TFloat) -> Add (Typ TFloat α) (v1,v2)
-                (t1,t2) -> HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
-                                    " with `" <> showAST v2 <> "` whose type is " <> show t2
+                (Just TInt  , Just TInt  ) -> Add (Typ TInt α) (v1,v2)
+                (Just TFloat, Just TFloat) -> Add (Typ TFloat α) (v1,v2)
+                (Just t1    , Just t2    ) -> 
+                         HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
+                                  " with `" <> showAST v2 <> "` whose type is " <> show t2
+                (_,_) -> HError "Missing type info in addition"
     
 
 

@@ -29,6 +29,25 @@ module Interpreter.Utils where
   showAST = cata showAST'
 
 
+  -- Get Annotation
+  -------------------------------------------------------
+  class GetAnnotation xs (f :: * -> *) where
+    getAnnotation' :: f (EADT xs) -> EADT xs
+
+  instance GetAnnotation xs (VariantF '[]) where
+    getAnnotation' = error "no implementation of Annotation for this type"
+
+  instance
+      ( GetAnnotation xs f
+      , GetAnnotation xs (VariantF fs)
+      ) => GetAnnotation xs (VariantF (f ': fs)) where
+    getAnnotation' v =  case popVariantFHead v of
+        Right u -> getAnnotation' u
+        Left  w -> getAnnotation' w
+
+  getAnnotation :: ( Functor (VariantF xs), GetAnnotation xs (VariantF xs)) => EADT xs -> EADT xs
+  getAnnotation = cata getAnnotation'
+
 
   -- transformations / recursion schemes
   -------------------------------------------------------
@@ -45,7 +64,6 @@ module Interpreter.Utils where
           Just v  -> bottomUpFixed f v
 
 
-
   -- HError s
   -------------------------------------------------------
   data HErrorF e = HErrorF Text deriving (Functor)
@@ -53,10 +71,12 @@ module Interpreter.Utils where
 
   instance ShowAST HErrorF where
     showAST' (HErrorF s) = s
+  
+  instance HErrorF :<: xs => GetAnnotation xs HErrorF where
+    getAnnotation' (HErrorF s) = HError s
 
   instance Eval (HErrorF e) where
     evalAST' (HErrorF s) = RError s
-  
 
 
   -- EmptyNote
@@ -67,6 +87,9 @@ module Interpreter.Utils where
   
   instance ShowAST EmptyNoteF where
     showAST' EmptyNoteF = ""
+
+  instance EmptyNoteF :<: xs => GetAnnotation xs EmptyNoteF where
+    getAnnotation' EmptyNoteF = EmptyNote
 
   instance Eval (EmptyNoteF e) where
     evalAST' EmptyNoteF = RError "Can't evaluate annotations"
