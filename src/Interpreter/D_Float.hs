@@ -44,10 +44,10 @@ module Interpreter.D_Float where
   instance GetType FloatValF where
     getType' (FloatValF α _) = α  
 
-  instance (EmptyNoteF :<: xs, FloatValF :<: xs, TTypeF :<: xs) => SetType xs FloatValF where
+  instance (EmptyNoteF :<: xs, FloatValF :<: xs, TypF :<: xs) => SetType xs FloatValF where
     setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
     
   --------------------------------------------------------
 
   instance Eval (FloatValF e) where
-    eval (FloatValF _ f) = RFloat f
+    evalAST' (FloatValF _ f) = RFloat f

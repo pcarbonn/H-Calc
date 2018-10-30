@@ -15,15 +15,15 @@ module Interpreter.A_TypeCheck where
 
   data TType = TInt | TFloat deriving Show
 
-  data TTypeF e = TTypeF TType e deriving (Functor)
-  eadtPattern 'TTypeF "Typ"
+  data TypF e = TypF TType e deriving (Functor)
+  eadtPattern 'TypF "Typ"
   
 
   -- show
   --------------------------------------------------------
 
-  instance ShowAST TTypeF where
-    showAST' (TTypeF t α) = " :: " <> show t <> α
+  instance ShowAST TypF where
+    showAST' (TypF t α) = " :: " <> show t <> α
 
 
 
@@ -36,8 +36,8 @@ module Interpreter.A_TypeCheck where
   instance GetType EmptyNoteF where
     getType' _ = error "no type in annotation"
 
-  instance GetType TTypeF where
-    getType' (TTypeF t _)  = t
+  instance GetType TypF where
+    getType' (TypF t _)  = t
     
   
   -- helpers
@@ -65,8 +65,8 @@ module Interpreter.A_TypeCheck where
   instance (EmptyNoteF :<: xs) => SetType xs EmptyNoteF where
     setType' _ = EmptyNote
 
-  instance (TTypeF :<: xs, EmptyNoteF :<: xs) => SetType xs TTypeF where
-    setType' (TTypeF _ α) = α -- erase existing type
+  instance (TypF :<: xs, EmptyNoteF :<: xs) => SetType xs TypF where
+    setType' (TypF _ α) = α -- erase existing type
 
   -- helpers
 
@@ -84,7 +84,7 @@ module Interpreter.A_TypeCheck where
   setType :: 
     ( SetType xs (VariantF xs)
     , Functor (VariantF xs)
-    , TTypeF :<: xs
+    , TypF :<: xs
     ) => EADT xs -> EADT xs
   setType = cata setType'
         
@@ -92,5 +92,5 @@ module Interpreter.A_TypeCheck where
   -- eval
   --------------------------------------------------------
 
-  instance Eval (TTypeF e) where
-    eval (TTypeF _ _) = RError "Can't evaluate annotations"
+  instance Eval (TypF e) where
+    evalAST' (TypF _ _) = RError "Can't evaluate annotations"

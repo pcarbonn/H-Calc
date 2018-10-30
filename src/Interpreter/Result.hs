@@ -10,22 +10,22 @@ module Interpreter.Result where
     = RInt Int
     | RFloat Float
     | RError Text
-    deriving Show
+    deriving (Show, Eq)
 
-  -- helper for eval
+  -- helper for evalAST
   -------------------------------------------------------
   class Eval e where
-    eval :: e -> Result
+    evalAST' :: e -> Result
 
   instance Eval (VariantF '[] e) where
-    eval u = RError "no implementation of Eval for this type"
+    evalAST' u = RError "no implementation of Eval for this type"
 
   instance (Eval (x e), Eval (VariantF xs e))  => Eval (VariantF (x ': xs) e) where
-    eval v = case popVariantFHead v of
-        Right u -> eval u
-        Left  w -> eval w
+    evalAST' v = case popVariantFHead v of
+        Right u -> evalAST' u
+        Left  w -> evalAST' w
 
   type EvalAll xs = Eval (VariantF xs (EADT xs))
 
   evalAST :: EvalAll xs => EADT xs -> Result
-  evalAST = eval . unfix  
+  evalAST = evalAST' . unfix  

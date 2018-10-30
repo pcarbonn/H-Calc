@@ -43,7 +43,7 @@ module Interpreter.C_Mul where
   instance GetType MulF where
     getType' (MulF α _) = α
 
-  instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TTypeF :<: xs
+  instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
             , MulF :<: xs
             , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs MulF where
@@ -95,5 +95,5 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
   
   instance EvalAll xs => Eval (MulF (EADT xs)) where
-    eval (MulF _ _) = RError "target machine cannot multiply"
+    evalAST' (MulF _ _) = RError "target machine cannot multiply"
   

@@ -46,4 +46,4 @@ module Interpreter.Interpreter where
   interpret source
     = case runParser parser "" source of
         Left e -> RError "can't parse"
-        Right a -> evalAST $ demultiply $ distribute $ setType $ appendEADT @'[HErrorF, TTypeF] a 
+        Right a -> evalAST $ demultiply $ distribute $ setType $ appendEADT @'[HErrorF, TypF] a 

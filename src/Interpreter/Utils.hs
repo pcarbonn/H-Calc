@@ -55,7 +55,7 @@ module Interpreter.Utils where
     showAST' (HErrorF s) = s
 
   instance Eval (HErrorF e) where
-    eval (HErrorF s) = RError s
+    evalAST' (HErrorF s) = RError s
   
 
 
@@ -69,4 +69,4 @@ module Interpreter.Utils where
     showAST' EmptyNoteF = ""
 
   instance Eval (EmptyNoteF e) where
-    eval EmptyNoteF = RError "Can't evaluate annotations"
+    evalAST' EmptyNoteF = RError "Can't evaluate annotations"

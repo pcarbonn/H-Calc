@@ -67,10 +67,10 @@ module Interpreter.B_Add where
     getType' (AddF α _) = α
 
 
-  instance (EmptyNoteF :<: xs, ValF :<: xs, TTypeF :<: xs, GetType (VariantF xs), Functor (VariantF xs)) => SetType xs ValF where
+  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, GetType (VariantF xs), Functor (VariantF xs)) => SetType xs ValF where
     setType' (ValF α i) = Val (Typ TInt α) i
 
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TTypeF :<: xs
+  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
            , GetType (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs AddF where
@@ -90,10 +90,10 @@ module Interpreter.B_Add where
   --------------------------------------------------------
   
   instance Eval (ValF e) where
-    eval (ValF _ i) = RInt i
+    evalAST' (ValF _ i) = RInt i
   
   instance EvalAll xs => Eval (AddF (EADT xs)) where
-    eval (AddF _ (v1,v2)) = 
+    evalAST' (AddF _ (v1,v2)) = 
       case (evalAST v1, evalAST v2) of -- implicit recursion
         (RInt v1', RInt v2') -> RInt (v1'+v2')
         (RFloat v1', RFloat v2') -> RFloat (v1'+v2')

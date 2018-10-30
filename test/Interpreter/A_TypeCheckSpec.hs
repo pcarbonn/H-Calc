@@ -2,12 +2,19 @@
 
 module Interpreter.A_TypeCheckSpec (spec) where
 
-  import Test.Hspec
+  import Interpreter.A_TypeCheck
+  import Interpreter.Utils
+  import Interpreter.Result
+
   import Control.Exception (evaluate)
+  import Haskus.Utils.EADT
+  import Test.Hspec
   import Relude
   
   spec :: Spec
   spec = do
-    describe "Prelude.head" $ do
-      it "returns the first element of a list" $ do
-        viaNonEmpty head [23 ..] `shouldBe` (Just $ 23 :: Maybe Int)
+    describe "A_TypeCheck" $ do
+      it "shows the type" $ do
+        showAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` " :: TInt"
+      it "can't eval type" $ do
+        evalAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` RError "Can't evaluate annotations"

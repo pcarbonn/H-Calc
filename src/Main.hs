@@ -69,7 +69,7 @@ main = do
   putTextLn $ showAST mulAddValFloat
 
 
-  putTextLn $ showAST $ setType $ appendEADT @'[TTypeF] ((3 .+ 5).*5.0 :: V3_AST)
+  putTextLn $ showAST $ setType $ appendEADT @'[TypF] ((3 .+ 5).*5.0 :: V3_AST)
 
   putTextLn $ show $ showAST <$> parseMaybe parser "(3+1)*15.0"
   putTextLn $ show $ interpret "((2+1)*5.0)"
