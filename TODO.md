@@ -1,5 +1,6 @@
 # TODO
 
+- bottomUp -> cata
 - topDown for getAnnotation ? could not determine result type
 - removeAnnotations
 - continuations for Eval

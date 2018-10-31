@@ -18,11 +18,8 @@ module Interpreter.Result where
   class Eval (f :: * -> *) where
     evalAST' :: f Result -> Result
 
-  instance
-    ( AlgVariantF Eval Result xs
-    ) => Eval (VariantF xs)
-    where
-      evalAST' = algVariantF @Eval evalAST'
+  instance AlgVariantF Eval Result xs => Eval (VariantF xs) where
+    evalAST' = algVariantF @Eval evalAST'
 
   evalAST :: (Functor (VariantF xs), Eval (VariantF xs)) => EADT xs -> Result
   evalAST = cata evalAST'  

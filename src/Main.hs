@@ -27,7 +27,7 @@ type V3_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF,FloatValF]
 main :: IO ()
 main = do
   let addVal = 10 .+ 5 :: V1_AST
-  let mulAddVal = 3 .* (10 .+ 3) :: V2_AST
+  let mulAddVal = (10 .+ 3) .* 3 :: V2_AST
   let mulAddVal2 = (neg 3) .* (10 .+ 3) :: V2_AST
   let mulAddValFloat = 10.* 5.0 :: V3_AST
   

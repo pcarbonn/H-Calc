@@ -69,6 +69,7 @@ module Interpreter.C_Mul where
   distribute = bottomUpFixed go
     where 
       go (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
+      go (Mul α ((Add β (v1,v2)), i)) = Just (Add β ((Mul α (v1,i)), (Mul α (v2,i))))
       go _                            = Nothing
 
 
@@ -78,19 +79,20 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
-                , AlgVariantF Eval Result xs, Functor (VariantF xs)) 
+                , AlgVariantF ShowAST Text xs
+                , Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
   demultiply = bottomUp go
     where go (Mul α (i,v)) =
-            case (evalAST i, v) of
-              (RError e, _) -> HError e
+            case (i, v) of
+              (HError e, _) -> HError e
               (_, HError e) -> HError e
-              (RInt i', _) ->
+              (Val _ i', _) ->
                 if  | i' <  0 -> HError $ "Error: can't multiply by negative number " <> show i'
                     | i' == 0 -> Val α 0
                     | i' == 1 -> v
                     | otherwise -> Add α (v, go (Mul α ((Val α $ i'-1), v)))
-
+              (_, _) -> HError $ "Can't multiply by " <> showAST i
           go a         = a
 
 
