@@ -56,6 +56,7 @@ module Interpreter.C_Mul where
         _ -> case (getType i, getType v) of
                 (Just TInt, Just TInt)   -> Mul (Typ TInt   α) (i,v)
                 (Just TInt, Just TFloat) -> Mul (Typ TFloat α) (i,v)
+                (Just TFloat, Just TInt) -> Mul (Typ TFloat α) (i,v)
                 (Just t1  , Just t2)     -> 
                          HError $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v <> "` whose type is " <> show t2
@@ -84,17 +85,21 @@ module Interpreter.C_Mul where
                 , Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
   demultiply = bottomUp go
-    where go (Mul α (i,v)) =
-            case (i, v) of
+    where go (Mul α (v1,v2)) =
+            case (v1, v2) of
+              (Val _ v1', _) -> go' v1' v2
+              (_, Val _ v2') -> go' v2' v1
               (HError e, _) -> HError e
               (_, HError e) -> HError e
-              (Val _ i', _) ->
-                if  | i' <  0 -> HError $ "Error: can't multiply by negative number " <> show i'
-                    | i' == 0 -> Val α 0
-                    | i' == 1 -> v
-                    | otherwise -> Add α (v, go (Mul α ((Val α $ i'-1), v)))
-              (_, _) -> HError $ "Can't multiply by " <> showAST i
+              (_, _) -> HError $ "Can't multiply " <> showAST v1 <> " by " <> showAST v2
+            where 
+              go' i v = 
+                if  | i <  0 -> HError $ "Error: can't multiply by negative number " <> show i
+                    | i == 0 -> Val α 0
+                    | i == 1 -> v
+                    | otherwise -> Add α (v, go (Mul α ((Val α $ i-1), v)))
           go a         = a
+
 
 
   -- Eval

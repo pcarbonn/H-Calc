@@ -44,7 +44,7 @@ module Interpreter.Utils where
             Left  w -> getAnnotation w  
   
 
-  -- transformations / recursion schemes
+  -- bottom-up transformations
   -------------------------------------------------------
   -- aka unfix >>> fmap (bottomUp f) >>> Fix >>> f
   bottomUp f = f . Fix . (fmap (bottomUp f)) . unfix
