@@ -77,5 +77,5 @@ module Interpreter.A_TypeCheck where
   -- eval
   --------------------------------------------------------
 
-  instance Eval (TypF e) where
+  instance Eval TypF where
     evalAST' (TypF _ _) = RError "Can't evaluate annotations"

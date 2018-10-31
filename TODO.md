@@ -1,7 +1,6 @@
 # TODO
 
-- '[] error in Eval using algVariantF ?
-- topDown for getType
+- topDown for getAnnotation ? could not determine result type
 - removeAnnotations
 - continuations for Eval
 - remove D-Float

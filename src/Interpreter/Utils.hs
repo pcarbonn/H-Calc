@@ -68,7 +68,7 @@ module Interpreter.Utils where
   instance HErrorF :<: xs => GetAnnotation xs HErrorF where
     getAnnotation' (HErrorF s) = HError s
 
-  instance Eval (HErrorF e) where
+  instance Eval HErrorF where
     evalAST' (HErrorF s) = RError s
 
 
@@ -84,5 +84,5 @@ module Interpreter.Utils where
   instance EmptyNoteF :<: xs => GetAnnotation xs EmptyNoteF where
     getAnnotation' EmptyNoteF = EmptyNote
 
-  instance Eval (EmptyNoteF e) where
+  instance Eval EmptyNoteF where
     evalAST' EmptyNoteF = RError "Can't evaluate annotations"

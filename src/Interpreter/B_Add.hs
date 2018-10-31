@@ -101,12 +101,12 @@ module Interpreter.B_Add where
   -- Eval: returns a Int
   --------------------------------------------------------
   
-  instance Eval (ValF e) where
+  instance Eval ValF where
     evalAST' (ValF _ i) = RInt i
   
-  instance EvalAll xs => Eval (AddF (EADT xs)) where
+  instance Eval AddF where
     evalAST' (AddF _ (v1,v2)) = 
-      case (evalAST v1, evalAST v2) of -- implicit recursion
+      case (v1, v2) of -- implicit recursion
         (RInt v1', RInt v2') -> RInt (v1'+v2')
         (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
         (RError e, _) -> RError e

@@ -15,18 +15,14 @@ module Interpreter.Result where
   -- helper for evalAST
   -------------------------------------------------------
   
-  class Eval e where
-    evalAST' :: e -> Result
+  class Eval (f :: * -> *) where
+    evalAST' :: f Result -> Result
 
-  instance Eval (VariantF '[] e) where
-    evalAST' u = RError "no implementation of Eval for this type"
+  instance
+    ( AlgVariantF Eval Result xs
+    ) => Eval (VariantF xs)
+    where
+      evalAST' = algVariantF @Eval evalAST'
 
-  instance (Eval (x e), Eval (VariantF xs e))  => Eval (VariantF (x ': xs) e) where
-    evalAST' v = case popVariantFHead v of
-        Right u -> evalAST' u
-        Left  w -> evalAST' w
-
-  type EvalAll xs = Eval (VariantF xs (EADT xs))
-
-  evalAST :: EvalAll xs => EADT xs -> Result
-  evalAST = evalAST' . unfix  
+  evalAST :: (Functor (VariantF xs), Eval (VariantF xs)) => EADT xs -> Result
+  evalAST = cata evalAST'  

@@ -78,7 +78,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
-                , EvalAll xs, Functor (VariantF xs)) 
+                , AlgVariantF Eval Result xs, Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
   demultiply = bottomUp go
     where go (Mul α (i,v)) =
@@ -97,6 +97,6 @@ module Interpreter.C_Mul where
   -- Eval
   --------------------------------------------------------
   
-  instance EvalAll xs => Eval (MulF (EADT xs)) where
+  instance Eval MulF where
     evalAST' (MulF _ _) = RError "target machine cannot multiply"
   

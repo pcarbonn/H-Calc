@@ -52,5 +52,5 @@ module Interpreter.D_Float where
     
   --------------------------------------------------------
 
-  instance Eval (FloatValF e) where
+  instance Eval FloatValF where
     evalAST' (FloatValF _ f) = RFloat f
