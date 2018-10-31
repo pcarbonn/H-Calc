@@ -42,11 +42,12 @@ module Interpreter.C_Mul where
   -- Type checker
   --------------------------------------------------------
   instance MulF :<: xs => GetAnnotation xs MulF where
-    getAnnotation' (MulF α _) = α
+    getAnnotation (MulF α _) = α
 
   instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
             , MulF :<: xs
-            , AlgVariantF (GetAnnotation xs) (EADT xs) xs, Functor (VariantF xs), ShowAST (VariantF xs)) 
+            , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
+            , Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of

@@ -69,10 +69,10 @@ module Interpreter.B_Add where
   --------------------------------------------------------
 
   instance ValF :<: xs => GetAnnotation xs ValF where
-    getAnnotation' (ValF α _) = α
+    getAnnotation (ValF α _) = α
 
   instance AddF :<: xs => GetAnnotation xs AddF where
-    getAnnotation' (AddF α _) = α
+    getAnnotation (AddF α _) = α
 
 
 
@@ -82,7 +82,8 @@ module Interpreter.B_Add where
 
   instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
-           , AlgVariantF (GetAnnotation xs) (EADT xs) xs, Functor (VariantF xs), ShowAST (VariantF xs)) 
+           , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
+           , Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs AddF where
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of

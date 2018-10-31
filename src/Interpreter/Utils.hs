@@ -30,17 +30,19 @@ module Interpreter.Utils where
   -- Get Annotation
   -------------------------------------------------------
   class GetAnnotation xs (f :: * -> *) where
-    getAnnotation' :: f (EADT xs) -> EADT xs
+    getAnnotation :: f (EADT xs) -> EADT xs
 
+  instance GetAnnotation xs' (VariantF '[]) where
+    getAnnotation _ = undefined
+  
   instance
-    ( AlgVariantF (GetAnnotation ys) (EADT ys) xs
-    ) => GetAnnotation ys (VariantF xs)
-    where
-      getAnnotation' = algVariantF @(GetAnnotation ys) getAnnotation'
-
-  getAnnotation :: (Functor (VariantF xs), GetAnnotation xs (VariantF xs)) => EADT xs -> EADT xs
-  getAnnotation = cata getAnnotation'
-
+      ( GetAnnotation xs f
+      , GetAnnotation xs (VariantF fs)
+      ) => GetAnnotation xs (VariantF (f ': fs)) where
+    getAnnotation v =  case popVariantFHead v of
+            Right u -> getAnnotation u
+            Left  w -> getAnnotation w  
+  
 
   -- transformations / recursion schemes
   -------------------------------------------------------
@@ -66,7 +68,7 @@ module Interpreter.Utils where
     showAST' (HErrorF s) = s
   
   instance HErrorF :<: xs => GetAnnotation xs HErrorF where
-    getAnnotation' (HErrorF s) = HError s
+    getAnnotation (HErrorF s) = HError s
 
   instance Eval HErrorF where
     evalAST' (HErrorF s) = RError s
@@ -82,7 +84,7 @@ module Interpreter.Utils where
     showAST' EmptyNoteF = ""
 
   instance EmptyNoteF :<: xs => GetAnnotation xs EmptyNoteF where
-    getAnnotation' EmptyNoteF = EmptyNote
+    getAnnotation EmptyNoteF = EmptyNote
 
   instance Eval EmptyNoteF where
     evalAST' EmptyNoteF = RError "Can't evaluate annotations"

@@ -30,15 +30,15 @@ module Interpreter.A_TypeCheck where
   -- Get Type
   --------------------------------------------------------
   instance TypF :<: xs => GetAnnotation xs TypF where
-    getAnnotation' (TypF t α) = Typ t α
-    
+    getAnnotation (TypF t α) = Typ t α
+
   getType :: ( TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs)
-             , AlgVariantF (GetAnnotation xs) (EADT xs) xs
+             , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
              ) => EADT xs -> Maybe TType
-  getType = go . getAnnotation
+  getType = go . getAnnotation . unfix
     where go (Typ t _) = Just t
           go EmptyNote = Nothing -- no annotation anymore
-          go α = getType $ getAnnotation α
+          go α = getType $ getAnnotation $ unfix α
 
 
 
