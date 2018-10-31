@@ -46,7 +46,7 @@ module Interpreter.C_Mul where
 
   instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
             , MulF :<: xs
-            , GetAnnotation xs (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
+            , AlgVariantF (GetAnnotation xs) (EADT xs) xs, Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of
@@ -78,7 +78,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
-                , Eval (VariantF xs (EADT xs)), Functor (VariantF xs)) 
+                , EvalAll xs, Functor (VariantF xs)) 
                 => EADT xs -> EADT xs
   demultiply = bottomUp go
     where go (Mul α (i,v)) =

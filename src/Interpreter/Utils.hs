@@ -1,3 +1,4 @@
+
 module Interpreter.Utils where
 
   import Interpreter.Result
@@ -18,14 +19,11 @@ module Interpreter.Utils where
   -------------------------------------------------------
   class ShowAST (f :: * -> *) where
     showAST' :: f Text -> Text
-
-  instance ShowAST (VariantF '[]) where
-    showAST' = error "no implementation of Show for this type"
-
+    
   instance (AlgVariantF ShowAST Text xs) => ShowAST (VariantF xs) where
     showAST' = algVariantF @ShowAST showAST'
 
-  showAST :: ( Functor (VariantF xs), ShowAST (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
+  showAST :: (Functor (VariantF xs), ShowAST (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
   showAST = cata showAST'
 
 
@@ -34,18 +32,13 @@ module Interpreter.Utils where
   class GetAnnotation xs (f :: * -> *) where
     getAnnotation' :: f (EADT xs) -> EADT xs
 
-  instance GetAnnotation xs (VariantF '[]) where
-    getAnnotation' = error "no implementation of Annotation for this type"
-
   instance
-      ( GetAnnotation xs f
-      , GetAnnotation xs (VariantF fs)
-      ) => GetAnnotation xs (VariantF (f ': fs)) where
-    getAnnotation' v =  case popVariantFHead v of
-        Right u -> getAnnotation' u
-        Left  w -> getAnnotation' w
+    ( AlgVariantF (GetAnnotation ys) (EADT ys) xs
+    ) => GetAnnotation ys (VariantF xs)
+    where
+      getAnnotation' = algVariantF @(GetAnnotation ys) getAnnotation'
 
-  getAnnotation :: ( Functor (VariantF xs), GetAnnotation xs (VariantF xs)) => EADT xs -> EADT xs
+  getAnnotation :: (Functor (VariantF xs), GetAnnotation xs (VariantF xs)) => EADT xs -> EADT xs
   getAnnotation = cata getAnnotation'
 
 

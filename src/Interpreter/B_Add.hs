@@ -82,7 +82,7 @@ module Interpreter.B_Add where
 
   instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
-           , GetAnnotation xs (VariantF xs), Functor (VariantF xs), ShowAST (VariantF xs)) 
+           , AlgVariantF (GetAnnotation xs) (EADT xs) xs, Functor (VariantF xs), ShowAST (VariantF xs)) 
             => SetType xs AddF where
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of

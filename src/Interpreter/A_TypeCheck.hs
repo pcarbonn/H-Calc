@@ -32,13 +32,13 @@ module Interpreter.A_TypeCheck where
   instance TypF :<: xs => GetAnnotation xs TypF where
     getAnnotation' (TypF t α) = Typ t α
     
-  getType :: (TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs), (GetAnnotation xs (VariantF xs))) 
-              => EADT xs -> Maybe TType
+  getType :: ( TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs)
+             , AlgVariantF (GetAnnotation xs) (EADT xs) xs
+             ) => EADT xs -> Maybe TType
   getType = go . getAnnotation
     where go (Typ t _) = Just t
           go EmptyNote = Nothing -- no annotation anymore
           go α = getType $ getAnnotation α
-
 
 
 
@@ -59,13 +59,11 @@ module Interpreter.A_TypeCheck where
   class SetType xs (f :: * -> *) where
     setType' :: f (EADT xs) -> EADT xs
 
-  instance SetType xs (VariantF '[]) where
-    setType' = error "no implementation of Type Check for this type"
-
-  instance (SetType ys x, SetType ys (VariantF xs))  => SetType ys (VariantF (x ': xs)) where
-    setType' v = case popVariantFHead v of
-        Right u -> setType' u
-        Left  w -> setType' w
+  instance
+    ( AlgVariantF (SetType ys) (EADT ys) xs
+    ) => SetType ys (VariantF xs)
+    where
+      setType' = algVariantF @(SetType ys) setType'
      
   setType :: 
     ( SetType xs (VariantF xs)
@@ -73,7 +71,8 @@ module Interpreter.A_TypeCheck where
     , TypF :<: xs
     ) => EADT xs -> EADT xs
   setType = cata setType'
-        
+     
+  
         
   -- eval
   --------------------------------------------------------
