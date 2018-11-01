@@ -18,16 +18,21 @@ module Interpreter.B_Add where
   -- define nodes
   --------------------------------------------------------
 
-  data ValF e = ValF e Int deriving (Functor)
-  data AddF e = AddF e (e, e) deriving (Functor)
+  data ValF      e =      ValF e Int   deriving (Functor)
+  data FloatValF e = FloatValF e Float deriving (Functor)
+  data AddF      e = AddF e (e, e)     deriving (Functor)
 
   -- define patterns, for creation and pattern matching
   
-  eadtPattern 'ValF "Val"
-  eadtPattern 'AddF "Add"
+  eadtPattern 'ValF      "Val"
+  eadtPattern 'FloatValF "FloatVal"
+  eadtPattern 'AddF      "Add"
 
   fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
   fromInteger i = Val EmptyNote $ fromIntegral i
+
+  fromRational :: (EmptyNoteF :<: xs, FloatValF :<: xs) => Rational -> EADT xs
+  fromRational i = FloatVal EmptyNote $ realToFrac i
 
   (.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
   (.+) a b = Add EmptyNote (a,b)
@@ -46,6 +51,18 @@ module Interpreter.B_Add where
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
 
+  floatValParser :: (EmptyNoteF :<: xs, FloatValF :<: xs) => MParser (EADT xs)
+  floatValParser = FloatVal EmptyNote . toFloat <$> do
+          i1 <- some M.digitChar
+          _ <- string "."
+          i2 <- some M.digitChar
+          return (i1, i2)
+    where toFloat :: ([Char], [Char]) -> Float
+          toFloat (i1,i2) = foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i1
+
+          digitToInt :: Char -> Int
+          digitToInt c = ord c - ord '0'
+
   addParser :: (EmptyNoteF :<: xs, AddF :<: xs) => MParser (EADT xs) -> MParser (EADT xs)
   addParser termP = Add EmptyNote <$> do
     i1 <- termP
@@ -60,6 +77,9 @@ module Interpreter.B_Add where
   instance ShowAST ValF where
     showAST' (ValF α i) = show i <> α
   
+  instance ShowAST FloatValF where
+      showAST' (FloatValF α f) = show f <> α
+
   instance ShowAST AddF where
     showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α -- no recursive call
     
@@ -71,6 +91,10 @@ module Interpreter.B_Add where
   instance ValF :<: xs => GetAnnotation xs ValF where
     getAnnotation (ValF α _) = α
 
+  
+  instance FloatValF :<: xs => GetAnnotation xs FloatValF where
+    getAnnotation (FloatValF α _) = α
+
   instance AddF :<: xs => GetAnnotation xs AddF where
     getAnnotation (AddF α _) = α
 
@@ -79,6 +103,9 @@ module Interpreter.B_Add where
   instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, GetAnnotation xs (VariantF xs), Functor (VariantF xs)) 
           => SetType xs ValF where
     setType' (ValF α i) = Val (Typ TInt α) i
+
+  instance (EmptyNoteF :<: xs, FloatValF :<: xs, TypF :<: xs) => SetType xs FloatValF where
+    setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
 
   instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
@@ -104,7 +131,10 @@ module Interpreter.B_Add where
   
   instance Eval ValF where
     evalAST' (ValF _ i) = RInt i
-  
+
+  instance Eval FloatValF where
+    evalAST' (FloatValF _ f) = RFloat f  
+    
   instance Eval AddF where
     evalAST' (AddF _ (v1,v2)) = 
       case (v1, v2) of -- implicit recursion

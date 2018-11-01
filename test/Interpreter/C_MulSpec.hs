@@ -28,4 +28,7 @@ module Interpreter.C_MulSpec (spec) where
       
       it "distributes" $ do
         showAST (cata demultiply' (2 .* 5 :: AST) :: AST2) `shouldBe` "(5 + 5)"
-  
+      it "distributes" $ do
+        showAST (cata demultiply' (2 .* (2 .* 5) :: AST) :: AST2) `shouldBe` "((5 + 5) + (5 + 5))"
+      it "distributes" $ do
+        showAST (cata demultiply' ((2 .* 5) .+ 1 :: AST) :: AST2) `shouldBe` "((5 + 5) + 1)"  

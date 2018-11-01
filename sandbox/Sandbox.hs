@@ -1,10 +1,12 @@
 -- you need to adapt H-Calc.cabal to run this program: 
 --  hs-source-dirs:     sandbox
 --  main-is:            Sandbox.hs
+-- remove library section
 
 
 module Sandbox where
-
+  
+  import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT hiding (Cons, Nil)
   import Haskus.Utils.EADT.TH
   import Prelude
@@ -25,6 +27,11 @@ module Sandbox where
   eadtPattern 'OddF  "Odd"
 
   type List a = EADT '[ConsF a, NilF]
+
+  showCont' l = eadtToCont l >::>
+    ( \(ConsF a r) -> show a <> " : " <> showCont' r -- explicit recursion
+    , \NilF        -> "Nil"
+    )
 
   -- showEADT
   ----------------------------
@@ -69,19 +76,56 @@ module Sandbox where
   -- handle remaining constructors
   instance {-# OVERLAPPABLE #-} f :<: ys => RemoveOddEven ys f where
       removeOddEven = VF -- keep the other constructors as is
-
-
     
   cataRemove :: (Functor (VariantF xs), RemoveOddEven ys (VariantF xs)) => EADT xs -> EADT ys
   cataRemove = cata removeOddEven
+
+  -- using splitVariantF
+  ----------------------------------------
+  alg x = case splitVariantF @'[EvenF Int, OddF Int] x of
+    Left v          -> variantFToCont v >::>
+                         ( \(EvenF a l) -> "Even : " <> l
+                         , \(OddF a l)  -> "Odd : " <> l
+                         )
+    Right leftovers -> "something else"
+    
+  alg2 x = case splitVariantF @'[EvenF Int, OddF Int] x of
+    Left v          -> variantFToCont v >::>
+                         ( \(EvenF a l) -> Cons a l
+                         , \(OddF a l)  -> Cons a l
+                         )
+    Right leftovers -> Nil --TODO
+
+  -- type specialisation
+  ---------------------------------
   
   removeOddEvenS :: EADT '[EvenF Int, OddF Int, NilF]
                     -> EADT '[ConsF Int, NilF]
   removeOddEvenS = cataRemove
 
+  cataAlg :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+          -> Text
+  cataAlg = cata alg
+
+  cataAlg2 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+          -> EADT '[                      ConsF Int, NilF]
+  cataAlg2 = cata alg2
+
+  -- constants
+  ---------------------------------
+
   eo :: EADT '[EvenF Int, OddF Int, NilF]
   eo = Even (10 :: Int) $ Odd (5 :: Int) $ Odd (7 :: Int) Nil
+
+  eo2 :: EADT '[ConsF Int, EvenF Int, OddF Int, NilF]
+  eo2 = Even (10 :: Int) $ Odd (5 :: Int) $ Cons (7 :: Int) $ Odd (7 :: Int) Nil
+
+  intList :: List Int
+  intList = Cons (10 :: Int) $ Cons (20 :: Int) $ Cons (30 :: Int) Nil 
 
   main :: IO ()
   main = do
     putStrLn $ eadtShow (cata removeOddEven eo :: List Int)
+    putStrLn $ showCont' intList
+    putStrLn $ cata alg eo2
+    

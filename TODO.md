@@ -1,8 +1,8 @@
 # TODO
 
+- simpler type removal in distribute ? splitVariantF ?
 - removeAnnotations
 - continuations for Eval
-- remove D-Float
 
 - -Wall
 - getting started : packages

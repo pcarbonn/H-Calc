@@ -37,18 +37,15 @@ dir> ghcid --command="stack ghci H-Calc:lib H-Calc:spec" --test="main" --warning
 
 To illustrate the use of these technologies, H-Calc is a (limited) calculator that accepts formula containing additions and multiplications, and that evaluates them using additions only. 
 
-The first iteration of our DSL interpreter supports the addition of integers only:
+The first iteration of our DSL interpreter supports the addition of integers (or floats) only.  This requires some type checking.
 
     2 + 3 -> 5
+    2.0 + 3.0 -> 5.0
  
 
-Our second iteration supports multiplication by repeated additions: it transforms `n*a` into `a+a+...` (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  `n` must be positive.   This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. 
+A second iteration supports multiplication by repeated additions: it transforms `n*a` into `a+a+...` (n times), after applying the distribution rule recursively: `a*(b+c) = a*b + a*c`.  `n` must be a positive integer.   This new functionality is implemented in C_Mul.hs only, showing the modularity of the design. 
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) -> 14
-
-In a 3rd iteration, we support addition of float, and multiplication of a float by an integer.  This requires some type checking. 
-
-    2 * 3.0 -> (3.0 + 3.0) -> 6.0
 
 Yet another iteration could evaluate `n` as `1+1+...` (n times): feel free to give it a try !
 

@@ -5,7 +5,6 @@ module Interpreter.Interpreter where
   import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.C_Mul
-  import Interpreter.D_Float
   import Interpreter.Utils
   import Interpreter.Result
 

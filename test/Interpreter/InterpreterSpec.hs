@@ -5,7 +5,6 @@ module Interpreter.InterpreterSpec (spec) where
   import Interpreter.A_TypeCheck
   import Interpreter.B_Add
   import Interpreter.C_Mul
-  import Interpreter.D_Float
   import Interpreter.Interpreter
   import Interpreter.Utils
   import Interpreter.Result
