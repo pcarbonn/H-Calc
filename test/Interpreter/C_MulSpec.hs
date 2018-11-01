@@ -13,7 +13,8 @@ module Interpreter.C_MulSpec (spec) where
   import Test.Hspec
   import Relude hiding (fromInteger, fromRational)
   
-  type AST = EADT '[HErrorF,EmptyNoteF,TypF, ValF,AddF,MulF]
+  type AST  = EADT '[HErrorF,EmptyNoteF,TypF, ValF,AddF,MulF]
+  type AST2 = EADT '[HErrorF,EmptyNoteF,TypF, ValF,AddF]
 
   spec :: Spec
   spec = do
@@ -22,5 +23,9 @@ module Interpreter.C_MulSpec (spec) where
         showAST ((5 .* 3) :: AST ) 
         `shouldBe` "(5 * 3)"
       it "distributes" $ do
-        showAST (demultiply $ distribute $ (2 .+ 1) .* 5 :: AST) `shouldBe` "((5 + 5) + 5)"
+        showAST (demultiply $ distribute $ ((2 .+ 1) .* 5 :: AST) :: AST2) `shouldBe` "((5 + 5) + 5)"
+
+      
+      it "distributes" $ do
+        showAST (cata demultiply' (2 .* 5 :: AST) :: AST2) `shouldBe` "(5 + 5)"
   

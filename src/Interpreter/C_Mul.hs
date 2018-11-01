@@ -80,25 +80,35 @@ module Interpreter.C_Mul where
   -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
 
-  demultiply :: (HErrorF :<: xs, ValF :<: xs, AddF :<: xs, MulF :<: xs
-                , AlgVariantF ShowAST Text xs
-                , Functor (VariantF xs)) 
-                => EADT xs -> EADT xs
-  demultiply = bottomUp go
-    where go (Mul α (v1,v2)) =
-            case (v1, v2) of
-              (Val _ v1', _) -> go' v1' v2
-              (_, Val _ v2') -> go' v2' v1
-              (HError e, _) -> HError e
-              (_, HError e) -> HError e
-              (_, _) -> HError $ "Can't multiply " <> showAST v1 <> " by " <> showAST v2
-            where 
-              go' i v = 
-                if  | i <  0 -> HError $ "Error: can't multiply by negative number " <> show i
-                    | i == 0 -> Val α 0
-                    | i == 1 -> v
-                    | otherwise -> Add α (v, go (Mul α ((Val α $ i-1), v)))
-          go a         = a
+  class Demultiply ys (f :: * -> *) where
+    demultiply' :: f (EADT ys) -> EADT ys
+    
+  instance
+    ( AlgVariantF (Demultiply ys) (EADT ys) xs
+    ) => Demultiply ys (VariantF xs)
+    where
+    demultiply' = algVariantF @(Demultiply ys) demultiply'
+  
+  instance {-# OVERLAPPABLE #-} f :<: ys => Demultiply ys f where
+    demultiply' = VF -- keep the other constructors as is
+  
+  instance {-# OVERLAPPING #-} 
+    ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
+    , AlgVariantF ShowAST Text ys, Functor (VariantF ys)
+    ) => Demultiply ys MulF where
+    demultiply' (MulF α (i,v)) = 
+      case (i, v) of
+        (HError e, _) -> HError e
+        (_, HError e) -> HError e
+        (Val _ i', _) ->
+          if | i' < 0 -> HError $ "Error: can't multiply by negative number " <> show i'
+             | i' == 0 -> Val α 0
+             | i' == 1 -> v
+             | otherwise -> Add α (v, demultiply' (MulF α ((Val α $ i'-1), v)))
+        (_, _) -> HError $ "Can't multiply by " <> showAST i
+  
+  demultiply :: (Functor (VariantF xs), Demultiply ys (VariantF xs)) => EADT xs -> EADT ys
+  demultiply = cata demultiply'
 
 
 

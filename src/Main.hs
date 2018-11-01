@@ -41,13 +41,13 @@ main = do
 
   putText $ showAST mulAddVal
   putText " -> "
-  putTextLn $ show $ evalAST (demultiply $ distribute $ mulAddVal) -- OK
+  putTextLn $ show $ evalAST (demultiply $ distribute $ mulAddVal :: V1_AST) -- OK
 
-  putTextLn $ showAST $ demultiply $ distribute $ ((neg 2 .* 5) ::  V2_AST)
+  putTextLn $ showAST (demultiply (distribute $ ((neg 2 .* 5) ::  V2_AST)) :: V1_AST )
 
   putText $ showAST mulAddVal2
   putText " = "
-  putTextLn $ showAST $ demultiply $ distribute $ mulAddVal2
+  putTextLn $ showAST (demultiply $ distribute $ mulAddVal2 :: V1_AST)
   
   putText $ showAST mulAddValFloat
   putText " -> "

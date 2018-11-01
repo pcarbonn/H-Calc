@@ -37,7 +37,14 @@ module Interpreter.Interpreter where
     = try (addParser factorParser)
     <|> factorParser
 
-    
+  -- type specialisation
+
+  type AST1 = EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF,HErrorF, TypF]
+  type AST2 = EADT '[EmptyNoteF, ValF, AddF,       FloatValF,HErrorF, TypF]
+
+  demultiplyS :: AST1
+              -> AST2
+  demultiplyS = demultiply
 
   -- interpret
   --------------------------------------------------------
@@ -46,4 +53,4 @@ module Interpreter.Interpreter where
   interpret source
     = case runParser parser "" source of
         Left e -> RError "can't parse"
-        Right a -> evalAST $ demultiply $ distribute $ setType $ appendEADT @'[HErrorF, TypF] a 
+        Right a -> evalAST $ demultiplyS $ distribute $ setType $ appendEADT @'[HErrorF, TypF] a 

@@ -31,9 +31,6 @@ module Interpreter.Utils where
   -------------------------------------------------------
   class GetAnnotation xs (f :: * -> *) where
     getAnnotation :: f (EADT xs) -> EADT xs
-
-  instance GetAnnotation xs' (VariantF '[]) where
-    getAnnotation _ = undefined
   
   instance
       ( GetAnnotation xs f
@@ -73,6 +70,10 @@ module Interpreter.Utils where
   instance Eval HErrorF where
     evalAST' (HErrorF s) = RError s
 
+    
+  instance HErrorF :<: xs => GetAnnotation xs (VariantF '[]) where
+    getAnnotation _ = HError "can't GetAnnotation of empty tree"
+
 
   -- EmptyNote
   -------------------------------------------------------
@@ -88,3 +89,4 @@ module Interpreter.Utils where
 
   instance Eval EmptyNoteF where
     evalAST' EmptyNoteF = RError "Can't evaluate annotations"
+    

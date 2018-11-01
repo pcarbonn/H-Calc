@@ -80,6 +80,7 @@ executable H-Calc
                     , MultiWayIf
                     , OverloadedStrings
                     , PatternSynonyms
+                    , ScopedTypeVariables
                     , TemplateHaskell
                     , TypeApplications
                     , TypeOperators

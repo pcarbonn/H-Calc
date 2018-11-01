@@ -13,7 +13,8 @@
 Below is the list of AST transformations:
 
 - showAST : a bottom up evaluation of the tree into a Text value
-- getType : a bottom up evaluation of the tree into a TType
+- getAnnotation : a direct evaluation of a tree into another tree
+- getType : a top-down evaluation of a tree into a TType
 - setType : a bottom up transformation of the tree to add type information in the annotation of each node.  The tree type must allow TType nodes.
 - appendEADT @'[TTypeF] : to allow TType nodes in the tree
 - distribute: fix point of a bottom up transformation using the distribution rule
