@@ -17,7 +17,7 @@ Below is the list of AST transformations:
 - setType : a bottom up transformation of the tree to add type information in the annotation of each node.  The tree type must allow TType nodes.
 - appendEADT @'[TTypeF] : to allow TType nodes in the tree
 - distribute: fix point of a bottom up transformation using the distribution rule
-- demultiply: bottom up transformation to replace multiplications by additions
+- demultiply: remove MulF from the AST tree by replacing multiplications by additions.
 - eval : a bottom up evaluation of the tree into a Result type
 
 

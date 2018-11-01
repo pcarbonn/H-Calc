@@ -23,7 +23,11 @@ module Interpreter.C_MulSpec (spec) where
         showAST ((5 .* 3) :: AST ) 
         `shouldBe` "(5 * 3)"
       it "distributes" $ do
-        showAST (demultiply $ distribute $ ((2 .+ 1) .* 5 :: AST) :: AST2) `shouldBe` "((5 + 5) + 5)"
+        showAST (demultiply $ distribute $ ((2 .+ 1) .* 5 :: AST) :: AST2) 
+        `shouldBe` "((5 + 5) + 5)"
+      it "distributes" $ do
+        showAST (demultiply $ distribute $ (2 .* (2 .+ 1) :: AST) :: AST2) 
+        `shouldBe` "((2 + 2) + (1 + 1))"
 
       
       it "distributes" $ do

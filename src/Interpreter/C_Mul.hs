@@ -96,16 +96,18 @@ module Interpreter.C_Mul where
     ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
     , AlgVariantF ShowAST Text ys, Functor (VariantF ys)
     ) => Demultiply ys MulF where
-    demultiply' (MulF α (i,v)) = 
-      case (i, v) of
+    demultiply' (MulF α (v1,v2)) = 
+      case (v1, v2) of
         (HError e, _) -> HError e
         (_, HError e) -> HError e
-        (Val _ i', _) ->
-          if | i' < 0 -> HError $ "Error: can't multiply by negative number " <> show i'
-             | i' == 0 -> Val α 0
-             | i' == 1 -> v
-             | otherwise -> Add α (v, demultiply' (MulF α ((Val α $ i'-1), v)))
-        (_, _) -> HError $ "Can't multiply by " <> showAST i
+        (Val _ v1', _) -> go v1' v2
+        (_, Val _ v2') -> go v2' v1
+        (_, _) -> HError $ "Can't multiply by " <> showAST v1
+      where go i v = 
+              if | i < 0 -> HError $ "Error: can't multiply by negative number " <> show i
+                 | i == 0 -> Val α 0
+                 | i == 1 -> v
+                 | otherwise -> Add α (v, demultiply' (MulF α ((Val α $ i-1), v)))        
   
   demultiply :: (Functor (VariantF xs), Demultiply ys (VariantF xs)) => EADT xs -> EADT ys
   demultiply = cata demultiply'
