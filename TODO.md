@@ -2,7 +2,7 @@
 
 - simpler type removal in distribute ? splitVariantF ?
 - removeAnnotations
-- continuations for Eval
+- continuations for Eval --> readme
 - neg
 - parse sign
 - TypeCheck -> Type

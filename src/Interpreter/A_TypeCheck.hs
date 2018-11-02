@@ -19,18 +19,16 @@ module Interpreter.A_TypeCheck where
   eadtPattern 'TypF "Typ"
   
 
-  -- show
+  -- Transformations
   --------------------------------------------------------
 
   instance Algebra TypF where
     showAST' (TypF t α) = " :: " <> show t <> α
 
-
-
-  -- Get Type
-  --------------------------------------------------------
   instance TypF :<: xs => Isomorphism xs TypF where
     getAnnotation (TypF t α) = Typ t α
+    setType' (TypF _ α) = α -- erase existing type
+
 
   getType :: ( TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs)
              , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
@@ -41,38 +39,6 @@ module Interpreter.A_TypeCheck where
           go α = getType $ getAnnotation $ unfix α
 
 
-
-  -- Set Type
-  --------------------------------------------------------
-
-  instance (EmptyNoteF :<: xs) => SetType xs HErrorF where
-    setType' _ = EmptyNote
-
-  instance (EmptyNoteF :<: xs) => SetType xs EmptyNoteF where
-    setType' _ = EmptyNote
-
-  instance (TypF :<: xs, EmptyNoteF :<: xs) => SetType xs TypF where
-    setType' (TypF _ α) = α -- erase existing type
-
-  -- helpers
-
-  class SetType xs (f :: * -> *) where
-    setType' :: f (EADT xs) -> EADT xs
-
-  instance
-    ( AlgVariantF (SetType ys) (EADT ys) xs
-    ) => SetType ys (VariantF xs)
-    where
-      setType' = algVariantF @(SetType ys) setType'
-     
-  setType :: 
-    ( SetType xs (VariantF xs)
-    , Functor (VariantF xs)
-    , TypF :<: xs
-    ) => EADT xs -> EADT xs
-  setType = cata setType'
-     
-  
         
   -- eval
   --------------------------------------------------------

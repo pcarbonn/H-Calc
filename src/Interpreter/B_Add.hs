@@ -74,7 +74,7 @@ module Interpreter.B_Add where
     return (i1,i2)
 
 
-  -- show
+  -- Algebra
   --------------------------------------------------------
   
   instance Algebra ValF where
@@ -88,33 +88,25 @@ module Interpreter.B_Add where
     
   
         
-  -- Type checker
+  -- Isomorphism
   --------------------------------------------------------
 
-  instance ValF :<: xs => Isomorphism xs ValF where
+  instance (EmptyNoteF :<: xs, TypF :<: xs, ValF :<: xs) 
+           => Isomorphism xs ValF where
     getAnnotation (ValF α _) = α
-
-  
-  instance FloatValF :<: xs => Isomorphism xs FloatValF where
-    getAnnotation (FloatValF α _) = α
-
-  instance AddF :<: xs => Isomorphism xs AddF where
-    getAnnotation (AddF α _) = α
-
-
-
-  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, Isomorphism xs (VariantF xs), Functor (VariantF xs)) 
-          => SetType xs ValF where
     setType' (ValF α i) = Val (Typ TInt α) i
 
-  instance (EmptyNoteF :<: xs, FloatValF :<: xs, TypF :<: xs) => SetType xs FloatValF where
+  
+  instance (EmptyNoteF :<: xs, TypF :<: xs, FloatValF :<: xs) 
+           => Isomorphism xs FloatValF where
+    getAnnotation (FloatValF α _) = α
     setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
 
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
-           , AddF :<: xs
-           , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
-           , Functor (VariantF xs), Algebra (VariantF xs)) 
-            => SetType xs AddF where
+  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs, AddF :<: xs
+           , Functor (VariantF xs), Algebra (VariantF xs)
+           , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs))
+           => Isomorphism xs AddF where
+    getAnnotation (AddF α _) = α
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of
         (HError _, _) -> v1
@@ -126,6 +118,8 @@ module Interpreter.B_Add where
                          HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v2 <> "` whose type is " <> show t2
                 (_,_) -> HError "Missing type info in addition"
+
+
     
 
 

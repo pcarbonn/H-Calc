@@ -26,9 +26,13 @@ The evaluation pipeline has these steps:
 dir> stack build
 dir> stack install ghcid
 ~~~~
+To automatically run Main.hs whenever your program changes:
+~~~~
+dir> ghcid --command="stack ghci H-Calc" --test="main"
+~~~~
 To automatically run the test suite whenever your program changes:
 ~~~~
-dir> ghcid --command="stack ghci H-Calc:lib H-Calc:spec" --test="main" --warnings
+dir> ghcid --command="stack ghci H-Calc:lib H-Calc:spec" --test="main"
 ~~~~
 
 

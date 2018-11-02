@@ -9,16 +9,14 @@
 
 # Transformations
 
-Below is the list of AST transformations:
+When a transformation is defined for many AST nodes, we use `Class` and `instance`:
+- to transform AST into a fixed type (Algebra), e.g. `showAST`;
+- to transform an AST tree into another tree of the same type (isomorphism), e.g. `getAnnotation`, `setType`.
 
-- showAST : a bottom up evaluation of the tree into a Text value
-- getAnnotation : a direct evaluation of a tree into another tree
-- getType : a top-down evaluation of a tree into a TType
-- setType : a bottom up transformation of the tree to add type information in the annotation of each node.  The tree type must allow TType nodes.
-- appendEADT @'[TTypeF] : to allow TType nodes in the tree
-- distribute: fix point of a bottom up transformation using the distribution rule
-- demultiply: remove MulF from the AST tree by replacing multiplications by additions.
-- eval : a bottom up evaluation of the tree into a Result type
+When a transrformation leaves most nodes unchanged, we prefer to use continuations:
+- to transform AST into a fixed type, e.g. `eval`; (TODO)
+- to transform an AST tree into another tree of the same type, e.g. `distribute`, `demultiply`. (TODO)
+
 
 
 # A note on EADT

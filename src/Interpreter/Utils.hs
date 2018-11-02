@@ -33,7 +33,7 @@ module Interpreter.Utils where
   instance (AlgVariantF Algebra Text xs) => Algebra (VariantF xs) where
     showAST' = algVariantF @Algebra showAST'
 
-  showAST :: (Functor (VariantF xs), Algebra (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
+  showAST :: (Functor (VariantF xs), Algebra (VariantF xs)) => EADT xs -> Text
   showAST = cata showAST'
 
 
@@ -41,24 +41,21 @@ module Interpreter.Utils where
   -------------------------------------------------------
   class Isomorphism xs (f :: * -> *) where
     getAnnotation :: f (EADT xs) -> EADT xs
-  
-  instance
-      ( Isomorphism xs f
-      , Isomorphism xs (VariantF fs)
-      ) => Isomorphism xs (VariantF (f ': fs)) where
-    getAnnotation v =  case popVariantFHead v of
-            Right u -> getAnnotation u
-            Left  w -> getAnnotation w  
+    setType' :: f (EADT xs) -> EADT xs
 
-  instance HErrorF :<: xs => Isomorphism xs (VariantF '[]) where
-    getAnnotation _ = HError "can't GetAnnotation of empty tree"  
+  instance ( AlgVariantF (Isomorphism ys) (EADT ys) xs) 
+          => Isomorphism ys (VariantF xs) where
+      getAnnotation = algVariantF @(Isomorphism ys) getAnnotation
+      setType'      = algVariantF @(Isomorphism ys) setType'
+
+     
+  setType :: ( Isomorphism xs (VariantF xs), Functor (VariantF xs))
+             => EADT xs -> EADT xs
+  setType = cata setType'
 
 
   -- bottom-up transformations
   -------------------------------------------------------
-  -- aka unfix >>> fmap (bottomUp f) >>> Fix >>> f
-  bottomUp :: Functor f => (Fix f -> Fix f) -> Fix f -> Fix f
-  bottomUp f = f . Fix . (fmap (bottomUp f)) . unfix
 
   -- bottom up traversal that performs an additional bottom up traversal in
   -- the transformed sub-tree when a transformation occurs. 
@@ -76,8 +73,9 @@ module Interpreter.Utils where
   instance Algebra HErrorF where
     showAST' (HErrorF s) = s
   
-  instance HErrorF :<: xs => Isomorphism xs HErrorF where
+  instance (HErrorF :<: xs, EmptyNoteF :<: xs) => Isomorphism xs HErrorF where
     getAnnotation (HErrorF s) = HError s
+    setType' _ = EmptyNote
 
   instance Eval HErrorF where
     evalAST' (HErrorF s) = RError s
@@ -91,6 +89,7 @@ module Interpreter.Utils where
 
   instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
     getAnnotation EmptyNoteF = EmptyNote
+    setType' _ = EmptyNote
 
   instance Eval EmptyNoteF where
     evalAST' EmptyNoteF = RError "Can't evaluate annotations"

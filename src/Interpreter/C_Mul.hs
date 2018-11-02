@@ -31,23 +31,21 @@ module Interpreter.C_Mul where
     i2 <- factorP
     return (i1,i2)
     
-  -- show
+  -- Algebra
   --------------------------------------------------------
 
   instance Algebra MulF where
     showAST' (MulF α (i, v)) = "(" <> i <> " * " <> v <> ")" <> α -- no recursive call
 
   
-  -- Type checker
+  -- Isomorphism
   --------------------------------------------------------
-  instance MulF :<: xs => Isomorphism xs MulF where
+  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
+           , MulF :<: xs
+           , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
+           , Functor (VariantF xs), Algebra (VariantF xs))
+          => Isomorphism xs MulF where
     getAnnotation (MulF α _) = α
-
-  instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
-            , MulF :<: xs
-            , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
-            , Functor (VariantF xs), Algebra (VariantF xs)) 
-            => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of
         (HError _, _) -> i
