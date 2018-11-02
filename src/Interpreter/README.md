@@ -9,13 +9,13 @@
 
 # Transformations
 
-When a transformation is defined for many AST nodes, we use `Class` and `instance`:
-- to transform AST into a fixed type (Algebra), e.g. `showAST`;
-- to transform an AST tree into another tree of the same type (isomorphism), e.g. `getAnnotation`, `setType`.
+When a transformation is generic, i.e. can be applied to AST of different types, we use `Class` and `instance`:
+- to transform an AST tree into a fixed type (Algebra), e.g. `showAST`;
+- to transform an AST tree into another tree of the same type (isomorphism), e.g. `getAnnotation`, `setType`;
+- to transform an AST tree into a simpler one (reduction), e.g. `removeAnnotation`, `demultiply`.
 
-When a transrformation leaves most nodes unchanged, we prefer to use continuations:
-- to transform AST into a fixed type, e.g. `eval`; (TODO)
-- to transform an AST tree into another tree of the same type, e.g. `distribute`, `demultiply`. (TODO)
+When a transformation can be applied to only one type of tree, we prefer to use continuations:
+- to transform AST into a result, i.e. `eval`.
 
 
 

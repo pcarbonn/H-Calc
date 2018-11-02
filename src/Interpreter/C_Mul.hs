@@ -7,7 +7,6 @@ module Interpreter.C_Mul where
   import Interpreter.A_Type
   import Interpreter.B_Add
   import Interpreter.Utils
-  import Interpreter.Result
 
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
@@ -78,9 +77,9 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
   
   instance {-# OVERLAPPING #-} 
-    ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
-    , AlgVariantF Algebra Text ys, Functor (VariantF ys)
-    ) => Reduction ys MulF where
+            ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
+            , AlgVariantF Algebra Text ys, Functor (VariantF ys) )
+            => Demultiply ys MulF where
     demultiply' (MulF α (v1,v2)) = 
       case (v1, v2) of
         (HError e, _) -> HError e
@@ -94,14 +93,4 @@ module Interpreter.C_Mul where
                  | i == 1 -> v
                  | otherwise -> Add α (v, demultiply' (MulF α ((Val α $ i-1), v)))        
   
-  demultiply :: (Functor (VariantF xs), Reduction ys (VariantF xs)) => EADT xs -> EADT ys
-  demultiply = cata demultiply'
-
-
-
-  -- Eval
-  --------------------------------------------------------
-  
-  instance Eval MulF where
-    evalAST' (MulF _ _) = RError "target machine cannot multiply"
   

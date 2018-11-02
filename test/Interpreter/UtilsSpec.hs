@@ -4,7 +4,6 @@ module Interpreter.UtilsSpec (spec) where
 
   import Interpreter.A_Type
   import Interpreter.Utils
-  import Interpreter.Result
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

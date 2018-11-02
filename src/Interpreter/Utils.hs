@@ -1,7 +1,5 @@
 
 module Interpreter.Utils where
-
-  import Interpreter.Result
   
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
@@ -15,15 +13,6 @@ module Interpreter.Utils where
   --    simplify
   -------------------------------------------------------
 
-  -- AST nodes
-  -------------------------------------------------------
-
-  data HErrorF e = HErrorF Text deriving (Functor)
-  eadtPattern 'HErrorF "HError"
-
-
-  data EmptyNoteF e = EmptyNoteF deriving (Functor)
-  eadtPattern 'EmptyNoteF "EmptyNote"
 
   -- Algebra :: EADT xs -> Fixed type
   -------------------------------------------------------
@@ -68,23 +57,61 @@ module Interpreter.Utils where
 
 
 
-  -- Tree reduction
+  -- Tree reduction : EADT xs -> EADT ys
   -------------------------------------------------------
 
-  class Reduction ys (f :: * -> *) where
-    demultiply' :: f (EADT ys) -> EADT ys
+  -- removeAnnotation
+  class RemoveAnnotation ys (f :: * -> *) where
+    removeAnnotation'      :: f (EADT ys) -> EADT ys
     
-  instance ( AlgVariantF (Reduction ys) (EADT ys) xs ) 
-           => Reduction ys (VariantF xs) where
-    demultiply' = algVariantF @(Reduction ys) demultiply'
+  instance ( AlgVariantF (RemoveAnnotation ys) (EADT ys) xs ) 
+           => RemoveAnnotation ys (VariantF xs) where
+    removeAnnotation' = algVariantF @(RemoveAnnotation ys) removeAnnotation'  
   
-  instance {-# OVERLAPPABLE #-} f :<: ys => Reduction ys f where
-    demultiply' = VF -- by default, keep as is          
+  instance {-# OVERLAPPABLE #-} f :<: ys => RemoveAnnotation ys f where
+    removeAnnotation' = VF -- if f is in result type, keep as is      
+
+  removeAnnotation :: (Functor (VariantF xs), RemoveAnnotation ys (VariantF xs)) 
+      => EADT xs -> EADT ys
+  removeAnnotation = cata removeAnnotation'
 
 
+  -- Demultiply
+  class Demultiply ys (f :: * -> *) where
+    demultiply'      :: f (EADT ys) -> EADT ys
+    
+  instance ( AlgVariantF (Demultiply ys) (EADT ys) xs ) 
+           => Demultiply ys (VariantF xs) where
+    demultiply' = algVariantF @(Demultiply ys) demultiply'
+  
+  instance {-# OVERLAPPABLE #-} f :<: ys => Demultiply ys f where
+    demultiply' = VF -- if f is in result type, keep as is          
+
+  demultiply :: (Functor (VariantF xs), Demultiply ys (VariantF xs)) 
+                => EADT xs -> EADT ys
+  demultiply = cata demultiply'
+
+
+  
+  -- EmptyNote
+  -------------------------------------------------------
+  
+  data EmptyNoteF e = EmptyNoteF deriving (Functor)
+  eadtPattern 'EmptyNoteF "EmptyNote"
+
+  instance Algebra EmptyNoteF where
+    showAST' EmptyNoteF = ""
+
+  instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
+    getAnnotation EmptyNoteF = EmptyNote
+    setType' _ = EmptyNote
+    
 
   -- HError s
   -------------------------------------------------------
+
+  data HErrorF e = HErrorF Text deriving (Functor)
+  eadtPattern 'HErrorF "HError"
 
   instance Algebra HErrorF where
     showAST' (HErrorF s) = s
@@ -93,20 +120,3 @@ module Interpreter.Utils where
     getAnnotation (HErrorF s) = HError s
     setType' _ = EmptyNote
 
-  instance Eval HErrorF where
-    evalAST' (HErrorF s) = RError s
-
-
-  -- EmptyNote
-  -------------------------------------------------------
-  
-  instance Algebra EmptyNoteF where
-    showAST' EmptyNoteF = ""
-
-  instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
-    getAnnotation EmptyNoteF = EmptyNote
-    setType' _ = EmptyNote
-
-  instance Eval EmptyNoteF where
-    evalAST' EmptyNoteF = RError "Can't evaluate annotations"
-    

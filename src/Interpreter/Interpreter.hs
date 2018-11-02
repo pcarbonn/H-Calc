@@ -6,7 +6,6 @@ module Interpreter.Interpreter where
   import Interpreter.B_Add
   import Interpreter.C_Mul
   import Interpreter.Utils
-  import Interpreter.Result
 
   import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT
@@ -16,7 +15,7 @@ module Interpreter.Interpreter where
   -- main parser
   --------------------------------------------------------
 
-  termParser :: MParser (EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF])
+  termParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
   termParser
     = try floatValParser
     <|> valParser
@@ -27,31 +26,43 @@ module Interpreter.Interpreter where
           return e
 
 
-  factorParser :: MParser (EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF])  
+  factorParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])  
   factorParser
     = try (mulParser termParser)
     <|> termParser
 
-  parser :: MParser (EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF])
+  parser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
   parser 
     = try (addParser factorParser)
     <|> factorParser
 
   -- type specialisation
+  --------------------------------------------------------
 
-  type AST1 = EADT '[EmptyNoteF, ValF, AddF, MulF, FloatValF,HErrorF, TypF]
-  type AST2 = EADT '[EmptyNoteF, ValF, AddF,       FloatValF,HErrorF, TypF]
+  type AST2 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF, TypF]
+  type AST1 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF,       TypF]
+  type AST0 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF            ]
 
-  demultiplyS :: AST1
-              -> AST2
+  demultiplyS :: AST2 -> AST1
   demultiplyS = demultiply
+
+  removeAnnotationS :: AST1 -> AST0
+  removeAnnotationS = removeAnnotation
 
   -- evaluation
   --------------------------------------------------------
 
-  eval :: EADT '[ValF, FloatValF, AddF] -> Result
+  data Result 
+    = RInt Int
+    | RFloat Float
+    | RError Text
+    deriving (Show, Eq)
+
+  eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
   eval l = eadtToCont l >::>
-      ( \(ValF _ i) -> RInt i
+      ( \(HErrorF t) -> RError t
+      , \(EmptyNoteF) -> RError "can't evaluate empty expression"
+      , \(ValF _ i) -> RInt i
       , \(FloatValF _ f) -> RFloat f
       , \(AddF _ (v1,v2)) -> go (eval v1) (eval v2))
       where 
@@ -70,4 +81,7 @@ module Interpreter.Interpreter where
   interpret source
     = case runParser parser "" source of
         Left _ -> RError "can't parse"
-        Right a -> evalAST $ demultiplyS $ distribute $ setType $ appendEADT @'[HErrorF, TypF] a 
+        Right a -> 
+            a & appendEADT @'[TypF] & setType 
+            & distribute & demultiplyS 
+            & removeAnnotationS & eval

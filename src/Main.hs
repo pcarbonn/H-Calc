@@ -9,7 +9,6 @@ import Interpreter.B_Add
 import Interpreter.C_Mul
 import Interpreter.Interpreter
 import Interpreter.Utils
-import Interpreter.Result
 
 import Haskus.Utils.EADT
 import Prelude hiding (fromInteger, fromRational)

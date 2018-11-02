@@ -7,7 +7,6 @@ module Interpreter.InterpreterSpec (spec) where
   import Interpreter.C_Mul
   import Interpreter.Interpreter
   import Interpreter.Utils
-  import Interpreter.Result
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

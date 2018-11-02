@@ -5,7 +5,6 @@ module Interpreter.B_AddSpec (spec) where
   import Interpreter.A_Type
   import Interpreter.B_Add
   import Interpreter.Utils
-  import Interpreter.Result
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

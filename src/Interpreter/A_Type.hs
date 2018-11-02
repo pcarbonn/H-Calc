@@ -6,7 +6,6 @@ module Interpreter.A_Type where
   -------------------------------------------------------
 
   import Interpreter.Utils
-  import Interpreter.Result
   
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
@@ -39,9 +38,5 @@ module Interpreter.A_Type where
           go α = getType $ getAnnotation $ unfix α
 
 
-        
-  -- eval
-  --------------------------------------------------------
-
-  instance Eval TypF where
-    evalAST' (TypF _ _) = RError "Can't evaluate annotations"
+  instance (EmptyNoteF :<: xs) => RemoveAnnotation xs TypF where
+    removeAnnotation' (TypF t α) = EmptyNote

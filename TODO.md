@@ -1,8 +1,6 @@
 # TODO
 
-- simpler type removal in distribute ? splitVariantF ?
-- removeAnnotations
-- continuations for Eval --> readme
+- simpler reduction ?
 - neg
 - parse sign
 

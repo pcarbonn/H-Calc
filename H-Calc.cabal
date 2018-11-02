@@ -26,7 +26,6 @@ library
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
-                    , Interpreter.Result
                     , Interpreter.Utils
   default-language:   Haskell2010
   default-extensions: ConstraintKinds
@@ -61,7 +60,6 @@ executable H-Calc
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
-                    , Interpreter.Result
                     , Interpreter.Utils
                     , Prelude
   default-language:   Haskell2010
@@ -100,7 +98,6 @@ test-suite spec
                     , Interpreter.B_AddSpec
                     , Interpreter.C_MulSpec
                     , Interpreter.InterpreterSpec
-                    , Interpreter.ResultSpec
                     , Interpreter.UtilsSpec      
   default-language:   Haskell2010      
   default-extensions: GADTs

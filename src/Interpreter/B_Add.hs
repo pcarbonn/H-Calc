@@ -7,7 +7,6 @@ module Interpreter.B_Add where
 
   import Interpreter.A_Type
   import Interpreter.Utils
-  import Interpreter.Result
   
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
@@ -121,22 +120,3 @@ module Interpreter.B_Add where
 
 
     
-
-
-  -- Eval: returns a Int
-  --------------------------------------------------------
-  
-  instance Eval ValF where
-    evalAST' (ValF _ i) = RInt i
-
-  instance Eval FloatValF where
-    evalAST' (FloatValF _ f) = RFloat f  
-
-  instance Eval AddF where
-    evalAST' (AddF _ (v1,v2)) = 
-      case (v1, v2) of -- implicit recursion
-        (RInt v1', RInt v2') -> RInt (v1'+v2')
-        (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
-        (RError e, _) -> RError e
-        (_, RError e) -> RError e
-        (a,b)             -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
