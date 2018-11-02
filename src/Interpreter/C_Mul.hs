@@ -76,23 +76,11 @@ module Interpreter.C_Mul where
   -- demultiply : n*a -> a+a+... n times
   -- DSL must have ValF, AddF, MulF + Eval
   --------------------------------------------------------
-
-  class Demultiply ys (f :: * -> *) where
-    demultiply' :: f (EADT ys) -> EADT ys
-    
-  instance
-    ( AlgVariantF (Demultiply ys) (EADT ys) xs
-    ) => Demultiply ys (VariantF xs)
-    where
-    demultiply' = algVariantF @(Demultiply ys) demultiply'
-  
-  instance {-# OVERLAPPABLE #-} f :<: ys => Demultiply ys f where
-    demultiply' = VF -- keep the other constructors as is
   
   instance {-# OVERLAPPING #-} 
     ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
     , AlgVariantF Algebra Text ys, Functor (VariantF ys)
-    ) => Demultiply ys MulF where
+    ) => Reduction ys MulF where
     demultiply' (MulF α (v1,v2)) = 
       case (v1, v2) of
         (HError e, _) -> HError e
@@ -106,7 +94,7 @@ module Interpreter.C_Mul where
                  | i == 1 -> v
                  | otherwise -> Add α (v, demultiply' (MulF α ((Val α $ i-1), v)))        
   
-  demultiply :: (Functor (VariantF xs), Demultiply ys (VariantF xs)) => EADT xs -> EADT ys
+  demultiply :: (Functor (VariantF xs), Reduction ys (VariantF xs)) => EADT xs -> EADT ys
   demultiply = cata demultiply'
 
 

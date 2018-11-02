@@ -54,7 +54,7 @@ module Interpreter.Utils where
   setType = cata setType'
 
 
-  -- bottom-up transformations
+  -- Fix of an isomorphism
   -------------------------------------------------------
 
   -- bottom up traversal that performs an additional bottom up traversal in
@@ -65,6 +65,22 @@ module Interpreter.Utils where
         f' u = case f u of
           Nothing -> u
           Just v  -> bottomUpFixed f v
+
+
+
+  -- Tree reduction
+  -------------------------------------------------------
+
+  class Reduction ys (f :: * -> *) where
+    demultiply' :: f (EADT ys) -> EADT ys
+    
+  instance ( AlgVariantF (Reduction ys) (EADT ys) xs ) 
+           => Reduction ys (VariantF xs) where
+    demultiply' = algVariantF @(Reduction ys) demultiply'
+  
+  instance {-# OVERLAPPABLE #-} f :<: ys => Reduction ys f where
+    demultiply' = VF -- by default, keep as is          
+
 
 
   -- HError s
