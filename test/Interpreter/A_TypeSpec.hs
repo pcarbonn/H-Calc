@@ -1,9 +1,9 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RebindableSyntax #-}
 
-module Interpreter.A_TypeCheckSpec (spec) where
+module Interpreter.A_TypeSpec (spec) where
 
-  import Interpreter.A_TypeCheck
+  import Interpreter.A_Type
   import Interpreter.Utils
   import Interpreter.Result
 
@@ -14,7 +14,7 @@ module Interpreter.A_TypeCheckSpec (spec) where
   
   spec :: Spec
   spec = do
-    describe "A_TypeCheck" $ do
+    describe "A_Type" $ do
       it "shows the type" $ do
         showAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` " :: TInt"
       it "can't eval type" $ do

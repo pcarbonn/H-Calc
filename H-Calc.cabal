@@ -22,7 +22,7 @@ library
                     , parser-combinators
                     , recursion-schemes
                     , relude
-  exposed-modules:    Interpreter.A_TypeCheck
+  exposed-modules:    Interpreter.A_Type
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
@@ -57,7 +57,7 @@ executable H-Calc
                     , parser-combinators
                     , recursion-schemes
                     , relude
-  other-modules:      Interpreter.A_TypeCheck
+  other-modules:      Interpreter.A_Type
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
@@ -96,11 +96,14 @@ test-suite spec
                     , recursion-schemes
                     , relude
                     , H-Calc
-  other-modules:      Interpreter.A_TypeCheckSpec
+  other-modules:      Interpreter.A_TypeSpec
                     , Interpreter.B_AddSpec
                     , Interpreter.C_MulSpec
                     , Interpreter.InterpreterSpec
                     , Interpreter.ResultSpec
                     , Interpreter.UtilsSpec      
   default-language:   Haskell2010      
+  default-extensions: GADTs
+                    , OverloadedStrings
+                    , TemplateHaskell
   build-tool-depends: hspec-discover:hspec-discover == 2.*

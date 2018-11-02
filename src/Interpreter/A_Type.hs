@@ -1,5 +1,5 @@
 
-module Interpreter.A_TypeCheck where
+module Interpreter.A_Type where
 
   -- this module adds the following annotation construct to the DSL
   --    (Typ t α)

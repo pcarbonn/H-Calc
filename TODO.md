@@ -5,9 +5,7 @@
 - continuations for Eval --> readme
 - neg
 - parse sign
-- TypeCheck -> Type
 
-- -Wall
 - getting started : packages
 - track location in source code, for better error message
 

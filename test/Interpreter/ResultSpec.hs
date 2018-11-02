@@ -1,7 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 module Interpreter.ResultSpec (spec) where
 
-  import Interpreter.A_TypeCheck
+  import Interpreter.A_Type
   import Interpreter.Utils
   import Interpreter.Result
 

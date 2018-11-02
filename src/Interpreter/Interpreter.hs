@@ -2,7 +2,7 @@ module Interpreter.Interpreter where
 
   -- this module is the main entry point of the interpreter
 
-  import Interpreter.A_TypeCheck
+  import Interpreter.A_Type
   import Interpreter.B_Add
   import Interpreter.C_Mul
   import Interpreter.Utils

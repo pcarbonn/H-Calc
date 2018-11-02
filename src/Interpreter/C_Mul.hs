@@ -4,7 +4,7 @@ module Interpreter.C_Mul where
   --    (Mul α (i1,i2))
   -------------------------------------------------------
 
-  import Interpreter.A_TypeCheck
+  import Interpreter.A_Type
   import Interpreter.B_Add
   import Interpreter.Utils
   import Interpreter.Result
