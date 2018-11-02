@@ -51,7 +51,12 @@ A second iteration supports multiplication by repeated additions: it transforms 
 
     2 * (3 + 4) -> ((3 + 3) + (4 + 4)) -> 14
 
-Yet another iteration could evaluate `n` as `1+1+...` (n times): feel free to give it a try !
+You could further add support for the following features:
+- keep track of the location of error in the source text;
+- evaluate `n` as `1+1+...` (n times);
+- support `let x = expr1 in expr2`;
+
+Feel free to give it a try !
 
 (See [Interpreter.README](https://github.com/pcarbonn/H-Calc/tree/master/src/Interpreter) for some technical comments on the implementation).
 

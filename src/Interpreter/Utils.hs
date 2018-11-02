@@ -18,6 +18,7 @@ module Interpreter.Utils where
   -------------------------------------------------------
   class Algebra (f :: * -> *) where
     showAST' :: f Text -> Text
+    -- add more algebra here
     
   instance (AlgVariantF Algebra Text xs) => Algebra (VariantF xs) where
     showAST' = algVariantF @Algebra showAST'
@@ -31,6 +32,7 @@ module Interpreter.Utils where
   class Isomorphism xs (f :: * -> *) where
     getAnnotation :: f (EADT xs) -> EADT xs
     setType' :: f (EADT xs) -> EADT xs
+    -- add more isomorphism here
 
   instance ( AlgVariantF (Isomorphism ys) (EADT ys) xs) 
           => Isomorphism ys (VariantF xs) where
@@ -59,8 +61,10 @@ module Interpreter.Utils where
 
   -- Tree reduction : EADT xs -> EADT ys
   -------------------------------------------------------
+  -- there must be one class for each output type, ys
 
   -- removeAnnotation
+
   class RemoveAnnotation ys (f :: * -> *) where
     removeAnnotation'      :: f (EADT ys) -> EADT ys
     
@@ -77,6 +81,7 @@ module Interpreter.Utils where
 
 
   -- Demultiply
+
   class Demultiply ys (f :: * -> *) where
     demultiply'      :: f (EADT ys) -> EADT ys
     

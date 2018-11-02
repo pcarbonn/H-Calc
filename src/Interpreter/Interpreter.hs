@@ -36,18 +36,6 @@ module Interpreter.Interpreter where
     = try (addParser factorParser)
     <|> factorParser
 
-  -- type specialisation
-  --------------------------------------------------------
-
-  type AST2 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF, TypF]
-  type AST1 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF,       TypF]
-  type AST0 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF            ]
-
-  demultiplyS :: AST2 -> AST1
-  demultiplyS = demultiply
-
-  removeAnnotationS :: AST1 -> AST0
-  removeAnnotationS = removeAnnotation
 
   -- evaluation
   --------------------------------------------------------
@@ -74,6 +62,21 @@ module Interpreter.Interpreter where
             (_, RError e) -> RError e
             (a,b)             -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
 
+
+  -- type specialisation
+  --------------------------------------------------------
+
+  type AST2 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF, TypF]
+  type AST1 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF,       TypF]
+  type AST0 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF            ]
+
+  demultiplyS :: AST2 -> AST1
+  demultiplyS = demultiply
+
+  removeAnnotationS :: AST1 -> AST0
+  removeAnnotationS = removeAnnotation
+
+
   -- interpret
   --------------------------------------------------------
   
@@ -81,7 +84,7 @@ module Interpreter.Interpreter where
   interpret source
     = case runParser parser "" source of
         Left _ -> RError "can't parse"
-        Right a -> 
-            a & appendEADT @'[TypF] & setType 
+        Right a -> a
+            & appendEADT @'[TypF] & setType 
             & distribute & demultiplyS 
             & removeAnnotationS & eval

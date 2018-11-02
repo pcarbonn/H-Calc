@@ -27,6 +27,10 @@ module Interpreter.B_Add where
   eadtPattern 'FloatValF "FloatVal"
   eadtPattern 'AddF      "Add"
 
+  
+  -- syntactic sugar for embedded DSL
+  --------------------------------------------------------
+
   fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
   fromInteger i = Val EmptyNote $ fromIntegral i
 
@@ -39,6 +43,7 @@ module Interpreter.B_Add where
   neg :: (ValF :<: xs) => EADT xs -> EADT xs
   neg (Val      α i) = Val      α (-i)
 
+  
   -- parser
   --------------------------------------------------------
 
