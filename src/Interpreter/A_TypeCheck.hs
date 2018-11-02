@@ -22,18 +22,18 @@ module Interpreter.A_TypeCheck where
   -- show
   --------------------------------------------------------
 
-  instance ShowAST TypF where
+  instance Algebra TypF where
     showAST' (TypF t α) = " :: " <> show t <> α
 
 
 
   -- Get Type
   --------------------------------------------------------
-  instance TypF :<: xs => GetAnnotation xs TypF where
+  instance TypF :<: xs => Isomorphism xs TypF where
     getAnnotation (TypF t α) = Typ t α
 
   getType :: ( TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs)
-             , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
+             , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
              ) => EADT xs -> Maybe TType
   getType = go . getAnnotation . unfix
     where go (Typ t _) = Just t

@@ -14,7 +14,6 @@ import Interpreter.Result
 import Haskus.Utils.EADT
 import Prelude hiding (fromInteger, fromRational)
 import Text.Megaparsec
-import Text.Megaparsec.Char as M
 
 
 -- Main
@@ -57,3 +56,5 @@ main = do
 
   putTextLn $ show $ showAST <$> parseMaybe parser "(3+1)*15.0"
   putTextLn $ show $ interpret "((2+1)*5.0)"
+
+  putTextLn $ traceShowId "ok"

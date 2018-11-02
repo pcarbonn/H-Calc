@@ -15,35 +15,49 @@ module Interpreter.Utils where
   --    simplify
   -------------------------------------------------------
 
-  -- show
+  -- AST nodes
   -------------------------------------------------------
-  class ShowAST (f :: * -> *) where
+
+  data HErrorF e = HErrorF Text deriving (Functor)
+  eadtPattern 'HErrorF "HError"
+
+
+  data EmptyNoteF e = EmptyNoteF deriving (Functor)
+  eadtPattern 'EmptyNoteF "EmptyNote"
+
+  -- Algebra :: EADT xs -> Fixed type
+  -------------------------------------------------------
+  class Algebra (f :: * -> *) where
     showAST' :: f Text -> Text
     
-  instance (AlgVariantF ShowAST Text xs) => ShowAST (VariantF xs) where
-    showAST' = algVariantF @ShowAST showAST'
+  instance (AlgVariantF Algebra Text xs) => Algebra (VariantF xs) where
+    showAST' = algVariantF @Algebra showAST'
 
-  showAST :: (Functor (VariantF xs), ShowAST (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
+  showAST :: (Functor (VariantF xs), Algebra (VariantF xs)) => EADT xs -> Text -- type inferred by GHC
   showAST = cata showAST'
 
 
-  -- Get Annotation
+  -- Isomorphism :: EADT xs -> EADT xs
   -------------------------------------------------------
-  class GetAnnotation xs (f :: * -> *) where
+  class Isomorphism xs (f :: * -> *) where
     getAnnotation :: f (EADT xs) -> EADT xs
   
   instance
-      ( GetAnnotation xs f
-      , GetAnnotation xs (VariantF fs)
-      ) => GetAnnotation xs (VariantF (f ': fs)) where
+      ( Isomorphism xs f
+      , Isomorphism xs (VariantF fs)
+      ) => Isomorphism xs (VariantF (f ': fs)) where
     getAnnotation v =  case popVariantFHead v of
             Right u -> getAnnotation u
             Left  w -> getAnnotation w  
-  
+
+  instance HErrorF :<: xs => Isomorphism xs (VariantF '[]) where
+    getAnnotation _ = HError "can't GetAnnotation of empty tree"  
+
 
   -- bottom-up transformations
   -------------------------------------------------------
   -- aka unfix >>> fmap (bottomUp f) >>> Fix >>> f
+  bottomUp :: Functor f => (Fix f -> Fix f) -> Fix f -> Fix f
   bottomUp f = f . Fix . (fmap (bottomUp f)) . unfix
 
   -- bottom up traversal that performs an additional bottom up traversal in
@@ -58,33 +72,24 @@ module Interpreter.Utils where
 
   -- HError s
   -------------------------------------------------------
-  data HErrorF e = HErrorF Text deriving (Functor)
-  eadtPattern 'HErrorF "HError"
 
-  instance ShowAST HErrorF where
+  instance Algebra HErrorF where
     showAST' (HErrorF s) = s
   
-  instance HErrorF :<: xs => GetAnnotation xs HErrorF where
+  instance HErrorF :<: xs => Isomorphism xs HErrorF where
     getAnnotation (HErrorF s) = HError s
 
   instance Eval HErrorF where
     evalAST' (HErrorF s) = RError s
 
-    
-  instance HErrorF :<: xs => GetAnnotation xs (VariantF '[]) where
-    getAnnotation _ = HError "can't GetAnnotation of empty tree"
-
 
   -- EmptyNote
   -------------------------------------------------------
-
-  data EmptyNoteF e = EmptyNoteF deriving (Functor)
-  eadtPattern 'EmptyNoteF "EmptyNote"
   
-  instance ShowAST EmptyNoteF where
+  instance Algebra EmptyNoteF where
     showAST' EmptyNoteF = ""
 
-  instance EmptyNoteF :<: xs => GetAnnotation xs EmptyNoteF where
+  instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
     getAnnotation EmptyNoteF = EmptyNote
 
   instance Eval EmptyNoteF where

@@ -11,7 +11,6 @@ module Interpreter.C_Mul where
 
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
-  import Text.Megaparsec
   import Text.Megaparsec.Char as M
 
   --------------------------------------------------------
@@ -35,19 +34,19 @@ module Interpreter.C_Mul where
   -- show
   --------------------------------------------------------
 
-  instance ShowAST MulF where
+  instance Algebra MulF where
     showAST' (MulF α (i, v)) = "(" <> i <> " * " <> v <> ")" <> α -- no recursive call
 
   
   -- Type checker
   --------------------------------------------------------
-  instance MulF :<: xs => GetAnnotation xs MulF where
+  instance MulF :<: xs => Isomorphism xs MulF where
     getAnnotation (MulF α _) = α
 
   instance  (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
             , MulF :<: xs
-            , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
-            , Functor (VariantF xs), ShowAST (VariantF xs)) 
+            , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
+            , Functor (VariantF xs), Algebra (VariantF xs)) 
             => SetType xs MulF where
     setType' (MulF α (i, v)) =
       case (i, v) of
@@ -94,7 +93,7 @@ module Interpreter.C_Mul where
   
   instance {-# OVERLAPPING #-} 
     ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
-    , AlgVariantF ShowAST Text ys, Functor (VariantF ys)
+    , AlgVariantF Algebra Text ys, Functor (VariantF ys)
     ) => Demultiply ys MulF where
     demultiply' (MulF α (v1,v2)) = 
       case (v1, v2) of

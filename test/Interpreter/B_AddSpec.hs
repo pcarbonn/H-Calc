@@ -20,7 +20,7 @@ module Interpreter.B_AddSpec (spec) where
       it "shows int value" $ do
         showAST (5 :: AST ) `shouldBe` "5"
       it "shows float value" $ do
-        showAST (5.0 :: AST ) `shouldBe` "5.0"
+        showAST (5.3 :: AST ) `shouldBe` "5.3"
       it "shows add" $ do
         showAST (Add (Typ TInt EmptyNote) (5,3) :: AST ) 
         `shouldBe` "(5 + 3) :: TInt"

@@ -3,6 +3,9 @@
 - simpler type removal in distribute ? splitVariantF ?
 - removeAnnotations
 - continuations for Eval
+- neg
+- parse sign
+- TypeCheck -> Type
 
 - -Wall
 - getting started : packages

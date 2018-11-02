@@ -8,6 +8,7 @@ module Interpreter.Interpreter where
   import Interpreter.Utils
   import Interpreter.Result
 
+  import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
@@ -45,11 +46,28 @@ module Interpreter.Interpreter where
               -> AST2
   demultiplyS = demultiply
 
+  -- evaluation
+  --------------------------------------------------------
+
+  eval :: EADT '[ValF, FloatValF, AddF] -> Result
+  eval l = eadtToCont l >::>
+      ( \(ValF _ i) -> RInt i
+      , \(FloatValF _ f) -> RFloat f
+      , \(AddF _ (v1,v2)) -> go (eval v1) (eval v2))
+      where 
+        go v1 v2 =
+          case (v1, v2) of -- implicit recursion
+            (RInt v1', RInt v2') -> RInt (v1'+v2')
+            (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
+            (RError e, _) -> RError e
+            (_, RError e) -> RError e
+            (a,b)             -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
+
   -- interpret
   --------------------------------------------------------
   
   interpret :: Text -> Result
   interpret source
     = case runParser parser "" source of
-        Left e -> RError "can't parse"
+        Left _ -> RError "can't parse"
         Right a -> evalAST $ demultiplyS $ distribute $ setType $ appendEADT @'[HErrorF, TypF] a 

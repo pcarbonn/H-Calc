@@ -37,8 +37,8 @@ module Interpreter.B_Add where
   (.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
   (.+) a b = Add EmptyNote (a,b)
 
-  neg :: ValF :<: xs => EADT xs -> EADT xs
-  neg (Val α i)= Val α (-i)
+  neg :: (ValF :<: xs) => EADT xs -> EADT xs
+  neg (Val      α i) = Val      α (-i)
 
   -- parser
   --------------------------------------------------------
@@ -58,7 +58,10 @@ module Interpreter.B_Add where
           i2 <- some M.digitChar
           return (i1, i2)
     where toFloat :: ([Char], [Char]) -> Float
-          toFloat (i1,i2) = foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i1
+          toFloat (i1,i2) 
+            = foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i1
+            + (foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i2)
+              / (10.0 ^ (length i2))
 
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
@@ -74,13 +77,13 @@ module Interpreter.B_Add where
   -- show
   --------------------------------------------------------
   
-  instance ShowAST ValF where
+  instance Algebra ValF where
     showAST' (ValF α i) = show i <> α
   
-  instance ShowAST FloatValF where
+  instance Algebra FloatValF where
       showAST' (FloatValF α f) = show f <> α
 
-  instance ShowAST AddF where
+  instance Algebra AddF where
     showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α -- no recursive call
     
   
@@ -88,19 +91,19 @@ module Interpreter.B_Add where
   -- Type checker
   --------------------------------------------------------
 
-  instance ValF :<: xs => GetAnnotation xs ValF where
+  instance ValF :<: xs => Isomorphism xs ValF where
     getAnnotation (ValF α _) = α
 
   
-  instance FloatValF :<: xs => GetAnnotation xs FloatValF where
+  instance FloatValF :<: xs => Isomorphism xs FloatValF where
     getAnnotation (FloatValF α _) = α
 
-  instance AddF :<: xs => GetAnnotation xs AddF where
+  instance AddF :<: xs => Isomorphism xs AddF where
     getAnnotation (AddF α _) = α
 
 
 
-  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, GetAnnotation xs (VariantF xs), Functor (VariantF xs)) 
+  instance (EmptyNoteF :<: xs, ValF :<: xs, TypF :<: xs, Isomorphism xs (VariantF xs), Functor (VariantF xs)) 
           => SetType xs ValF where
     setType' (ValF α i) = Val (Typ TInt α) i
 
@@ -109,8 +112,8 @@ module Interpreter.B_Add where
 
   instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
            , AddF :<: xs
-           , AlgVariantF (GetAnnotation xs) (EADT xs) xs, GetAnnotation xs (VariantF xs)
-           , Functor (VariantF xs), ShowAST (VariantF xs)) 
+           , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
+           , Functor (VariantF xs), Algebra (VariantF xs)) 
             => SetType xs AddF where
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of
@@ -134,7 +137,7 @@ module Interpreter.B_Add where
 
   instance Eval FloatValF where
     evalAST' (FloatValF _ f) = RFloat f  
-    
+
   instance Eval AddF where
     evalAST' (AddF _ (v1,v2)) = 
       case (v1, v2) of -- implicit recursion
