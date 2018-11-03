@@ -1,10 +1,10 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RebindableSyntax #-}
 
-module Interpreter.A_TypeSpec (spec) where
+module Interpreter.A_NucleusSpec (spec) where
 
-  import Interpreter.A_Type
-  import Interpreter.Utils
+  import Interpreter.A_Nucleus
+  import Interpreter.Transfos
   import Interpreter.Interpreter
 
   import Control.Exception (evaluate)

@@ -1,9 +1,9 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RebindableSyntax #-}
-module Interpreter.UtilsSpec (spec) where
+module Interpreter.TransfosSpec (spec) where
 
-  import Interpreter.A_Type
-  import Interpreter.Utils
+  import Interpreter.A_Nucleus
+  import Interpreter.Transfos
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

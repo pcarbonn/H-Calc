@@ -22,11 +22,11 @@ library
                     , parser-combinators
                     , recursion-schemes
                     , relude
-  exposed-modules:    Interpreter.A_Type
+  exposed-modules:    Interpreter.A_Nucleus
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
-                    , Interpreter.Utils
+                    , Interpreter.Transfos
   default-language:   Haskell2010
   default-extensions: ConstraintKinds
                     , DataKinds
@@ -56,11 +56,11 @@ executable H-Calc
                     , parser-combinators
                     , recursion-schemes
                     , relude
-  other-modules:      Interpreter.A_Type
+  other-modules:      Interpreter.A_Nucleus
                     , Interpreter.B_Add
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
-                    , Interpreter.Utils
+                    , Interpreter.Transfos
                     , Prelude
   default-language:   Haskell2010
   -- ghc-options:        -Wall
@@ -94,11 +94,11 @@ test-suite spec
                     , recursion-schemes
                     , relude
                     , H-Calc
-  other-modules:      Interpreter.A_TypeSpec
+  other-modules:      Interpreter.A_NucleusSpec
                     , Interpreter.B_AddSpec
                     , Interpreter.C_MulSpec
                     , Interpreter.InterpreterSpec
-                    , Interpreter.UtilsSpec      
+                    , Interpreter.TransfosSpec      
   default-language:   Haskell2010      
   default-extensions: GADTs
                     , OverloadedStrings

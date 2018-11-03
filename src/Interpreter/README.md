@@ -1,14 +1,14 @@
 # File contents
 
 - Interpreter.hs : main entry point of the interpreter
-- Utils : common code for algebra, isomorphism and reductions; defines the `HError Text` and `EmptyNote` AST nodes
-- A_Type : defines the `Typ t α` AST node used for type annotations
+- Transfos : declares AST-wide transformations: algebra, isomorphism and reductions
+- A_Nucleus : defines the `HError Text`, `EmptyNote` and `Typ t α` AST nodes
 - B_Add  : defines `Val α i`, `FloatVal α i` and `Add α (v1,v2)` AST nodes
 - C_Mul  : defines `Mul α (i,v)` AST nodes
 
 # Transformations
 
-When a transformation is generic, i.e. can be applied to AST of different types, we use `Class` and `instance` (see Utils.hs):
+When a transformation is generic, i.e. can be applied to AST of different types, we use `Class` and `instance` (see Transfos.hs):
 - to transform an AST tree into a fixed type (Algebra), e.g. `showAST`;
 - to transform an AST tree into another tree of the same type (isomorphism), e.g. `getAnnotation`, `setType`;
 - to transform an AST tree into a simpler one (reduction), e.g. `removeAnnotation`, `demultiply`.

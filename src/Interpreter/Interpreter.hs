@@ -2,10 +2,10 @@ module Interpreter.Interpreter where
 
   -- this module is the main entry point of the interpreter
 
-  import Interpreter.A_Type
+  import Interpreter.A_Nucleus
   import Interpreter.B_Add
   import Interpreter.C_Mul
-  import Interpreter.Utils
+  import Interpreter.Transfos
 
   import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT

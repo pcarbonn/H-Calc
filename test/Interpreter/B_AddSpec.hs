@@ -2,9 +2,9 @@
 {-# LANGUAGE RebindableSyntax #-}
 module Interpreter.B_AddSpec (spec) where
 
-  import Interpreter.A_Type
+  import Interpreter.A_Nucleus
   import Interpreter.B_Add
-  import Interpreter.Utils
+  import Interpreter.Transfos
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

@@ -1,7 +1,7 @@
 # TODO
 
+- -Wall, neg
 - simpler reduction ?
-- neg
 - parse sign
 
 - getting started : packages

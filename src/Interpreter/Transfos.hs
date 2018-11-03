@@ -1,16 +1,11 @@
 
-module Interpreter.Utils where
+module Interpreter.Transfos where
   
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
   import Prelude
 
-  -- This modules defines the following AST node:
-  --    (HError Text)
-  --    (EmptyNote)
-  -- Additionally, it creates helpers for the operations we want to perform on the AST
-  --    showAST
-  --    simplify
+  -- This modules declares the AST-wide transformations
   -------------------------------------------------------
 
 
@@ -97,31 +92,5 @@ module Interpreter.Utils where
   demultiply = cata demultiply'
 
 
-  
-  -- EmptyNote
-  -------------------------------------------------------
-  
-  data EmptyNoteF e = EmptyNoteF deriving (Functor)
-  eadtPattern 'EmptyNoteF "EmptyNote"
 
-  instance Algebra EmptyNoteF where
-    showAST' EmptyNoteF = ""
-
-  instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
-    getAnnotation EmptyNoteF = EmptyNote
-    setType' _ = EmptyNote
-    
-
-  -- HError s
-  -------------------------------------------------------
-
-  data HErrorF e = HErrorF Text deriving (Functor)
-  eadtPattern 'HErrorF "HError"
-
-  instance Algebra HErrorF where
-    showAST' (HErrorF s) = s
-  
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs) => Isomorphism xs HErrorF where
-    getAnnotation (HErrorF s) = HError s
-    setType' _ = EmptyNote
 

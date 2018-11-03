@@ -4,11 +4,11 @@
 
 module Main where
 
-import Interpreter.A_Type
+import Interpreter.A_Nucleus
 import Interpreter.B_Add
 import Interpreter.C_Mul
 import Interpreter.Interpreter
-import Interpreter.Utils
+import Interpreter.Transfos
 
 import Haskus.Utils.EADT
 import Prelude hiding (fromInteger, fromRational)
@@ -17,9 +17,9 @@ import Text.Megaparsec
 
 -- Main
 
-type V1_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF]
-type V2_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF]
-type V3_AST = EADT '[HErrorF,EmptyNoteF, ValF,AddF,MulF,FloatValF]
+type V1_AST = EADT '[HErrorF,EmptyNoteF, ValF,FloatValF,AddF]
+type V2_AST = EADT '[HErrorF,EmptyNoteF, ValF,FloatValF,AddF,MulF]
+type V3_AST = EADT '[HErrorF,EmptyNoteF, ValF,FloatValF,AddF,MulF]
 
 main :: IO ()
 main = do
@@ -30,15 +30,11 @@ main = do
   
   putText $ showAST addVal
   putText " = "
-  putTextLn $ show $ evalAST addVal
-
-  putText $ showAST mulAddVal
-  putText " = "
-  putTextLn $ show $ evalAST mulAddVal -- without demultiply !
+  putTextLn $ show $ eval addVal
 
   putText $ showAST mulAddVal
   putText " -> "
-  putTextLn $ show $ evalAST (demultiply $ distribute $ mulAddVal :: V1_AST) -- OK
+  putTextLn $ show $ eval (demultiply $ distribute $ mulAddVal :: V1_AST) -- OK
 
   putTextLn $ showAST (demultiply (distribute $ ((neg 2 .* 5) ::  V2_AST)) :: V1_AST )
 

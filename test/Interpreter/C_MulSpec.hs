@@ -2,10 +2,10 @@
 {-# LANGUAGE RebindableSyntax #-}
 module Interpreter.C_MulSpec (spec) where
 
-  import Interpreter.A_Type
+  import Interpreter.A_Nucleus
   import Interpreter.B_Add
   import Interpreter.C_Mul
-  import Interpreter.Utils
+  import Interpreter.Transfos
 
   import Control.Exception (evaluate)
   import Haskus.Utils.EADT

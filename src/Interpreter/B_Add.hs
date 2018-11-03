@@ -5,8 +5,8 @@ module Interpreter.B_Add where
   --    (Add α (i1,i2))
   -------------------------------------------------------
 
-  import Interpreter.A_Type
-  import Interpreter.Utils
+  import Interpreter.A_Nucleus
+  import Interpreter.Transfos
   
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
@@ -43,7 +43,7 @@ module Interpreter.B_Add where
   neg :: (ValF :<: xs) => EADT xs -> EADT xs
   neg (Val      α i) = Val      α (-i)
 
-  
+
   -- parser
   --------------------------------------------------------
 
