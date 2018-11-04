@@ -31,13 +31,13 @@ module Interpreter.B_Add where
   -- syntactic sugar for embedded DSL
   --------------------------------------------------------
 
-  fromInteger :: (EmptyNoteF :<: xs, ValF :<: xs) => Integer -> EADT xs
+  fromInteger :: ('[EmptyNoteF, ValF] :<<: xs) => Integer -> EADT xs
   fromInteger i = Val EmptyNote $ fromIntegral i
 
-  fromRational :: (EmptyNoteF :<: xs, FloatValF :<: xs) => Rational -> EADT xs
+  fromRational :: ('[EmptyNoteF, FloatValF] :<<: xs) => Rational -> EADT xs
   fromRational i = FloatVal EmptyNote $ realToFrac i
 
-  (.+) :: (EmptyNoteF :<: xs, AddF :<: xs) => EADT xs -> EADT xs -> EADT xs
+  (.+) :: ('[EmptyNoteF, AddF] :<<: xs) => EADT xs -> EADT xs -> EADT xs
   (.+) a b = Add EmptyNote (a,b)
 
   neg :: (ValF :<: xs) => EADT xs -> EADT xs
@@ -47,7 +47,7 @@ module Interpreter.B_Add where
   -- parser
   --------------------------------------------------------
 
-  valParser :: (EmptyNoteF :<: xs, ValF :<: xs) => MParser (EADT xs)
+  valParser :: ('[EmptyNoteF, ValF] :<<: xs) => MParser (EADT xs)
   valParser = Val EmptyNote . toInt <$> some M.digitChar
     where toInt :: [Char] -> Int
           toInt cs = foldl' (\a i -> a * 10 + digitToInt i) 0  cs
@@ -55,7 +55,7 @@ module Interpreter.B_Add where
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
 
-  floatValParser :: (EmptyNoteF :<: xs, FloatValF :<: xs) => MParser (EADT xs)
+  floatValParser :: ('[EmptyNoteF, FloatValF] :<<: xs) => MParser (EADT xs)
   floatValParser = FloatVal EmptyNote . toFloat <$> do
           i1 <- some M.digitChar
           _ <- string "."
@@ -70,7 +70,7 @@ module Interpreter.B_Add where
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
 
-  addParser :: (EmptyNoteF :<: xs, AddF :<: xs) => MParser (EADT xs) -> MParser (EADT xs)
+  addParser :: ('[EmptyNoteF, AddF] :<<: xs) => MParser (EADT xs) -> MParser (EADT xs)
   addParser termP = Add EmptyNote <$> do
     i1 <- termP
     _ <- string "+"
@@ -95,18 +95,18 @@ module Interpreter.B_Add where
   -- Isomorphism
   --------------------------------------------------------
 
-  instance (EmptyNoteF :<: xs, TypF :<: xs, ValF :<: xs) 
+  instance ('[EmptyNoteF, TypF, ValF] :<<: xs) 
            => Isomorphism xs ValF where
     getAnnotation (ValF α _) = α
     setType' (ValF α i) = Val (Typ TInt α) i
 
   
-  instance (EmptyNoteF :<: xs, TypF :<: xs, FloatValF :<: xs) 
+  instance ('[EmptyNoteF, TypF, FloatValF] :<<: xs) 
            => Isomorphism xs FloatValF where
     getAnnotation (FloatValF α _) = α
     setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
 
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs, AddF :<: xs
+  instance ('[HErrorF, EmptyNoteF, TypF, AddF] :<<: xs
            , Functor (VariantF xs), Algebra (VariantF xs)
            , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs))
            => Isomorphism xs AddF where

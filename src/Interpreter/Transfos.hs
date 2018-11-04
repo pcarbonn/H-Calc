@@ -53,7 +53,12 @@ module Interpreter.Transfos where
           Just v  -> bottomUpFixed f v
 
 
+  -- Tree Expansion : EADT xs -> EADT ys
+  -------------------------------------------------------
+  -- appendEADT @'[newConstructor], followed by isomorphism
 
+
+  
   -- Tree reduction : EADT xs -> EADT ys
   -------------------------------------------------------
   -- there must be one class for each output type, ys

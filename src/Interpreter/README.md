@@ -24,6 +24,8 @@ When a transformation can be applied to only one type of tree, we prefer to use 
 
 - `FloatValF :<: xs` is a constraint on type `EADT xs` : `FloatVal` is one of the node constructors of the AST tree of type `EADT xs`.
 
+- `[HErrorF, ValF] :<<: xs` is also a constraint on type `EADT xs` : `HError`, `FloatVal` are both node constructors of the AST tree of type `EADT xs`.
+
 
 # Naming conventions
 

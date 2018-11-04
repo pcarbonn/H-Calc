@@ -17,13 +17,13 @@ module Interpreter.C_Mul where
   data MulF e = MulF e (e, e) deriving (Functor)
   eadtPattern 'MulF "Mul"
 
-  (.*) :: (EmptyNoteF :<: xs, MulF :<: xs) => EADT xs -> EADT xs -> EADT xs
+  (.*) :: ('[EmptyNoteF, MulF] :<<: xs) => EADT xs -> EADT xs -> EADT xs
   (.*) a b = Mul EmptyNote (a,b)
 
   -- parser
   --------------------------------------------------------
 
-  mulParser :: (EmptyNoteF :<: xs, MulF :<: xs) => MParser (EADT xs) -> MParser (EADT xs)
+  mulParser :: ('[EmptyNoteF, MulF] :<<: xs) => MParser (EADT xs) -> MParser (EADT xs)
   mulParser factorP = Mul EmptyNote <$> do
     i1 <- factorP
     _ <- string "*"
@@ -39,8 +39,7 @@ module Interpreter.C_Mul where
   
   -- Isomorphism
   --------------------------------------------------------
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs, TypF :<: xs
-           , MulF :<: xs
+  instance ('[HErrorF, EmptyNoteF, TypF, MulF] :<<: xs
            , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
            , Functor (VariantF xs), Algebra (VariantF xs))
           => Isomorphism xs MulF where
@@ -63,7 +62,7 @@ module Interpreter.C_Mul where
   -- DSL must have HErrorF, AddF, MulF
   --------------------------------------------------------
 
-  distribute :: (HErrorF :<: xs, AddF :<: xs, MulF :<: xs, Functor (VariantF xs)) => EADT xs -> EADT xs
+  distribute :: ('[HErrorF, AddF, MulF] :<<: xs, Functor (VariantF xs)) => EADT xs -> EADT xs
   distribute = bottomUpFixed go
     where 
       go (Mul α (i, (Add β (v1,v2)))) = Just (Add β ((Mul α (i,v1)), (Mul α (i,v2))))
@@ -77,7 +76,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
   
   instance {-# OVERLAPPING #-} 
-            ( AddF :<: ys, HErrorF :<: ys, ValF :<: ys
+            ( '[AddF, HErrorF, ValF] :<<: ys
             , AlgVariantF Algebra Text ys, Functor (VariantF ys) )
             => Demultiply ys MulF where
     demultiply' (MulF α (v1,v2)) = 

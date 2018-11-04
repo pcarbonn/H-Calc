@@ -44,7 +44,7 @@ module Interpreter.A_Nucleus where
   
   -- isomorphism
 
-  instance (HErrorF :<: xs, EmptyNoteF :<: xs) => Isomorphism xs HErrorF where
+  instance ('[HErrorF, EmptyNoteF] :<<: xs) => Isomorphism xs HErrorF where
     getAnnotation (HErrorF s) = HError s
     setType' _ = EmptyNote
 
@@ -58,7 +58,7 @@ module Interpreter.A_Nucleus where
 
   -- other
 
-  getType :: ( TypF :<: xs, EmptyNoteF :<: xs, Functor (VariantF xs)
+  getType :: ( '[EmptyNoteF,TypF] :<<: xs, Functor (VariantF xs)
              , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
              ) => EADT xs -> Maybe TType
   getType = go . getAnnotation . unfix
