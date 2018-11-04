@@ -27,6 +27,7 @@ library
                     , Interpreter.C_Mul
                     , Interpreter.Interpreter
                     , Interpreter.Transfos
+  other-modules:      Prelude
   default-language:   Haskell2010
   default-extensions: ConstraintKinds
                     , DataKinds
@@ -48,7 +49,7 @@ library
 
 executable H-Calc
   hs-source-dirs:     src
-  main-is:            main.hs
+  main-is:            Main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
                     , haskus-utils-variant >= 2.0.1
                     , hspec ==2.*
