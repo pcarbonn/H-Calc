@@ -1,5 +1,6 @@
-
-module Sandbox where
+-- you need to adapt H-Calc.cabal to run this program: 
+--  main-is:            Parser.hs
+module Parser where
 
   import Haskus.Utils.EADT
   import Prelude

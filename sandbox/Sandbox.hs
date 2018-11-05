@@ -1,7 +1,5 @@
 -- you need to adapt H-Calc.cabal to run this program: 
---  hs-source-dirs:     sandbox
 --  main-is:            Sandbox.hs
--- remove library section
 
 
 module Sandbox where

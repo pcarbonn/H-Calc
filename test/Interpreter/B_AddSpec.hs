@@ -4,6 +4,7 @@ module Interpreter.B_AddSpec (spec) where
 
   import Interpreter.A_Nucleus
   import Interpreter.B_Add
+  import Interpreter.Interpreter
   import Interpreter.Transfos
 
   import Control.Exception (evaluate)
@@ -11,18 +12,17 @@ module Interpreter.B_AddSpec (spec) where
   import Test.Hspec
   import Relude hiding (fromInteger, fromRational)
   
-  type AST = EADT '[HErrorF,EmptyNoteF,TypF, ValF,FloatValF,AddF]
   
   spec :: Spec
   spec = do
     describe "B_Add" $ do
       it "shows int value" $ do
-        showAST (5 :: AST ) `shouldBe` "5"
+        showAST (5 :: AST1 ) `shouldBe` "5"
       it "shows float value" $ do
-        showAST (5.3 :: AST ) `shouldBe` "5.3"
+        showAST (5.3 :: AST1 ) `shouldBe` "5.3"
       it "shows add" $ do
-        showAST (Add (Typ TInt EmptyNote) (5,3) :: AST ) 
+        showAST (Add (Typ TInt EmptyNote) (5,3) :: AST1 ) 
         `shouldBe` "(5 + 3) :: TInt"
       it "sets type" $ do
-        showAST ((5 .+ 3) :: AST ) 
+        showAST ((5 .+ 3) :: AST1 ) 
         `shouldBe` "(5 + 3)"

@@ -48,7 +48,7 @@ library
                     , UndecidableInstances
 
 executable H-Calc
-  hs-source-dirs:     src
+  hs-source-dirs:     sandbox
   main-is:            Main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
                     , haskus-utils-variant >= 2.0.3
@@ -57,12 +57,7 @@ executable H-Calc
                     , parser-combinators
                     , recursion-schemes
                     , relude
-  other-modules:      Interpreter.A_Nucleus
-                    , Interpreter.B_Add
-                    , Interpreter.C_Mul
-                    , Interpreter.Interpreter
-                    , Interpreter.Transfos
-                    , Prelude
+                    , H-Calc
   default-language:   Haskell2010
   -- ghc-options:        -Wall
   default-extensions: ConstraintKinds
@@ -94,12 +89,7 @@ test-suite spec
                     , parser-combinators
                     , recursion-schemes
                     , relude
-                    , H-Calc
-  other-modules:      Interpreter.A_NucleusSpec
-                    , Interpreter.B_AddSpec
-                    , Interpreter.C_MulSpec
-                    , Interpreter.InterpreterSpec
-                    , Interpreter.TransfosSpec      
+                    , H-Calc  
   default-language:   Haskell2010      
   default-extensions: GADTs
                     , OverloadedStrings
