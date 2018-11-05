@@ -50,9 +50,9 @@ module Interpreter.C_Mul where
         (HError _, _) -> i
         (_, HError _) -> v
         _ -> case (getType i, getType v) of
-                (Just TInt, Just TInt)   -> Mul (Typ TInt   α) (i,v)
-                (Just TInt, Just TFloat) -> Mul (Typ TFloat α) (i,v)
-                (Just TFloat, Just TInt) -> Mul (Typ TFloat α) (i,v)
+                (Just TInt, Just TInt)   -> Mul (Typ α TInt  ) (i,v)
+                (Just TInt, Just TFloat) -> Mul (Typ α TFloat) (i,v)
+                (Just TFloat, Just TInt) -> Mul (Typ α TFloat) (i,v)
                 (Just t1  , Just t2)     -> 
                          HError $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v <> "` whose type is " <> show t2
@@ -83,7 +83,7 @@ module Interpreter.C_Mul where
     Right leftovers -> leftovers & (fmap d) & liftVariantF & Fix
     Left v          -> variantFToCont v >::>
                           ( \(MulF α (v1,v2)) -> go α (v1,v2)
-                          , \(TypF t α) -> Typ t (d α) --TODO
+                          , \(TypF α t) -> Typ (d α) t --TODO
                           )
     where 
       d v = demultiply v -- in target AST

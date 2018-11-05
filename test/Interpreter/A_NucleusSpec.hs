@@ -16,6 +16,6 @@ module Interpreter.A_NucleusSpec (spec) where
   spec = do
     describe "A_Type" $ do
       it "shows the type" $ do
-        showAST (Typ TInt EmptyNote :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` " :: TInt"
+        showAST (Typ EmptyNote TInt :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` " :: TInt"
       it "gets annotation" $ do
-        getType (Typ TInt (Typ TInt EmptyNote) :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` (Just TInt)
+        getType (Typ (Typ EmptyNote TInt) TInt :: EADT '[HErrorF,EmptyNoteF,TypF] ) `shouldBe` (Just TInt)

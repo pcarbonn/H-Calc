@@ -104,16 +104,16 @@ module Interpreter.B_Add where
   -- Isomorphism
   --------------------------------------------------------
 
-  instance ('[EmptyNoteF, TypF, ValF] :<<: xs) 
+  instance ('[TypF, ValF] :<<: xs) 
            => Isomorphism xs ValF where
     getAnnotation (ValF α _) = α
-    setType' (ValF α i) = Val (Typ TInt α) i
+    setType' (ValF α i) = Val (Typ α TInt) i
 
   
-  instance ('[EmptyNoteF, TypF, FloatValF] :<<: xs) 
+  instance ('[TypF, FloatValF] :<<: xs) 
            => Isomorphism xs FloatValF where
     getAnnotation (FloatValF α _) = α
-    setType' (FloatValF α f) = FloatVal (Typ TFloat α) f
+    setType' (FloatValF α f) = FloatVal (Typ α TFloat) f
 
   instance ('[HErrorF, EmptyNoteF, TypF, AddF] :<<: xs
            , Functor (VariantF xs), Algebra (VariantF xs)
@@ -125,8 +125,8 @@ module Interpreter.B_Add where
         (HError _, _) -> v1
         (_, HError _) -> v2
         _ -> case (getType v1, getType v2) of
-                (Just TInt  , Just TInt  ) -> Add (Typ TInt α) (v1,v2)
-                (Just TFloat, Just TFloat) -> Add (Typ TFloat α) (v1,v2)
+                (Just TInt  , Just TInt  ) -> Add (Typ α TInt) (v1,v2)
+                (Just TFloat, Just TFloat) -> Add (Typ α TFloat) (v1,v2)
                 (Just t1    , Just t2    ) -> 
                          HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v2 <> "` whose type is " <> show t2

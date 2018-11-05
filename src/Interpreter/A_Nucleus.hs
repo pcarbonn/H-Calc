@@ -24,7 +24,7 @@ module Interpreter.A_Nucleus where
 
   data TType = TInt | TFloat deriving (Show, Eq)
 
-  data TypF e = TypF TType e deriving (Functor)
+  data TypF e = TypF e TType deriving (Functor)
   eadtPattern 'TypF "Typ"
   
 
@@ -40,7 +40,7 @@ module Interpreter.A_Nucleus where
     showAST' EmptyNoteF = ""
 
   instance Algebra TypF where
-    showAST' (TypF t α) = " :: " <> show t <> α
+    showAST' (TypF α t) = " :: " <> show t <> α
   
   -- isomorphism
 
@@ -49,8 +49,8 @@ module Interpreter.A_Nucleus where
     setType' _ = EmptyNote
 
   instance TypF :<: xs => Isomorphism xs TypF where
-    getAnnotation (TypF t α) = Typ t α
-    setType' (TypF _ α) = α -- erase existing type
+    getAnnotation (TypF α t) = Typ α t
+    setType' (TypF α _) = α -- erase existing type
 
   instance EmptyNoteF :<: xs => Isomorphism xs EmptyNoteF where
     getAnnotation EmptyNoteF = EmptyNote
@@ -62,7 +62,7 @@ module Interpreter.A_Nucleus where
              , AlgVariantF (Isomorphism xs) (EADT xs) xs, Isomorphism xs (VariantF xs)
              ) => EADT xs -> Maybe TType
   getType = go . getAnnotation . unfix
-    where go (Typ t _) = Just t
+    where go (Typ _ t) = Just t
           go EmptyNote = Nothing -- no annotation anymore
           go α = getType $ getAnnotation $ unfix α
 
