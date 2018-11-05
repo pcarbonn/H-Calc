@@ -17,5 +17,9 @@ module Interpreter.InterpreterSpec (spec) where
   spec = do
     describe "Interpreter" $ do
       it "interprets" $ do
+        show (interpret "-5") `shouldBe` "RInt (-5)"
+      it "interprets" $ do
+        show (interpret "-5.3") `shouldBe` "RFloat (-5.3)"
+      it "interprets" $ do
         show (interpret "((2+1)*5.0)") `shouldBe` "RFloat 15.0"
   

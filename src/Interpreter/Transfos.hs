@@ -2,7 +2,6 @@
 module Interpreter.Transfos where
   
   import Haskus.Utils.EADT
-  import Haskus.Utils.EADT.TH
   import Prelude
 
   -- This modules declares the AST-wide transformations

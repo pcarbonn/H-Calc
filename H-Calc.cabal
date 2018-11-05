@@ -59,7 +59,7 @@ executable H-Calc
                     , relude
                     , H-Calc
   default-language:   Haskell2010
-  -- ghc-options:        -Wall
+  ghc-options:        -W
   default-extensions: ConstraintKinds
                     , DataKinds
                     , DeriveFunctor

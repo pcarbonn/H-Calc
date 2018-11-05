@@ -68,4 +68,4 @@ module Interpreter.A_Nucleus where
 
 
   instance (EmptyNoteF :<: xs) => RemoveAnnotation xs TypF where
-    removeAnnotation' (TypF t α) = EmptyNote
+    removeAnnotation' (TypF _ _) = EmptyNote

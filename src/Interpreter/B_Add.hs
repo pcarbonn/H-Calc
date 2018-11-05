@@ -40,32 +40,41 @@ module Interpreter.B_Add where
   (.+) :: ('[EmptyNoteF, AddF] :<<: xs) => EADT xs -> EADT xs -> EADT xs
   (.+) a b = Add EmptyNote (a,b)
 
-  neg :: (ValF :<: xs) => EADT xs -> EADT xs
+  neg :: ('[HErrorF, ValF] :<<: xs, Functor (VariantF xs), AlgVariantF Algebra Text xs) 
+        => EADT xs -> EADT xs
   neg (Val      α i) = Val      α (-i)
+  neg v = HError $ "can't negate" <> showAST v
 
 
   -- parser
   --------------------------------------------------------
 
   valParser :: ('[EmptyNoteF, ValF] :<<: xs) => MParser (EADT xs)
-  valParser = Val EmptyNote . toInt <$> some M.digitChar
-    where toInt :: [Char] -> Int
-          toInt cs = foldl' (\a i -> a * 10 + digitToInt i) 0  cs
+  valParser = Val EmptyNote . toInt <$> do
+        s <- option "+" (string "-")
+        i <- some M.digitChar
+        return (s,i)
+    where toInt :: (Text, [Char]) -> Int
+          toInt (s, cs) = s' * (foldl' (\a i -> a * 10 + digitToInt i) 0  cs)
+            where s' = if s == "+" then 1 else -1
 
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
 
   floatValParser :: ('[EmptyNoteF, FloatValF] :<<: xs) => MParser (EADT xs)
   floatValParser = FloatVal EmptyNote . toFloat <$> do
+          s <- option "+" (string "-")
           i1 <- some M.digitChar
           _ <- string "."
           i2 <- some M.digitChar
-          return (i1, i2)
-    where toFloat :: ([Char], [Char]) -> Float
-          toFloat (i1,i2) 
-            = foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i1
-            + (foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i2)
-              / (10.0 ^ (length i2))
+          return (s, i1, i2)
+    where toFloat :: (Text, [Char], [Char]) -> Float
+          toFloat (s, i1,i2) 
+            = s' * (foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i1
+                   + (foldl' (\a i -> a * 10.0 + realToFrac (digitToInt i)) 0.0 i2)
+                   / (10.0 ^ (length i2))
+                  )
+              where s' = if s == "+" then 1 else -1
 
           digitToInt :: Char -> Int
           digitToInt c = ord c - ord '0'
