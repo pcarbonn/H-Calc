@@ -88,13 +88,34 @@ module Sandbox where
                          , \(OddF a l)  -> "Odd : " <> l
                          )
     Right leftovers -> "something else"
-    
+
+  cataAlg :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+    -> Text
+  cataAlg = cata alg
+   
+  -- with cata
   alg2 x = case splitVariantF @'[EvenF Int, OddF Int] x of
     Left v          -> variantFToCont v >::>
                          ( \(EvenF a l) -> Cons a l
                          , \(OddF a l)  -> Cons a l
                          )
-    Right leftovers -> Nil --TODO
+    Right leftovers -> Fix (liftVariantF leftovers)
+
+  cataAlg2 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+          -> EADT '[                      ConsF Int, NilF]
+  cataAlg2 = cata alg2
+
+  -- without cata
+
+  alg3 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+          -> EADT '[                      ConsF Int, NilF]
+  alg3 x = case splitVariantF @'[EvenF Int, OddF Int] $ unfix x of
+    Left v          -> variantFToCont v >::>
+                         ( \(EvenF a l) -> Cons a (alg3 l)
+                         , \(OddF a l)  -> Cons a (alg3 l)
+                         )
+    Right leftovers -> Fix (liftVariantF $ fmap alg3 leftovers) --TODO
+
 
   -- type specialisation
   ---------------------------------
@@ -103,13 +124,6 @@ module Sandbox where
                     -> EADT '[ConsF Int, NilF]
   removeOddEvenS = cataRemove
 
-  cataAlg :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
-          -> Text
-  cataAlg = cata alg
-
-  cataAlg2 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
-          -> EADT '[                      ConsF Int, NilF]
-  cataAlg2 = cata alg2
 
   -- constants
   ---------------------------------

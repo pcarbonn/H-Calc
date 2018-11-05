@@ -27,7 +27,7 @@ module Interpreter.Transfos where
   class Isomorphism xs (f :: * -> *) where
     getAnnotation :: f (EADT xs) -> EADT xs
     setType' :: f (EADT xs) -> EADT xs
-    -- add more isomorphism here
+    -- add more isomorphisms here
 
   instance ( AlgVariantF (Isomorphism ys) (EADT ys) xs) 
           => Isomorphism ys (VariantF xs) where
@@ -40,28 +40,15 @@ module Interpreter.Transfos where
   setType = cata setType'
 
 
-  -- Fix of an isomorphism
-  -------------------------------------------------------
-
-  -- bottom up traversal that performs an additional bottom up traversal in
-  -- the transformed sub-tree when a transformation occurs. 
-  bottomUpFixed :: Functor f => (Fix f -> Maybe (Fix f)) -> Fix f -> Fix f
-  bottomUpFixed f = f' . Fix . (fmap (bottomUpFixed f)) . unfix
-    where
-        f' u = case f u of
-          Nothing -> u
-          Just v  -> bottomUpFixed f v
-
 
   -- Tree Expansion : EADT xs -> EADT ys
   -------------------------------------------------------
-  -- appendEADT @'[newConstructor], followed by isomorphism
+  -- --> appendEADT @'[newConstructor], followed by isomorphism
 
 
-  
+
   -- Tree reduction : EADT xs -> EADT ys
   -------------------------------------------------------
-  -- there must be one class for each output type, ys
 
   -- removeAnnotation
 
@@ -80,21 +67,6 @@ module Interpreter.Transfos where
   removeAnnotation = cata removeAnnotation'
 
 
-  -- Demultiply
-
-  class Demultiply ys (f :: * -> *) where
-    demultiply'      :: f (EADT ys) -> EADT ys
-    
-  instance ( AlgVariantF (Demultiply ys) (EADT ys) xs ) 
-           => Demultiply ys (VariantF xs) where
-    demultiply' = algVariantF @(Demultiply ys) demultiply'
-  
-  instance {-# OVERLAPPABLE #-} f :<: ys => Demultiply ys f where
-    demultiply' = VF -- if f is in result type, keep as is          
-
-  demultiply :: (Functor (VariantF xs), Demultiply ys (VariantF xs)) 
-                => EADT xs -> EADT ys
-  demultiply = cata demultiply'
 
 
 
