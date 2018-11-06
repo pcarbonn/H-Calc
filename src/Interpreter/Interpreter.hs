@@ -52,16 +52,14 @@ module Interpreter.Interpreter where
       , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
       , \(ValF _ i)       -> RInt i
       , \(FloatValF _ f)  -> RFloat f
-      , \(AddF _ (v1,v2)) -> go (eval v1) (eval v2))
-      where 
-        go v1 v2 =
-          case (v1, v2) of -- implicit recursion
+      , \(AddF _ (v1,v2)) -> 
+          case (eval v1, eval v2) of -- implicit recursion
             (RInt v1', RInt v2')     -> RInt (v1'+v2')
             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
             (RError e, _) -> RError e
             (_, RError e) -> RError e
             (a,b)         -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
-
+      )
 
   -- type specialisation
   --------------------------------------------------------

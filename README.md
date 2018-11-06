@@ -56,7 +56,7 @@ We'll also have a node to represent an error detected when interpreting an H-Cal
     data HErrorF e = HErrorF e Text 
 ```
 
-The first data element of each constructor will contain some annotations, and the second will contain the arguments.  Annotations are represented as a chain of annotation nodes.  The simplest annotation node is `EmptyNote`; another annotation node will contain the data type of the node (Int or Float).  
+The first data element of each constructor will contain some annotations, and the second will contain the arguments.  Annotations are represented as a chain of annotation nodes.  The simplest annotation node is `EmptyNote`; another annotation node will contain the data type of the node (TInt or TSFloat).  
 
 ```haskell
     data EmptyNoteF e = EmptyNoteF
@@ -134,24 +134,23 @@ The `eval` function is another algebra, from AST tree to Result.
       | RError Text
 ```
 
-`eval` is NOT supposed to be extensible: it accepts only a limited set of tree nodes.  Trees with other types of nodes will have to be simplified before being evaluated (see below).  For such non-extensible algebra, we define how to interpret each type of node using lambdas, called "continuations" (see Interpreter.hs):
+`eval` is NOT supposed to be extensible: it accepts only a limited set of tree nodes.  Trees with other types of nodes will have to be simplified before being evaluated (see below).  For such non-extensible algebra, we define how to interpret each type of node using anonymous functions, called "continuations" (see Interpreter.hs):
 
 ```haskell
-    eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
-    eval l = eadtToCont l >::>
-        ( \(HErrorF _ t)    -> RError t
-        , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
-        , \(ValF _ i)       -> RInt i
-        , \(FloatValF _ f)  -> RFloat f
-        , \(AddF _ (v1,v2)) -> go (eval v1) (eval v2))
-        where 
-          go v1 v2 =
-            case (v1, v2) of -- implicit recursion
-              (RInt v1', RInt v2')     -> RInt (v1'+v2')
-              (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
-              (RError e, _) -> RError e
-              (_, RError e) -> RError e
-              (a,b)         -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
+  eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
+  eval l = eadtToCont l >::>
+      ( \(HErrorF _ t)    -> RError t
+      , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
+      , \(ValF _ i)       -> RInt i
+      , \(FloatValF _ f)  -> RFloat f
+      , \(AddF _ (v1,v2)) -> 
+          case (eval v1, eval v2) of -- implicit recursion
+            (RInt v1', RInt v2')     -> RInt (v1'+v2')
+            (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
+            (RError e, _) -> RError e
+            (_, RError e) -> RError e
+            (a,b)         -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
+      )
 ```
 
 ## Expansions and isomorphisms
@@ -195,7 +194,7 @@ When the isomorphism is not extensible and tree-wide (i.e. it requires no new de
         go α (v1,v2)              = Mul α (d v1, d v2)
 ```
 
-One of the case branch defines a default implementation for the other types of node: just transform their children.
+The Left branch defines a default implementation for the other types of node: just transform their children.
 
       
 ## Tree reduction
