@@ -19,7 +19,7 @@ module Interpreter.A_Nucleus where
   data EmptyNoteF e = EmptyNoteF deriving (Functor)
   eadtPattern 'EmptyNoteF "EmptyNote"
 
-  data HErrorF e = HErrorF Text deriving (Functor)
+  data HErrorF e = HErrorF e Text deriving (Functor)
   eadtPattern 'HErrorF "HError"
 
   data TType = TInt | TFloat deriving (Show, Eq)
@@ -34,7 +34,7 @@ module Interpreter.A_Nucleus where
   -- algebra
 
   instance Algebra HErrorF where
-    showAST' (HErrorF s) = s
+    showAST' (HErrorF α s) = s <> α
 
   instance Algebra EmptyNoteF where
     showAST' EmptyNoteF = ""
@@ -45,7 +45,7 @@ module Interpreter.A_Nucleus where
   -- isomorphism
 
   instance ('[HErrorF, EmptyNoteF] :<<: xs) => Isomorphism xs HErrorF where
-    getAnnotation (HErrorF s) = HError s
+    getAnnotation (HErrorF α s) = α
     setType' _ = EmptyNote
 
   instance TypF :<: xs => Isomorphism xs TypF where
@@ -65,7 +65,6 @@ module Interpreter.A_Nucleus where
     where go (Typ _ t) = Just t
           go EmptyNote = Nothing -- no annotation anymore
           go α = getType $ getAnnotation $ unfix α
-
 
   instance (EmptyNoteF :<: xs) => RemoveAnnotation xs TypF where
     removeAnnotation' (TypF _ _) = EmptyNote

@@ -47,16 +47,16 @@ module Interpreter.C_Mul where
     getAnnotation (MulF α _) = α
     setType' (MulF α (i, v)) =
       case (i, v) of
-        (HError _, _) -> i
-        (_, HError _) -> v
+        (HError _ _, _) -> i
+        (_, HError _ _) -> v
         _ -> case (getType i, getType v) of
                 (Just TInt, Just TInt)   -> Mul (Typ α TInt  ) (i,v)
                 (Just TInt, Just TFloat) -> Mul (Typ α TFloat) (i,v)
                 (Just TFloat, Just TInt) -> Mul (Typ α TFloat) (i,v)
                 (Just t1  , Just t2)     -> 
-                         HError $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
+                         HError α $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v <> "` whose type is " <> show t2
-                (_,_) -> HError "Missing type info in multiplication"
+                (_,_) -> HError α "Missing type info in multiplication"
 
     
   -- apply distribution : a*(b+c) -> (a*b+a*c)
@@ -90,15 +90,15 @@ module Interpreter.C_Mul where
       go α (v1,v2) = 
         let 
           go' i v v' = 
-                if  | i < 0 -> HError $ "Error: can't multiply by negative number " 
+                if  | i < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
                               <> show i
                     | i == 0 -> Val (d α) 0
                     | i == 1 -> v'
                     | otherwise -> Add (d α) (d v, d $ Mul α ((Val α $ i-1), v))
         in
           case (d v1, d v2) of
-            (HError e, _) -> HError e
-            (_, HError e) -> HError e
+            (HError _ e, _) -> HError (d α) e
+            (_, HError _ e) -> HError (d α) e
             (Val _ i1, v2') -> go' i1 v2 v2'
             (v1', Val _ i2) -> go' i2 v1 v1'
-            (_, _) -> HError $ "Can't multiply by " <> showAST v1
+            (_, _) -> HError (d α) $ "Can't multiply by " <> showAST v1

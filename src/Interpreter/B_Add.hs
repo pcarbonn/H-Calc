@@ -40,10 +40,10 @@ module Interpreter.B_Add where
   (.+) :: ('[EmptyNoteF, AddF] :<<: xs) => EADT xs -> EADT xs -> EADT xs
   (.+) a b = Add EmptyNote (a,b)
 
-  neg :: ('[HErrorF, ValF] :<<: xs, Functor (VariantF xs), AlgVariantF Algebra Text xs) 
+  neg :: ('[HErrorF, EmptyNoteF, ValF] :<<: xs, Functor (VariantF xs), AlgVariantF Algebra Text xs) 
         => EADT xs -> EADT xs
   neg (Val      α i) = Val      α (-i)
-  neg v = HError $ "can't negate" <> showAST v
+  neg v = HError EmptyNote $ "can't negate" <> showAST v
 
 
   -- parser
@@ -122,15 +122,15 @@ module Interpreter.B_Add where
     getAnnotation (AddF α _) = α
     setType' (AddF α (v1, v2)) =
       case (v1,v2) of
-        (HError _, _) -> v1
-        (_, HError _) -> v2
+        (HError _ _, _) -> v1
+        (_, HError _ _) -> v2
         _ -> case (getType v1, getType v2) of
                 (Just TInt  , Just TInt  ) -> Add (Typ α TInt) (v1,v2)
                 (Just TFloat, Just TFloat) -> Add (Typ α TFloat) (v1,v2)
                 (Just t1    , Just t2    ) -> 
-                         HError $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
+                         HError α $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
                                   " with `" <> showAST v2 <> "` whose type is " <> show t2
-                (_,_) -> HError "Missing type info in addition"
+                (_,_) -> HError α "Missing type info in addition"
 
 
     

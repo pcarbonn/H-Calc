@@ -48,7 +48,7 @@ module Interpreter.Interpreter where
 
   eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
   eval l = eadtToCont l >::>
-      ( \(HErrorF t)      -> RError t
+      ( \(HErrorF _ t)    -> RError t
       , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
       , \(ValF _ i)       -> RInt i
       , \(FloatValF _ f)  -> RFloat f

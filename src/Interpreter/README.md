@@ -1,4 +1,3 @@
-See our [Introduction to EADT](EADT.md).
 
 # File contents
 
