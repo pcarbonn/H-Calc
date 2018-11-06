@@ -45,7 +45,7 @@ module Interpreter.A_Nucleus where
   -- isomorphism
 
   instance ('[HErrorF, EmptyNoteF] :<<: xs) => Isomorphism xs HErrorF where
-    getAnnotation (HErrorF α s) = α
+    getAnnotation (HErrorF α _) = α
     setType' _ = EmptyNote
 
   instance TypF :<: xs => Isomorphism xs TypF where

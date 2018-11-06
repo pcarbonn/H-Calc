@@ -82,10 +82,10 @@ module Sandbox where
   ----------------------------------------
   alg x = case splitVariantF @'[EvenF Int, OddF Int] x of
     Left v          -> variantFToCont v >::>
-                         ( \(EvenF a l) -> "Even : " <> l
-                         , \(OddF a l)  -> "Odd : " <> l
+                         ( \(EvenF _ l) -> "Even : " <> l
+                         , \(OddF _ l)  -> "Odd : " <> l
                          )
-    Right leftovers -> "something else"
+    Right _ -> "something else"
 
   cataAlg :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
     -> Text
@@ -114,6 +114,15 @@ module Sandbox where
                          )
     Right leftovers -> Fix (liftVariantF $ fmap alg3 leftovers) --TODO
 
+  -- using popVariantF
+  ----------------------------------------
+  -- without cata
+
+  alg4 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+          -> EADT '[        OddF Int, ConsF Int, NilF]
+  alg4 x = case popVariantF @(EvenF Int) $ unfix x of
+    Right (EvenF a l) -> Cons a (alg4 l)
+    Left over -> Fix (liftVariantF $ fmap alg4 over)
 
   -- type specialisation
   ---------------------------------

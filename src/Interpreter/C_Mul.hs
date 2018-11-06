@@ -8,7 +8,6 @@ module Interpreter.C_Mul where
   import Interpreter.B_Add
   import Interpreter.Transfos
 
-  import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
   import Text.Megaparsec.Char as M
@@ -62,12 +61,9 @@ module Interpreter.C_Mul where
   -- apply distribution : a*(b+c) -> (a*b+a*c)
   --------------------------------------------------------
 
-  distribute x = case splitVariantF @'[AddF, MulF] $ unfix x of
-    Right leftovers -> leftovers & (fmap d) & liftVariantF & Fix
-    Left v          -> variantFToCont v >::>
-                          ( \(AddF α (v1,v2)) -> Add α (v1,v2) --TODO
-                          , \(MulF α (v1,v2)) -> go α (v1,v2)
-                          )
+  distribute x = case popVariantF @MulF $ unfix x of
+    Left other -> other & (fmap d) & liftVariantF & Fix
+    Right (MulF α (v1,v2))          -> go α (v1,v2)
     where
       d v = distribute v
       go α (i, (Add β (v1,v2))) = Add β (d (Mul α (i,d v1)), d (Mul α (i,d v2)))
@@ -78,27 +74,20 @@ module Interpreter.C_Mul where
   -- demultiply : n*a -> a+a+... n times
   --------------------------------------------------------
      
-  --TODO : TypF
-  demultiply x = case splitVariantF @'[MulF, TypF] $ unfix x of
-    Right leftovers -> leftovers & (fmap d) & liftVariantF & Fix
-    Left v          -> variantFToCont v >::>
-                          ( \(MulF α (v1,v2)) -> go α (v1,v2)
-                          , \(TypF α t) -> Typ (d α) t --TODO
-                          )
+  demultiply x = case popVariantF @MulF $ unfix x of
+    Left other -> other & (fmap d) & liftVariantF & Fix
+    Right (MulF α (v1,v2)) ->
+      case (d v1, d v2) of
+        (HError _ e, _) -> HError (d α) e
+        (_, HError _ e) -> HError (d α) e
+        (Val _ i1, v2') ->
+                if  | i1 < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
+                              <> show i1
+                    | i1 == 0 -> Val (d α) 0
+                    | i1 == 1 -> v2'
+                    | otherwise -> Add (d α) (d v2, d $ Mul α ((Val α $ i1-1), v2))
+        (_, Val _ _) -> d (Mul α (v2,v1))
+        (_, _) -> HError (d α) $ "Can't multiply by " <> showAST v1
     where 
-      d v = demultiply v -- in target AST
-      go α (v1,v2) = 
-        let 
-          go' i v v' = 
-                if  | i < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
-                              <> show i
-                    | i == 0 -> Val (d α) 0
-                    | i == 1 -> v'
-                    | otherwise -> Add (d α) (d v, d $ Mul α ((Val α $ i-1), v))
-        in
-          case (d v1, d v2) of
-            (HError _ e, _) -> HError (d α) e
-            (_, HError _ e) -> HError (d α) e
-            (Val _ i1, v2') -> go' i1 v2 v2'
-            (v1', Val _ i2) -> go' i2 v1 v1'
-            (_, _) -> HError (d α) $ "Can't multiply by " <> showAST v1
+      d = demultiply
+

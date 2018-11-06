@@ -1,4 +1,3 @@
-WORK IN PROGRESS !  (See [TODO.md](https://github.com/pcarbonn/H-Calc/blob/master/TODO.md))
 
 So, you want to write an interpreter for your own Domain Specific Language (DSL), in Haskell...  Then, clone H-Calc and start editing it.  H-Calc is a showcase of some of the best Haskell technologies to write a DSL interpreter, showing you that you can :
 
@@ -45,23 +44,30 @@ dir> ghcid --command="stack ghci H-Calc:lib H-Calc:spec" --test="main"
 
 Our abstract syntax tree has the following core types of nodes, defined using recursive data constructors ([tutorial](https://bartoszmilewski.com/2013/06/10/understanding-f-algebras/)):
 
+```haskell
     data ValF      e =      ValF e Int
     data FloatValF e = FloatValF e Float 
     data AddF      e =      AddF e (e, e)
+```
 
 We'll also have a node to represent an error detected when interpreting an H-Calc formula.
     
+```haskell
     data HErrorF e = HErrorF e Text 
+```
 
 The first data element of each constructor will contain some annotations, and the second will contain the arguments.  Annotations are represented as a chain of annotation nodes.  The simplest annotation node is `EmptyNote`; another annotation node will contain the data type of the node (Int or Float).  
 
+```haskell
     data EmptyNoteF e = EmptyNoteF
     
     data TType = TInt | TFloat
     data TypF e = TypF e TType  
-  
+```
+
 To facilitate the creation and handling of nodes, the haskus-utils package proposes the `eadtPattern` function:
 
+```haskell
     eadtPattern 'ValF      "Val"
     eadtPattern 'FloatValF "FloatVal"
     eadtPattern 'AddF      "Add"
@@ -69,34 +75,41 @@ To facilitate the creation and handling of nodes, the haskus-utils package propo
     eadtPattern 'EmptyNoteF "EmptyNote"
     eadtPattern 'TypF "Typ"
     eadtPattern 'HErrorF "HError"
-  
+```
+
 With this apparatus, we can now represent `1` and `(1+2) :: Int` with the following formula:
 
+```haskell
     one :: EADT '[EmptyNoteF, ValF]
     one = Val EmptyNote 1
     
     oneTwo :: EADT '[EmptyNoteF, ValF, AddF, TypF]
     oneTwo = Add (Typ EmptyNote TInt) (Val EmptyNote 1, Val EmptyNote 2)
+```
 
 The first line declares the types of nodes used in the AST.  The second line constructs the various nodes of our tree representation.
 
 We can easily extend what our trees can represent by adding new types of nodes, for example for a multiplication:
 
+```haskell
     data MulF      e =      MulF e (e, e)
     eadtPattern 'MulF      "Mul"
     
     mulTwo :: EADT '[EmptyNoteF, ValF, MulF]
     mulTwo = Mul EmptyNote (Val EmptyNote 2, Val EmptyNote 1)
-
+```
 
 ## Algebra
 
 We can now define various algebra on our recursive data types, i.e. various functions to evaluate our tree to a fixed data type.  For example, `showAST` is a function to evaluate our tree as a Text value.
 
+```haskell
     showAST :: EADT xs -> Text
-  
+```
+
 Some algebra are extensible, tree-wide transformations: as new types of nodes are added, new definitions are required.  To do that, we use `Class` and `instance`:
 
+```haskell
     class Algebra (f :: * -> *) where
       showAST' :: f Text -> Text
       -- add your algebra declaration here
@@ -108,18 +121,22 @@ Some algebra are extensible, tree-wide transformations: as new types of nodes ar
 
     instance Algebra AddF where
       showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α    
+```
 
 `cata` is a function for catamorphism, from the recursion-scheme package.  (`ShowAST` could also be implemented without it)  See the source code for the instances of `showAST'` for the other node types.
 
 The `eval` function is another algebra, from AST tree to Result.
 
+```haskell
     data Result 
       = RInt Int
       | RFloat Float
       | RError Text
-    
+```
+
 `eval` is NOT supposed to be extensible: it accepts only a limited set of tree nodes.  Trees with other types of nodes will have to be simplified before being evaluated (see below).  For such non-extensible algebra, we define how to interpret each type of node using lambdas, called "continuations" (see Interpreter.hs):
 
+```haskell
     eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
     eval l = eadtToCont l >::>
         ( \(HErrorF _ t)    -> RError t
@@ -135,42 +152,48 @@ The `eval` function is another algebra, from AST tree to Result.
               (RError e, _) -> RError e
               (_, RError e) -> RError e
               (a,b)         -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
+```
 
 ## Expansions and isomorphisms
 
 Often, you want to enrich a tree with some annotations, for example to add the data type of each sub-tree.  To expand the capability of a tree, use `appendEADT @'[newNodeConstructor]`:
 
+```haskell
     one' = appendEADT @'[TypF] one :: EADT '[ValF, TypF]
+```
 
 You can then fill the type using an isomorphism, i.e. a transformation from `EADT xs` to `EADT xs`: the list of possible nodes does not change, but the structure of the tree may very well.  Again, when we want to have an extensible, tree-wide isomorphism, we'll use `Class` and `instance` (see Transfos.hs):
 
+```haskell
     class Isomorphism xs (f :: * -> *) where
       getAnnotation :: f (EADT xs) -> EADT xs
       setType' :: f (EADT xs) -> EADT xs
       -- add more isomorphisms here
 
     setType = cata setType'
-    
+```
+
 Here is the isomorphism definition for Val (see source code for more):
 
+```haskell
     instance ('[TypF, ValF] :<<: xs) => Isomorphism xs ValF where
       getAnnotation (ValF α _) = α
       setType' (ValF α i) = Val (Typ α TInt) i
+```
 
 When the isomorphism is not extensible and tree-wide (i.e. it requires no new definition for new types of nodes) you should use continuations.  This is the case when you want to apply the distributivity rule on the tree (C_Mul.hs):
 
+```haskell
     -- apply distribution : a*(b+c) -> (a*b+a*c)
-    distribute x = case splitVariantF @'[AddF, MulF] $ unfix x of
-      Right leftovers -> leftovers & (fmap d) & liftVariantF & Fix
-      Left v          -> variantFToCont v >::>
-                            ( \(AddF α (v1,v2)) -> Add α (v1,v2) --TODO
-                            , \(MulF α (v1,v2)) -> go α (v1,v2)
-                            )
+    distribute x = case popVariantF @MulF $ unfix x of
+      Left other -> other & (fmap d) & liftVariantF & Fix
+      Right (MulF α (v1,v2))          -> go α (v1,v2)
       where
         d v = distribute v
         go α (i, (Add β (v1,v2))) = Add β (d (Mul α (i,d v1)), d (Mul α (i,d v2)))
         go α ((Add β (v1,v2)), i) = Add β (d (Mul α (d v1,i)), d (Mul α (d v2,i)))
         go α (v1,v2)              = Mul α (d v1, d v2)
+```
 
 One of the case branch defines a default implementation for the other types of node: just transform their children.
 
@@ -181,6 +204,7 @@ Another type of transformation you want to make on your tree is to reduce the li
 
 For example, at some point, you'll want to remove the annotation, i.e. replace all of them by `EmptyNote`.  When the reduction is tree-wide, use `Class` and `instance` (see Transfos.hs):
 
+```haskell
     class RemoveAnnotation ys (f :: * -> *) where
       removeAnnotation'      :: f (EADT ys) -> EADT ys
       
@@ -190,40 +214,36 @@ For example, at some point, you'll want to remove the annotation, i.e. replace a
 
     instance (EmptyNoteF :<: xs) => RemoveAnnotation xs TypF where
       removeAnnotation' (TypF _ _) = EmptyNote
+```
 
 You can define a default instance implementation, e.g. for Add, Mul, Sub, using `{-# OVERLAPPABLE #-}`:
-  
+
+```haskell
      -- if the type of node is in the result type, keep it as is 
     instance {-# OVERLAPPABLE #-} f :<: ys => RemoveAnnotation ys f where
       removeAnnotation' = VF
+```
 
 If instead, the tree reduction is not extensible and tree-wide, i.e. it transforms one type of node only, use continuations, as in `demultiply`:
 
-    --TODO : TypF
-    demultiply x = case splitVariantF @'[MulF, TypF] $ unfix x of
-      Right leftovers -> leftovers & (fmap d) & liftVariantF & Fix
-      Left v          -> variantFToCont v >::>
-                            ( \(MulF α (v1,v2)) -> go α (v1,v2)
-                            , \(TypF α t) -> Typ (d α) t --TODO
-                            )
+```haskell
+    demultiply x = case popVariantF @MulF $ unfix x of
+      Left other -> other & (fmap d) & liftVariantF & Fix
+      Right (MulF α (v1,v2)) ->
+        case (d v1, d v2) of
+          (HError _ e, _) -> HError (d α) e
+          (_, HError _ e) -> HError (d α) e
+          (Val _ i1, v2') ->
+            if  | i1 < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
+                        <> show i1
+                | i1 == 0 -> Val (d α) 0
+                | i1 == 1 -> v2'
+                | otherwise -> Add (d α) (d v2, d $ Mul α ((Val α $ i1-1), v2))
+          (_, Val _ _) -> d (Mul α (v2,v1))
+          (_, _) -> HError (d α) $ "Can't multiply by " <> showAST v1
       where 
-        d v = demultiply v -- in target AST
-        go α (v1,v2) = 
-          let 
-            go' i v v' = 
-                  if  | i < 0 -> HError $ "Error: can't multiply by negative number " 
-                                <> show i
-                      | i == 0 -> Val (d α) 0
-                      | i == 1 -> v'
-                      | otherwise -> Add (d α) (d v, d $ Mul α ((Val α $ i-1), v))
-          in
-            case (d v1, d v2) of
-              (HError e, _) -> HError e
-              (_, HError e) -> HError e
-              (Val _ i1, v2') -> go' i1 v2 v2'
-              (v1', Val _ i2) -> go' i2 v1 v1'
-              (_, _) -> HError $ "Can't multiply by " <> showAST v1
- 
+        d = demultiply
+```
 
 You could further add support for the following features:
 - keep track of the location of error in the source text;
