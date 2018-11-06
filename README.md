@@ -50,7 +50,7 @@ Our abstract syntax tree has the following core types of nodes, defined using re
     data AddF      e =      AddF e (e, e)
 ```
 
-We'll also have a node to represent an error detected when interpreting an H-Calc formula.
+We also have a node to represent an error detected when interpreting an H-Calc formula.
     
 ```haskell
     data HErrorF e = HErrorF e Text 
@@ -87,9 +87,9 @@ With this apparatus, we can now represent `1` and `(1+2) :: Int` with the follow
     oneTwo = Add (Typ EmptyNote TInt) (Val EmptyNote 1, Val EmptyNote 2)
 ```
 
-The first line declares the types of nodes used in the AST.  The second line constructs the various nodes of our tree representation.
+The first line declares the types of nodes used in the AST.  The second line constructs the various nodes of the tree representation.
 
-We can easily extend what our trees can represent by adding new types of nodes, for example for a multiplication:
+We can easily extend what our trees can represent by adding new types of nodes, for example a multiplication:
 
 ```haskell
     data MulF      e =      MulF e (e, e)
@@ -123,7 +123,7 @@ Some algebra are extensible, tree-wide transformations: as new types of nodes ar
       showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α    
 ```
 
-`cata` is a function for catamorphism, from the recursion-scheme package.  (`ShowAST` could also be implemented without it)  See the source code for the instances of `showAST'` for the other node types.
+`cata` is a function for catamorphism, from the recursion-scheme package.  (`ShowAST` could also be implemented without it)  Check the source code for the instances of `showAST'` for the other node types.
 
 The `eval` function is another algebra, from AST tree to Result.
 
@@ -144,7 +144,7 @@ The `eval` function is another algebra, from AST tree to Result.
       , \(ValF _ i)       -> RInt i
       , \(FloatValF _ f)  -> RFloat f
       , \(AddF _ (v1,v2)) -> 
-          case (eval v1, eval v2) of -- implicit recursion
+          case (eval v1, eval v2) of
             (RInt v1', RInt v2')     -> RInt (v1'+v2')
             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
             (RError e, _) -> RError e
@@ -158,7 +158,7 @@ The `eval` function is another algebra, from AST tree to Result.
 Often, you want to enrich a tree with some annotations, for example to add the data type of each sub-tree.  To expand the capability of a tree, use `appendEADT @'[newNodeConstructor]`:
 
 ```haskell
-    one' = appendEADT @'[TypF] one :: EADT '[ValF, TypF]
+    one' = appendEADT @'[TypF] one :: EADT '[EmptyNoteF, ValF, TypF]
 ```
 
 You can then fill the type using an isomorphism, i.e. a transformation from `EADT xs` to `EADT xs`: the list of possible nodes does not change, but the structure of the tree may very well.  Again, when we want to have an extensible, tree-wide isomorphism, we'll use `Class` and `instance` (see Transfos.hs):
@@ -180,7 +180,9 @@ Here is the isomorphism definition for Val (see source code for more):
       setType' (ValF α i) = Val (Typ α TInt) i
 ```
 
-When the isomorphism is not extensible and tree-wide (i.e. it requires no new definition for new types of nodes) you should use continuations.  This is the case when you want to apply the distributivity rule on the tree (C_Mul.hs):
+`:<<:` is a type operator to construct the constraint that `xs` must contain `TypF` and `ValF`.
+
+When the isomorphism is not extensible and tree-wide (i.e. it requires no new definition for new types of nodes) you should use continuations.  This is the case when we want to apply the distributivity rule on the tree (C_Mul.hs):
 
 ```haskell
     -- apply distribution : a*(b+c) -> (a*b+a*c)
@@ -188,20 +190,20 @@ When the isomorphism is not extensible and tree-wide (i.e. it requires no new de
       Left other -> other & (fmap d) & liftVariantF & Fix
       Right (MulF α (v1,v2))          -> go α (v1,v2)
       where
-        d v = distribute v
+        d = distribute
         go α (i, (Add β (v1,v2))) = Add β (d (Mul α (i,d v1)), d (Mul α (i,d v2)))
         go α ((Add β (v1,v2)), i) = Add β (d (Mul α (d v1,i)), d (Mul α (d v2,i)))
         go α (v1,v2)              = Mul α (d v1, d v2)
 ```
 
-The Left branch defines a default implementation for the other types of node: just transform their children.
+The Left branch defines a default implementation for the other types of node: just transform their children.  If you want to transform more than one type of node, use `splitVariantF`.
 
       
 ## Tree reduction
 
-Another type of transformation you want to make on your tree is to reduce the list of possible types of nodes.
+Another type of transformation you may want to make on your tree is to reduce the list of possible types of nodes.
 
-For example, at some point, you'll want to remove the annotation, i.e. replace all of them by `EmptyNote`.  When the reduction is tree-wide, use `Class` and `instance` (see Transfos.hs):
+For example, at some point, you'll want to remove the annotations, i.e. replace all of them by `EmptyNote`.  When the reduction is extensible and tree-wide, use `Class` and `instance` (see Transfos.hs):
 
 ```haskell
     class RemoveAnnotation ys (f :: * -> *) where
@@ -233,8 +235,7 @@ If instead, the tree reduction is not extensible and tree-wide, i.e. it transfor
           (HError _ e, _) -> HError (d α) e
           (_, HError _ e) -> HError (d α) e
           (Val _ i1, v2') ->
-            if  | i1 < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
-                        <> show i1
+            if  | i1 < 0 -> HError (d α) $ "Error: can't multiply by negative number " <> show i1
                 | i1 == 0 -> Val (d α) 0
                 | i1 == 1 -> v2'
                 | otherwise -> Add (d α) (d v2, d $ Mul α ((Val α $ i1-1), v2))
@@ -244,7 +245,7 @@ If instead, the tree reduction is not extensible and tree-wide, i.e. it transfor
         d = demultiply
 ```
 
-You could further add support for the following features:
+You could further extend H-Calc with the following features:
 - keep track of the location of error in the source text;
 - evaluate `n` as `1+1+...` (n times);
 - support `let x = expr1 in expr2`;

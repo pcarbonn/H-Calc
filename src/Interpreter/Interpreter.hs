@@ -53,7 +53,7 @@ module Interpreter.Interpreter where
       , \(ValF _ i)       -> RInt i
       , \(FloatValF _ f)  -> RFloat f
       , \(AddF _ (v1,v2)) -> 
-          case (eval v1, eval v2) of -- implicit recursion
+          case (eval v1, eval v2) of
             (RInt v1', RInt v2')     -> RInt (v1'+v2')
             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
             (RError e, _) -> RError e

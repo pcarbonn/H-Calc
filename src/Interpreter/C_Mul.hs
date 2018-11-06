@@ -65,7 +65,7 @@ module Interpreter.C_Mul where
     Left other -> other & (fmap d) & liftVariantF & Fix
     Right (MulF α (v1,v2))          -> go α (v1,v2)
     where
-      d v = distribute v
+      d = distribute
       go α (i, (Add β (v1,v2))) = Add β (d (Mul α (i,d v1)), d (Mul α (i,d v2)))
       go α ((Add β (v1,v2)), i) = Add β (d (Mul α (d v1,i)), d (Mul α (d v2,i)))
       go α (v1,v2)              = Mul α (d v1, d v2)
