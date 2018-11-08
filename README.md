@@ -199,7 +199,7 @@ When the isomorphism is not extensible and tree-wide (i.e. it requires no new de
 The Left branch defines a default implementation for the other types of node: just transform their children.  If you want to transform more than one type of node, use `splitVariantF`.
 
       
-## Tree reduction
+## Tree reductions
 
 Another type of transformation you may want to make on your tree is to reduce the list of possible types of nodes.
 
@@ -244,6 +244,8 @@ If instead, the tree reduction is not extensible and tree-wide, i.e. it transfor
       where 
         d = demultiply
 ```
+
+## Other
 
 You could further extend H-Calc with the following features:
 - keep track of the location of error in the source text;

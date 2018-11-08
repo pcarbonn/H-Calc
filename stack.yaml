@@ -41,7 +41,7 @@ packages:
 extra-deps:
   - base-noprelude-4.11.1.0
   - relude-0.3.0
-  - haskus-utils-variant-2.1.1
+  - haskus-utils-variant-2.2
   - haskus-utils-data-1.1@sha256:a31d8709f7600431da42bfedfffce44a3b3beb343b789f352df04714d001f31f
   - haskus-utils-types-1.2@sha256:1f28a115893ed6db1562652ae36f78a52a0265a778d881ee80014d91d001cc82
 

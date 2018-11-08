@@ -16,7 +16,7 @@ extra-source-files:  README.md
 library
   hs-source-dirs:     src
   build-depends:      base-noprelude >= 4.7 && < 5
-                    , haskus-utils-variant >= 2.1.1
+                    , haskus-utils-variant >= 2.2
                     , hspec ==2.*
                     , megaparsec
                     , parser-combinators
@@ -52,7 +52,7 @@ executable H-Calc
   main-is:            Main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
                     , haskus-utils-types >= 1.2
-                    , haskus-utils-variant >= 2.1.1
+                    , haskus-utils-variant >= 2.2
                     , hspec ==2.*
                     , megaparsec
                     , parser-combinators
@@ -85,7 +85,7 @@ test-suite spec
   hs-source-dirs:     test
   build-depends:      base-noprelude >= 4.7 && < 5
                     , haskus-utils-types >= 1.2
-                    , haskus-utils-variant >= 2.1.1
+                    , haskus-utils-variant >= 2.2
                     , hspec ==2.*
                     , megaparsec
                     , parser-combinators
