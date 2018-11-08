@@ -2,7 +2,7 @@ name:                H-Calc
 version:             0.1.0.0
 -- synopsis:
 -- description:
-homepage:            https://github.com/githubuser/H-IDP#readme
+homepage:            https://github.com/pcarbonn/H-Calc#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Pierre Carbonnelle
