@@ -8,9 +8,11 @@ module Interpreter.C_Mul where
   import Interpreter.B_Add
   import Interpreter.Transfos
 
+  import Fmt
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
   import Text.Megaparsec.Char as M
+  import Text.Show
 
   --------------------------------------------------------
 
@@ -34,7 +36,7 @@ module Interpreter.C_Mul where
   --------------------------------------------------------
 
   instance Algebra MulF where
-    showAST' (MulF α (i, v)) = "(" <> i <> " * " <> v <> ")" <> α -- no recursive call
+    showAST' (MulF α (i, v)) = format "({} * {}){}" i v α -- no recursive call
 
   
   -- Isomorphism
@@ -53,8 +55,8 @@ module Interpreter.C_Mul where
                 (Just TInt, Just TFloat) -> Mul (Typ α TFloat) (i,v)
                 (Just TFloat, Just TInt) -> Mul (Typ α TFloat) (i,v)
                 (Just t1  , Just t2)     -> 
-                         HError α $ "can't multiply `" <> showAST i <> "` whose type is " <> show t1 <>
-                                  " with `" <> showAST v <> "` whose type is " <> show t2
+                         HError α $ format "can't multiply `{}` whose type is {} with `{}` whose type is " 
+                                    (showAST i) (show t1) (showAST v) (show t2)
                 (_,_) -> HError α "Missing type info in multiplication"
 
     
@@ -73,7 +75,7 @@ module Interpreter.C_Mul where
 
   -- demultiply : n*a -> a+a+... n times
   --------------------------------------------------------
-     
+
   demultiply x = case popVariantF @MulF $ unfix x of
     Left other -> other & (fmap d) & liftVariantF & Fix
     Right (MulF α (v1,v2)) ->
@@ -81,13 +83,13 @@ module Interpreter.C_Mul where
         (HError _ e, _) -> HError (d α) e
         (_, HError _ e) -> HError (d α) e
         (Val _ i1, v2') ->
-                if  | i1 < 0 -> HError (d α) $ "Error: can't multiply by negative number " 
-                              <> show i1
+                if  | i1 < 0 -> HError (d α) $ 
+                                format "Error: can't multiply by negative number {}" i1
                     | i1 == 0 -> Val (d α) 0
                     | i1 == 1 -> v2'
                     | otherwise -> Add (d α) (d v2, d $ Mul α ((Val α $ i1-1), v2))
         (_, Val _ _) -> d (Mul α (v2,v1))
-        (_, _) -> HError (d α) $ "Can't multiply by " <> showAST v1
+        (_, _) -> HError (d α) $ format "Can't multiply by {}" (showAST v1)
     where 
       d = demultiply
 

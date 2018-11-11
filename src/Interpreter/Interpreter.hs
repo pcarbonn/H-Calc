@@ -7,10 +7,12 @@ module Interpreter.Interpreter where
   import Interpreter.C_Mul
   import Interpreter.Transfos
 
+  import Fmt
   import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
+  import Text.Show
   
   -- main parser
   --------------------------------------------------------
@@ -58,7 +60,7 @@ module Interpreter.Interpreter where
             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
             (RError e, _) -> RError e
             (_, RError e) -> RError e
-            (a,b)         -> RError $ "Error in eval(" <> show a <> "+" <> show b <> ")"
+            (a,b)         -> RError $ format "Error in eval({}+{})" (show a) (show b)
       )
 
   -- type specialisation

@@ -6,6 +6,7 @@ So, you want to write an interpreter for your own Domain Specific Language (DSL)
 - transform the AST efficiently, without boilerplate, thanks to [Recursion-scheme](http://hackage.haskell.org/package/recursion-schemes-5.0.3) ([tutorial](https://blog.sumtypeofway.com/an-introduction-to-recursion-schemes/))
 - embed your DSL in Haskell, thanks to [RebindableSyntax](https://downloads.haskell.org/~ghc/latest/docs/html/users_guide)
 - easily use the best functions and libraries of Haskell, thanks to [Relude](http://hackage.haskell.org/package/relude)<sup>[1](#myfootnote1)</sup>
+- easily format values into Text string, using [Fmt](http://hackage.haskell.org/package/fmt)
 - organize your test suite, thanks to [HSpec](http://hackage.haskell.org/package/hspec), with [hspec-discover](http://hackage.haskell.org/package/hspec-discover)
 - automatically run your test suite as soon as you save a program file, provided it has no error, thanks to [Ghcid](https://github.com/ndmitchell/ghcid)
 

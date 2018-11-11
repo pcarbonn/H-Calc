@@ -20,7 +20,9 @@ import Relude  hiding
         , traceShow
         , traceShowId
         , traceShowM
+      -- other
         , many, some
+        , show -- we want Text.Show.show
      )
 
 import qualified Debug.Trace as Debug

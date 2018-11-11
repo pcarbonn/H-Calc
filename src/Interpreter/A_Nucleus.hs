@@ -9,8 +9,10 @@ module Interpreter.A_Nucleus where
 
   import Interpreter.Transfos
   
+  import Fmt
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
+  import Text.Show
 
   
   -- AST nodes
@@ -34,13 +36,13 @@ module Interpreter.A_Nucleus where
   -- algebra
 
   instance Algebra HErrorF where
-    showAST' (HErrorF α s) = s <> α
+    showAST' (HErrorF α s) = format "{}{}" s α
 
   instance Algebra EmptyNoteF where
     showAST' EmptyNoteF = ""
 
   instance Algebra TypF where
-    showAST' (TypF α t) = " :: " <> show t <> α
+    showAST' (TypF α t) = format " :: {}{}" (show t) α
   
   -- isomorphism
 

@@ -8,10 +8,12 @@ module Interpreter.B_Add where
   import Interpreter.A_Nucleus
   import Interpreter.Transfos
   
+  import Fmt
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
+  import Text.Show
   
 
   -- define nodes
@@ -43,7 +45,7 @@ module Interpreter.B_Add where
   neg :: ('[HErrorF, EmptyNoteF, ValF] :<<: xs, Functor (VariantF xs), AlgVariantF Algebra Text xs) 
         => EADT xs -> EADT xs
   neg (Val      α i) = Val      α (-i)
-  neg v = HError EmptyNote $ "can't negate" <> showAST v
+  neg v = HError EmptyNote $ format "can't negate {}" (showAST v)
 
 
   -- parser
@@ -91,13 +93,13 @@ module Interpreter.B_Add where
   --------------------------------------------------------
   
   instance Algebra ValF where
-    showAST' (ValF α i) = show i <> α
+    showAST' (ValF α i) = format "{}{}" i α
   
   instance Algebra FloatValF where
-      showAST' (FloatValF α f) = show f <> α
+      showAST' (FloatValF α f) = format "{}{}" f α
 
   instance Algebra AddF where
-    showAST' (AddF α (v1,v2)) = "(" <> v1 <> " + " <> v2 <> ")" <> α -- no recursive call
+    showAST' (AddF α (v1,v2)) = format "({} + {}){}" v1 v2 α -- no recursive call
     
   
         
@@ -128,8 +130,8 @@ module Interpreter.B_Add where
                 (Just TInt  , Just TInt  ) -> Add (Typ α TInt) (v1,v2)
                 (Just TFloat, Just TFloat) -> Add (Typ α TFloat) (v1,v2)
                 (Just t1    , Just t2    ) -> 
-                         HError α $ "can't add `" <> showAST v1 <> "` whose type is " <> show t1 <>
-                                  " with `" <> showAST v2 <> "` whose type is " <> show t2
+                         HError α $ format "can't add `{}` whose type is {} with `{}` whose type is " 
+                                    (showAST v1) (show t1) (showAST v2) (show t2)
                 (_,_) -> HError α "Missing type info in addition"
 
 
