@@ -28,17 +28,17 @@ module Interpreter.C_Mul where
   mulParser :: ('[EmptyNoteF, MulF] :<<: xs) => MParser (EADT xs) -> MParser (EADT xs)
   mulParser factorP = Mul EmptyNote <$> do
     i1 <- factorP
-    _ <- string "*"
+    _ <- symbol "*"
     i2 <- factorP
     return (i1,i2)
-    
+
   -- Algebra
   --------------------------------------------------------
 
   instance Algebra MulF where
     showAST' (MulF α (i, v)) = format "({} * {}){}" i v α -- no recursive call
 
-  
+
   -- Isomorphism
   --------------------------------------------------------
   instance ('[HErrorF, EmptyNoteF, TypF, MulF] :<<: xs
@@ -54,12 +54,12 @@ module Interpreter.C_Mul where
                 (Just TInt, Just TInt)   -> Mul (Typ α TInt  ) (i,v)
                 (Just TInt, Just TFloat) -> Mul (Typ α TFloat) (i,v)
                 (Just TFloat, Just TInt) -> Mul (Typ α TFloat) (i,v)
-                (Just t1  , Just t2)     -> 
-                         HError α $ format "can't multiply `{}` whose type is {} with `{}` whose type is " 
+                (Just t1  , Just t2)     ->
+                         HError α $ format "can't multiply `{}` whose type is {} with `{}` whose type is "
                                     (showAST i) (show t1) (showAST v) (show t2)
                 (_,_) -> HError α "Missing type info in multiplication"
 
-    
+
   -- apply distribution : a*(b+c) -> (a*b+a*c)
   --------------------------------------------------------
 
@@ -83,13 +83,12 @@ module Interpreter.C_Mul where
         (HError _ e, _) -> HError (d α) e
         (_, HError _ e) -> HError (d α) e
         (Val _ i1, v2') ->
-                if  | i1 < 0 -> HError (d α) $ 
+                if  | i1 < 0 -> HError (d α) $
                                 format "Error: can't multiply by negative number {}" i1
                     | i1 == 0 -> Val (d α) 0
                     | i1 == 1 -> v2'
                     | otherwise -> Add (d α) (d v2, d $ Mul α ((Val α $ i1-1), v2))
         (_, Val _ _) -> d (Mul α (v2,v1))
         (_, _) -> HError (d α) $ format "Can't multiply by {}" (showAST v1)
-    where 
+    where
       d = demultiply
-

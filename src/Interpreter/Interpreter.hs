@@ -13,7 +13,7 @@ module Interpreter.Interpreter where
   import Text.Megaparsec
   import Text.Megaparsec.Char as M
   import Text.Show
-  
+
   -- main parser
   --------------------------------------------------------
 
@@ -22,19 +22,19 @@ module Interpreter.Interpreter where
     = try floatValParser
     <|> valParser
     <|> do
-          _ <- string "("
+          _ <- symbol "("
           e <- parser
-          _ <- string ")"
+          _ <- symbol ")"
           return e
 
 
-  factorParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])  
+  factorParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
   factorParser
     = try (mulParser termParser)
     <|> termParser
 
   parser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
-  parser 
+  parser
     = try (addParser factorParser)
     <|> factorParser
 
@@ -42,7 +42,7 @@ module Interpreter.Interpreter where
   -- evaluation
   --------------------------------------------------------
 
-  data Result 
+  data Result
     = RInt Int
     | RFloat Float
     | RError Text
@@ -54,7 +54,7 @@ module Interpreter.Interpreter where
       , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
       , \(ValF _ i)       -> RInt i
       , \(FloatValF _ f)  -> RFloat f
-      , \(AddF _ (v1,v2)) -> 
+      , \(AddF _ (v1,v2)) ->
           case (eval v1, eval v2) of
             (RInt v1', RInt v2')     -> RInt (v1'+v2')
             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
@@ -79,12 +79,12 @@ module Interpreter.Interpreter where
 
   -- interpret
   --------------------------------------------------------
-  
+
   interpret :: Text -> Result
   interpret source
     = case runParser parser "" source of
         Left _ -> RError "can't parse"
         Right a -> a
-            & appendEADT @'[TypF] & setType 
-            & distribute & demultiplyS 
+            & appendEADT @'[TypF] & setType
+            & distribute & demultiplyS
             & removeAnnotationS & eval

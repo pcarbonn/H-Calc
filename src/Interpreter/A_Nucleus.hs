@@ -8,16 +8,29 @@ module Interpreter.A_Nucleus where
   -------------------------------------------------------
 
   import Interpreter.Transfos
-  
+
   import Fmt
   import Haskus.Utils.EADT
   import Haskus.Utils.EADT.TH
+  import Text.Megaparsec
+  import Text.Megaparsec.Char as M
+  import qualified Text.Megaparsec.Char.Lexer as L
   import Text.Show
 
-  
+
+  -- parser
+  --------------------------------------------------------
+  spaceConsumer :: MParser ()
+  spaceConsumer = L.space space1 (L.skipLineComment "--") (L.skipBlockComment "{-" "-}")
+
+  symbol :: Text -> MParser Text
+  symbol = L.symbol spaceConsumer
+
+
+
   -- AST nodes
   -------------------------------------------------------
-  
+
   data EmptyNoteF e = EmptyNoteF deriving (Functor)
   eadtPattern 'EmptyNoteF "EmptyNote"
 
@@ -28,7 +41,7 @@ module Interpreter.A_Nucleus where
 
   data TypF e = TypF e TType deriving (Functor)
   eadtPattern 'TypF "Typ"
-  
+
 
   -- Transformations
   --------------------------------------------------------
@@ -43,7 +56,7 @@ module Interpreter.A_Nucleus where
 
   instance Algebra TypF where
     showAST' (TypF α t) = format " :: {}{}" (show t) α
-  
+
   -- isomorphism
 
   instance ('[HErrorF, EmptyNoteF] :<<: xs) => Isomorphism xs HErrorF where
