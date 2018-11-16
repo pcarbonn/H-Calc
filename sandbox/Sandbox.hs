@@ -7,6 +7,7 @@ module Sandbox where
   import Haskus.Utils.ContFlow
   import Haskus.Utils.EADT hiding (Cons, Nil)
   import Haskus.Utils.EADT.TH
+  import Haskus.Utils.Types.List
   import Prelude
   
   -- constructor
@@ -81,26 +82,28 @@ module Sandbox where
   -- using splitVariantF
   ----------------------------------------
   alg x = case splitVariantF @'[EvenF Int, OddF Int] x of
-    Left v          -> variantFToCont v >::>
+    Right v          -> variantFToCont v >::>
                          ( \(EvenF _ l) -> "Even : " <> l
                          , \(OddF _ l)  -> "Odd : " <> l
                          )
-    Right _ -> "something else"
+    Left _ -> "something else"
 
   cataAlg :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
     -> Text
   cataAlg = cata alg
    
   -- with cata
-  alg2 x = case splitVariantF @'[EvenF Int, OddF Int] x of
-    Left v          -> variantFToCont v >::>
-                         ( \(EvenF a l) -> Cons a l
-                         , \(OddF a l)  -> Cons a l
-                         )
-    Right leftovers -> Fix (liftVariantF leftovers)
+  alg2 ::
+    ( ConsF Int :<: ys
+    , PopVariantF (EvenF Int) xs (EADT ys)
+    , LiftVariantF (Remove (EvenF Int) xs) ys (EADT ys) 
+    ) => VariantF xs (EADT ys) -> EADT ys
+  alg2 x = case popVariantF @(EvenF Int) x of
+    Right (EvenF a l) -> Cons a l
+    Left leftovers    -> Fix (liftVariantF leftovers)
 
   cataAlg2 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
-          -> EADT '[                      ConsF Int, NilF]
+          -> EADT '[            OddF Int, ConsF Int, NilF]
   cataAlg2 = cata alg2
 
   -- without cata
@@ -108,21 +111,29 @@ module Sandbox where
   alg3 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
           -> EADT '[                      ConsF Int, NilF]
   alg3 x = case splitVariantF @'[EvenF Int, OddF Int] $ unfix x of
-    Left v          -> variantFToCont v >::>
+    Right v          -> variantFToCont v >::>
                          ( \(EvenF a l) -> Cons a (alg3 l)
                          , \(OddF a l)  -> Cons a (alg3 l)
                          )
-    Right leftovers -> Fix (liftVariantF $ fmap alg3 leftovers) --TODO
+    Left leftovers -> Fix (liftVariantF $ fmap alg3 leftovers) --TODO
 
   -- using popVariantF
   ----------------------------------------
   -- without cata
 
-  alg4 :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
-          -> EADT '[        OddF Int, ConsF Int, NilF]
+  alg4 ::
+   ( ConsF Int :<: ys
+   , PopVariantF (EvenF Int) xs (EADT xs)
+   , LiftVariantF (Remove (EvenF Int) xs) ys (EADT ys)
+   , Functor (VariantF (Remove (EvenF Int) xs))
+   ) => EADT xs -> EADT ys
   alg4 x = case popVariantF @(EvenF Int) $ unfix x of
     Right (EvenF a l) -> Cons a (alg4 l)
-    Left over -> Fix (liftVariantF $ fmap alg4 over)
+    Left other -> Fix (liftVariantF $ fmap alg4 other)
+
+  alg4' :: EADT '[EvenF Int, OddF Int, ConsF Int, NilF]
+        -> EADT '[           OddF Int, ConsF Int, NilF]
+  alg4' = alg4  
 
   -- type specialisation
   ---------------------------------
