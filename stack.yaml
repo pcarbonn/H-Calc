@@ -41,10 +41,12 @@ packages:
 extra-deps:
   - base-noprelude-4.11.1.0
   - fmt-0.6.1@sha256:73cb68707c03ab1a568a5e9bb6d7f796553165b8553e70a528e333622ffcfaa0
-  - haskus-utils-variant-2.4
-  - haskus-utils-data-1.1@sha256:a31d8709f7600431da42bfedfffce44a3b3beb343b789f352df04714d001f31f
-  - haskus-utils-types-1.3
   - relude-0.3.0
+  - row-types-0.2.3.0@sha256:976cc6119b982057ad949e4b01ff849fb290c933248bda47e81220b84724cae3
+  - github: woehr/open-adt
+    commit: d403bc7c06d9fc46f920ab661ba5ea44ec940bff
+    subdirs:
+      - open-adt
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

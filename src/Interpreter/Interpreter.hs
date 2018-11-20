@@ -1,90 +1,90 @@
 module Interpreter.Interpreter where
 
-  -- this module is the main entry point of the interpreter
+--   -- this module is the main entry point of the interpreter
 
-  import Interpreter.A_Nucleus
-  import Interpreter.B_Add
-  import Interpreter.C_Mul
-  import Interpreter.Transfos
+--   import Interpreter.A_Nucleus
+--   import Interpreter.B_Add
+--   import Interpreter.C_Mul
+--   import Interpreter.Transfos
 
-  import Fmt
-  import Haskus.Utils.ContFlow
-  import Haskus.Utils.EADT
-  import Text.Megaparsec
-  import Text.Megaparsec.Char as M
-  import Text.Show
+--   import Fmt
+--   import Haskus.Utils.ContFlow
+--   import Haskus.Utils.EADT
+--   import Text.Megaparsec
+--   import Text.Megaparsec.Char as M
+--   import Text.Show
 
-  -- main parser
-  --------------------------------------------------------
+--   -- main parser
+--   --------------------------------------------------------
 
-  termParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
-  termParser
-    = try floatValParser
-    <|> valParser
-    <|> do
-          _ <- symbol "("
-          e <- parser
-          _ <- symbol ")"
-          return e
-
-
-  factorParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
-  factorParser
-    = try (mulParser termParser)
-    <|> termParser
-
-  parser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
-  parser
-    = try (addParser factorParser)
-    <|> factorParser
+--   termParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
+--   termParser
+--     = try floatValParser
+--     <|> valParser
+--     <|> do
+--           _ <- symbol "("
+--           e <- parser
+--           _ <- symbol ")"
+--           return e
 
 
-  -- evaluation
-  --------------------------------------------------------
+--   factorParser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
+--   factorParser
+--     = try (mulParser termParser)
+--     <|> termParser
 
-  data Result
-    = RInt Int
-    | RFloat Float
-    | RError Text
-    deriving (Show, Eq)
-
-  eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
-  eval l = eadtToCont l >::>
-      ( \(HErrorF _ t)    -> RError t
-      , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
-      , \(ValF _ i)       -> RInt i
-      , \(FloatValF _ f)  -> RFloat f
-      , \(AddF _ (v1,v2)) ->
-          case (eval v1, eval v2) of
-            (RInt v1', RInt v2')     -> RInt (v1'+v2')
-            (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
-            (RError e, _) -> RError e
-            (_, RError e) -> RError e
-            (a,b)         -> RError $ format "Error in eval({}+{})" (show a) (show b)
-      )
-
-  -- type specialisation
-  --------------------------------------------------------
-
-  type AST2 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF, TypF]
-  type AST1 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF,       TypF]
-  type AST0 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF            ]
-
-  demultiplyS :: AST2 -> AST1
-  demultiplyS = demultiply
-
-  removeAnnotationS :: AST1 -> AST0
-  removeAnnotationS = removeAnnotation
+--   parser :: MParser (EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF])
+--   parser
+--     = try (addParser factorParser)
+--     <|> factorParser
 
 
-  -- interpret
-  --------------------------------------------------------
+--   -- evaluation
+--   --------------------------------------------------------
 
-  interpret :: Text -> Result
-  interpret source
-    = case runParser parser "" source of
-        Left _ -> RError "can't parse"
-        Right a -> a
-            & appendEADT @'[TypF] & setType
-            & distribute & demultiplyS
-            & removeAnnotationS & eval
+--   data Result
+--     = RInt Int
+--     | RFloat Float
+--     | RError Text
+--     deriving (Show, Eq)
+
+--   eval :: EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF] -> Result
+--   eval l = eadtToCont l >::>
+--       ( \(HErrorF _ t)    -> RError t
+--       , \(EmptyNoteF)     -> RError "can't evaluate empty expression"
+--       , \(ValF _ i)       -> RInt i
+--       , \(FloatValF _ f)  -> RFloat f
+--       , \(AddF _ (v1,v2)) ->
+--           case (eval v1, eval v2) of
+--             (RInt v1', RInt v2')     -> RInt (v1'+v2')
+--             (RFloat v1', RFloat v2') -> RFloat (v1'+v2')
+--             (RError e, _) -> RError e
+--             (_, RError e) -> RError e
+--             (a,b)         -> RError $ format "Error in eval({}+{})" (show a) (show b)
+--       )
+
+--   -- type specialisation
+--   --------------------------------------------------------
+
+--   type AST2 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF, MulF, TypF]
+--   type AST1 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF,       TypF]
+--   type AST0 = EADT '[HErrorF, EmptyNoteF, ValF, FloatValF, AddF            ]
+
+--   demultiplyS :: AST2 -> AST1
+--   demultiplyS = demultiply
+
+--   removeAnnotationS :: AST1 -> AST0
+--   removeAnnotationS = removeAnnotation
+
+
+--   -- interpret
+--   --------------------------------------------------------
+
+--   interpret :: Text -> Result
+--   interpret source
+--     = case runParser parser "" source of
+--         Left _ -> RError "can't parse"
+--         Right a -> a
+--             & appendEADT @'[TypF] & setType
+--             & distribute & demultiplyS
+--             & removeAnnotationS & eval

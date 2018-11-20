@@ -17,9 +17,9 @@ library
   hs-source-dirs:     src
   build-depends:      base-noprelude >= 4.7 && < 5
                     , fmt
-                    , haskus-utils-variant >= 2.4
                     , hspec ==2.*
                     , megaparsec
+                    , open-adt
                     , parser-combinators
                     , recursion-schemes
                     , relude
@@ -53,10 +53,9 @@ executable H-Calc
   main-is:            Main.hs
   build-depends:      base-noprelude >= 4.7 && < 5
                     , fmt
-                    , haskus-utils-types >= 1.3
-                    , haskus-utils-variant >= 2.4
                     , hspec ==2.*
                     , megaparsec
+                    , open-adt
                     , parser-combinators
                     , recursion-schemes
                     , relude
@@ -87,15 +86,14 @@ test-suite spec
   hs-source-dirs:     test
   build-depends:      base-noprelude >= 4.7 && < 5
                     , fmt
-                    , haskus-utils-types >= 1.3
-                    , haskus-utils-variant >= 2.4
                     , hspec ==2.*
                     , megaparsec
+                    , open-adt
                     , parser-combinators
                     , recursion-schemes
                     , relude
-                    , H-Calc  
-  default-language:   Haskell2010      
+                    , H-Calc
+  default-language:   Haskell2010
   default-extensions: GADTs
                     , OverloadedStrings
                     , TemplateHaskell
